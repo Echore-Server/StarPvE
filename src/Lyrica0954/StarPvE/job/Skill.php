@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lyrica0954\StarPvE\job\ability;
+namespace Lyrica0954\StarPvE\job;
 
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;

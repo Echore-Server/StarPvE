@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player;
 
-use Lyrica0954\StarPvE\job\ability\Ability;
-use Lyrica0954\StarPvE\job\ability\Skill;
+use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeNotifier;
@@ -36,6 +36,14 @@ abstract class PlayerJob extends Job implements CooltimeAttachable{
             $this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
             $this->cooltimeNotifier->start();
         }
+    }
+
+    public function getPlayer(): Player{
+        return $this->player;
+    }
+
+    public function getCooltimeNotifier(): CooltimeNotifier{
+        return $this->cooltimeNotifier;
     }
 
     public function getAbility(): Ability{
