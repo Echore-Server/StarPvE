@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\utils;
 
+use Generator;
+use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\entity\Entity;
+use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
+use pocketmine\item\Sword;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\player\Player;
+use pocketmine\Server;
 use pocketmine\world\Position;
 
 class PlayerUtil {
@@ -35,5 +41,47 @@ class PlayerUtil {
         $pk->soundName = $name;
 
         return $pk;
+    }
+
+    public static function findSword(Player $player): ?Sword{
+        foreach($player->getInventory()->getContents() as $item){
+            if ($item instanceof Sword){
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    public static function findSwordIndex(Player $player): ?int{
+        foreach($player->getInventory()->getContents() as $index=>$item){
+            if ($item instanceof Sword){
+                return $index;
+            }
+        }
+        
+        return null;
+    }
+
+
+    public static function flee(Player $player){
+        $player->extinguish();
+        $player->getEffects()->clear();
+        $player->getXpManager()->setXpAndProgress(0, 0);
+        $player->getHungerManager()->setSaturation(20);
+        $player->getHungerManager()->setFood(20);
+        $player->setHealth($player->getMaxHealth());
+    }
+
+    public static function reset(Player $player){
+        self::flee($player);
+        $player->getArmorInventory()->clearAll();
+        $player->getInventory()->clearAll();
+        $player->getCraftingGrid()->clearAll();
+    }
+
+    public static function teleportToLobby(Player $player){
+        $player->getInventory()->setItem(4, ItemFactory::getInstance()->get(ItemIds::COMPASS));
+        $player->teleport(new Position(0, 51, 0, StarPvE::getInstance()->hub));
     }
 }

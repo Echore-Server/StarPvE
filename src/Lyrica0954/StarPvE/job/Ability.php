@@ -12,14 +12,28 @@ use pocketmine\player\Player;
 
 abstract class Ability{
 
+    protected bool $active;
+
+    protected bool $closed;
+
     protected PlayerJob $job;
-    protected Player $player;
+    protected ?Player $player;
     protected CooltimeHandler $cooltimeHandler;
 
     public function __construct(PlayerJob $job){
         $this->job = $job;
-        $this->Player = $job->getPlayer();
+        $this->player = $job->getPlayer();
+        $this->closed = false;
+        $this->active = false;
         $this->cooltimeHandler = new CooltimeHandler("アビリティ", CooltimeHandler::BASE_TICK, 1);
+    }
+
+    public function close(){
+        $this->cooltimeHandler->forceStop();
+    }
+
+    public function isActive(): bool{
+        return $this->active;
     }
 
     public function getCooltimeHandler(): CooltimeHandler{
@@ -37,12 +51,20 @@ abstract class Ability{
     abstract public function getCooltime(): int;
 
     public function activate(): ActionResult{
-        if (!$this->cooltimeHandler->isActive()){
-            $this->cooltimeHandler->start($this->getCooltime());
-
-            return $this->onActivate();
+        if (!$this->closed){
+            if (!$this->cooltimeHandler->isActive()){
+                if (!$this->active){
+                    $this->cooltimeHandler->start($this->getCooltime());
+    
+                    return $this->onActivate();
+                } else {
+                    return ActionResult::FAILED_ALREADY_ACTIVE();
+                }
+            } else {
+                return ActionResult::FAILED_BY_COOLTIME();
+            }   
         } else {
-            return new ActionResult(ActionResult::FAILED_BY_COOLTIME);
+            throw new \Exception("cannot activate closed ability");
         }
     }
 

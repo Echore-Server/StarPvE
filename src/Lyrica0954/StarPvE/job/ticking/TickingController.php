@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\ticking;
 
-use Lyrica0954\StarPvE\task\TickingTask;
+use Lyrica0954\StarPvE\job\ticking\TickingTask;
 
 trait TickingController {
 

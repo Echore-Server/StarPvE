@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lyrica0954\StarPvE\task;
+namespace Lyrica0954\StarPvE\job\ticking;
 
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use pocketmine\scheduler\Task;
@@ -30,11 +30,10 @@ class TickingTask extends Task{
     }
 
     public function onRun() :void{
-        $currentTick = Server::getInstance()->getTick();
         $this->count ++;
-        $this->job->onTick($this->id, $this->count);
+        $this->ticking->onTick($this->id, $this->count);
         if ($this->count >= 300){
-            StarPvE::getInstance()->log("§7[JobTicking] §cWarning: sending to {$this->job->getName()} {$this->count} ticks");
+            StarPvE::getInstance()->log("§7[TickingTask] §cWarning: sending to {$this->job->getName()} {$this->count} ticks");
         }
     }
 }

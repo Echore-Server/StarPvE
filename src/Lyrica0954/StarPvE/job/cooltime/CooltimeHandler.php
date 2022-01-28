@@ -17,8 +17,8 @@ class CooltimeHandler {
 
     private int $baseTick;
     private int $speed;
-    private Task $task;
-    private CooltimeAttachable $attached;
+    private ?Task $task;
+    private ?CooltimeAttachable $attached;
 
     private bool $active;
     private string $id;
@@ -40,11 +40,11 @@ class CooltimeHandler {
     }
 
     public function getRemain(){
-        return $this->remain;
+        return (integer) $this->remain / $this->baseTick;
     }
     
     public function getTime(){
-        return $this->time;
+        return (integer) $this->time / $this->baseTick;
     }
 
     public function getPercentage(){
@@ -62,6 +62,10 @@ class CooltimeHandler {
     public function set(int $cooltime){
         $this->remain = $cooltime;
         $this->time = $cooltime;
+    }
+
+    public function reset(){
+        $this->remain = $this->time;
     }
 
     public function add(int $cooltime){
@@ -95,11 +99,15 @@ class CooltimeHandler {
     }
 
     public function tick(){
-        $this->subtract($this->getPeriod());
-        $this->attached?->cooltimeTick($this);
+        $remain = ($this->remain - $this->getPeriod()) / 20;
+        $passed = $this->attached?->cooltimeTick($this, (integer) $remain);
+        if ($this->attached === null) $passed = true;
+
+        if ($passed) $this->subtract($this->getPeriod());
     }
 
     public function start(int $cooltime){
+        $this->log("Started the Task");
         $this->remain = $cooltime;
         $this->time = $cooltime;
         $this->active = true;
@@ -117,6 +125,10 @@ class CooltimeHandler {
 
         };
         StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, $this->getPeriod());
+    }
+
+    public function __destruct(){
+        $this->forceStop();
     }
 
     public function pause(){
@@ -137,12 +149,24 @@ class CooltimeHandler {
         }
     }
 
+    public function log(string $message){
+        StarPvE::getInstance()->log("§7[CooltimeHandler - {$this->id}] §7{$message}");
+    }
+
+    public function forceStop(){
+        $this->task?->getHandler()?->cancel();
+        $this->active = false;
+        $this->time = 0;
+        $this->remain = 0;
+    }
+
     protected function finished(): void{
         if ($this->task instanceof Task){
             $this->time = 0;
             $this->remain = 0;
             $this->attached?->cooltimeFinished($this);
             $this->task->getHandler()->cancel();
+            $this->log("Stopped the Task");
             $this->active = false;
         }
     }
