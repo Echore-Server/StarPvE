@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\job\player\swordman;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use ParentIterator;
@@ -21,6 +22,10 @@ class Swordman extends PlayerJob{
 
     protected function getInitialSkill(): Skill{
         return new ForceFieldSkill($this);
+    }
+
+    protected function getInitialIdentityGroup(): IdentityGroup{
+        return new IdentityGroup();
     }
 
     public function getName(): string{

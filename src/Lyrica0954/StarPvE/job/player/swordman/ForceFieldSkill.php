@@ -23,6 +23,8 @@ use pocketmine\world\particle\ExplodeParticle;
 
 class ForceFieldSkill extends Skill{
 
+    protected float $baseDamage = 6.0;
+
     public function getCooltime(): int{
         return (25 * 20);
     }
@@ -42,7 +44,7 @@ class ForceFieldSkill extends Skill{
                     $y = 1.0;
                 }
 
-                $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, 6.0);
+                $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->baseDamage);
 
                 EntityUtil::attackEntity($source, $xz, $y);
             }

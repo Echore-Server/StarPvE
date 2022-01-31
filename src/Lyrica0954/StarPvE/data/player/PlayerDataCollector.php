@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\data\player;
 
+use Lyrica0954\StarPvE\job\Job;
+use Lyrica0954\StarPvE\StarPvE;
+use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\player\Player;
 
 class PlayerDataCollector {
@@ -54,6 +57,7 @@ class PlayerDataCollector {
         $nextExp = self::getGenericConfig($player, "NextExp");
         $newExp = $exp;
         if ($exp >= $nextExp){
+            $previousSelectableJobs = StarPvE::getInstance()->getJobManager()->getSelectableJobs($player);
             $level = self::addGenericDigit($player, "Level", 1);
             $over = ($exp - $nextExp);
             self::setGenericConfig($player, "Exp", 0);
@@ -62,10 +66,21 @@ class PlayerDataCollector {
             $newExp = 0;
             if ($over > 0) $newExp = self::addExp($player, $over);
 
+            $currentSelectableJobs = StarPvE::getInstance()->getJobManager()->getSelectableJobs($player);
+            $newSelectableJobs = array_diff($currentSelectableJobs, $previousSelectableJobs);
             $previousLevel = $level - 1;
-            $player->sendMessage("§a§lレベルアップ！！");
-            $player->sendMessage("§a§l> {$previousLevel} => {$level}");
-            $player->sendMessage("§a§l> §r§a{$newExp}§f/§a{$newNextExp}");
+            $player->sendMessage("§a------ §lレベルアップ！！ §a------");
+            $player->sendMessage("§6> レベル: §a{$previousLevel} >> {$level}");
+            $player->sendMessage("§6> 次のExp: §a{$newExp}§f/§a{$newNextExp}");
+            $player->sendMessage("§a----------------------");
+
+            foreach($newSelectableJobs as $class){
+                $job = new $class(null);
+                if ($job instanceof Job){
+                    $player->sendMessage("§d> §d{$job->getName()} §7がアンロックされました！");
+                }
+            }
+            PlayerUtil::playSound($player, "random.levelup", 1.0, 0.5);
         }
 
         return $newExp;

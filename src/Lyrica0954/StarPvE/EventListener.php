@@ -22,13 +22,16 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\inventory\ArmorInventory;
 use pocketmine\inventory\Inventory;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\SpawnParticleEffectPacket;
+use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
+use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 
 class EventListener implements Listener {
@@ -75,6 +78,20 @@ class EventListener implements Listener {
         }
     }
 
+    #public function onPacketSend(DataPacketSendEvent $event){
+    #    $sessions = $event->getTargets();
+    #    foreach($sessions as $session){
+    #        if ($session->getPlayer()?->isOnline()){
+    #            foreach($event->getPackets() as $pk){
+    #                if (!$pk instanceof TextPacket){
+    #                    $pkn = $pk->getName();
+    #                    $session->getPlayer()->sendMessage("§c< §7{$pkn}");
+    #                }
+    #            }
+    #        }
+    #    }
+    #}
+
     public function onExhaust(PlayerExhaustEvent $event){
         $player = $event->getPlayer();
 
@@ -96,8 +113,10 @@ class EventListener implements Listener {
         $player = $event->getPlayer();
         $item = $event->getItem();
 
-        if ($item->getId() !== ItemIds::EMERALD){
-            $event->cancel();
+        if (!$player->isCreative()){
+            if ($item->getId() !== ItemIds::EMERALD){
+                $event->cancel();
+            }
         }
     }
 
@@ -123,14 +142,13 @@ class EventListener implements Listener {
         $player->sendTitle("§eStar PvE", "");
         PlayerUtil::reset($player);
         PlayerUtil::teleportToLobby($player);
+        $player->setGamemode(GameMode::fromString("2"));
         $this->plugin->getGamePlayerManager()->addGamePlayer($player);
 
         if (StarPvE::getInstance()->hub === $player->getWorld()){
-            $found = false;
             foreach($player->getWorld()->getEntities() as $entity){
                 if ($entity instanceof JobShop){
                     $entity->close();
-                    $found = true;
                 }
             }
 

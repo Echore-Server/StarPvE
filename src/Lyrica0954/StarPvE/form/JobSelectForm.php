@@ -8,6 +8,7 @@ use Closure;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\StarPvE;
+use Lyrica0954\StarPvE\utils\Messanger;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
@@ -25,7 +26,7 @@ class JobSelectForm implements Form{
         foreach($this->jobs as $jobClass){
             $job = new $jobClass(null);
             if ($job instanceof Job){
-                $color = $job->isSelectable($this->player) ? "§a" : "§c";
+                $color = $job->isSelectable($this->player) ? "§a" : "§c§k";
                 $buttons[] = [
                     "text"=> "{$color}{$job->getName()}"
                 ];
@@ -49,6 +50,9 @@ class JobSelectForm implements Form{
                             $jobInformation = new JobInformationForm($player, $job);
                             $player->sendForm($jobInformation);
                         }), 1);
+                    } else {
+                        Messanger::talk($player, "職業", "§cこの職業を選択するには以下の条件を満たす必要があります");
+                        $player->sendMessage("§c--------------\n§7{$job->getSelectableCondition()->asText()}\n§c--------------");
                     }
                 }
             }

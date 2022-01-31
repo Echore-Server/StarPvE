@@ -74,6 +74,7 @@ class PlayerUtil {
     }
 
     public static function reset(Player $player){
+        $player->setMaxHealth(20);
         self::flee($player);
         $player->getArmorInventory()->clearAll();
         $player->getInventory()->clearAll();

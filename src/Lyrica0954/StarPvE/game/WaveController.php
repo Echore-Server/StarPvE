@@ -40,6 +40,7 @@ use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\world\particle\BlockBreakParticle;
+use pocketmine\world\particle\FloatingTextParticle;
 use pocketmine\world\Position;
 
 class WaveController implements CooltimeAttachable, Listener{
@@ -65,10 +66,10 @@ class WaveController implements CooltimeAttachable, Listener{
 
         $this->monsterAttributes = [
             MonsterData::ZOMBIE => new MonsterAttribute(24, 5.0, 0.35),
-            MonsterData::ATTACKER => new MonsterAttribute(120, 6.0, 0.055),
-            MonsterData::CREEPER => new MonsterAttribute(15, 1.0, 2.75),
-            MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 2.8),
-            MonsterData::HUSK => new MonsterAttribute(60, 9.0, 1.2)
+            MonsterData::ATTACKER => new MonsterAttribute(110, 6.0, 0.025),
+            MonsterData::CREEPER => new MonsterAttribute(15, 1.0, 0.45),
+            MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 0.37),
+            MonsterData::HUSK => new MonsterAttribute(60, 9.0, 0.25)
         ];
 
         $nullArmor = new ArmorSet(null, null, null, null);
@@ -117,6 +118,10 @@ class WaveController implements CooltimeAttachable, Listener{
             }
 
             if (MonsterData::isMonster($entity)){
+                if (MonsterData::equal($entity, MonsterData::ATTACKER)){
+                    $event->setKnockBack(0);
+                }
+                
                 if ($damager instanceof Player){
                     if ($entity->getHealth() <= $event->getFinalDamage()){
                         PlayerUtil::playSound($damager, "random.orb", 1.0, 0.8);
@@ -134,9 +139,15 @@ class WaveController implements CooltimeAttachable, Listener{
                         $exp = PlayerDataCollector::addExp($damager, $gainExp);
                         $nextExp = PlayerDataCollector::getGenericConfig($damager, "NextExp");
         
+                        $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
+                        $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
                         
-                        $entity->setNameTag("§7Killed by §6{$damager->getName()}");
-                        $entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
+                        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
+                            $par->setInvisible(true);
+                            $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
+                        }), 20);
+                        #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
+                        #$entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
                     }
                 }
             }

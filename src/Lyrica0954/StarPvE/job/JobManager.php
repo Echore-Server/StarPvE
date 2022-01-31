@@ -13,7 +13,13 @@ use pocketmine\player\Player;
 
 class JobManager {
 
+    /**
+     * @var string[] #class name
+     */
     private array $jobs;
+    /**
+     * @var PlayerJob[]
+     */
     private array $players;
 
     public function __construct(){
@@ -29,10 +35,30 @@ class JobManager {
         return $this->jobs;
     }
 
-    public function setJob(Player $player, ?PlayerJob $job){
+    public function getSelectableJobs(Player $player): array{
+        $selectable = [];
+
+        foreach($this->jobs as $class){
+            $job = new $class(null);
+
+            if ($job instanceof Job){
+                if ($job->isSelectable($player)){
+                    $selectable[] = $class;
+                }
+            }
+        }
+
+        return $selectable;
+    }
+
+    public function setJob(Player $player, ?string $job){
         $currentJob = $this->players[spl_object_hash($player)] ?? null;
         $currentJob?->close();
-        $this->players[spl_object_hash($player)] = $job;
+        if ($job !== null){
+            $this->players[spl_object_hash($player)] = new $job($player);
+        } else {
+            $this->players[spl_object_hash($player)] = null;
+        }
     }
     
     public function getJob(Player $player): ?PlayerJob{

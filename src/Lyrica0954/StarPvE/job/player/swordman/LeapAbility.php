@@ -21,6 +21,8 @@ use pocketmine\world\particle\ExplodeParticle;
 class LeapAbility extends Ability implements Ticking{
     use TickingController;
 
+    protected float $baseDamage = 3.0;
+
     private array $damaged = [];
 
     private bool $activeMotion = false;
@@ -64,12 +66,12 @@ class LeapAbility extends Ability implements Ticking{
                                 $this->damaged[] = $hash;
                                 $xz = 2.5;
                                 $y = 1.1;
-                                if (false){
+                                if (MonsterData::equal($entity, MonsterData::ATTACKER)){
                                     $xz = 0.9;
                                     $y = 1.0;
                                 }
     
-                                $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, 3.0);
+                                $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->baseDamage);
                                 $source->setAttackCooldown(0);
     
                                 EntityUtil::attackEntity($source, $xz, $y);

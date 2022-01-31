@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeNotifier;
+use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\entity\Skin;
@@ -25,6 +26,8 @@ abstract class PlayerJob extends Job{
     protected Ability $ability;
     protected Skill $skill;
 
+    protected IdentityGroup $identityGroup;
+
     protected CooltimeNotifier $cooltimeNotifier;
 
     public function __construct(?Player $player){
@@ -35,6 +38,8 @@ abstract class PlayerJob extends Job{
 
             $this->ability = $this->getInitialAbility();
             $this->skill = $this->getInitialSkill();
+            $this->identityGroup = $this->getInitialIdentityGroup();
+            $this->identityGroup->apply($this);
     
             $this->cooltimeNotifier = new CooltimeNotifier($player);
             $this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
@@ -45,7 +50,7 @@ abstract class PlayerJob extends Job{
         } else {
             $this->player = null;
 
-            $this->log("§dCreated for none");
+            #$this->log("§dCreated for none");
 
             $this->ability = $this->getInitialAbility();
             $this->skill = $this->getInitialSkill();
@@ -53,10 +58,13 @@ abstract class PlayerJob extends Job{
     }
 
     public function close(){
-        $this->player = null;
         $this->ability->close();
         $this->skill->close();
         $this->cooltimeNotifier->stop();
+        $this->identityGroup->reset($this);
+        $this->identityGroup->close();
+
+        $this->player = null;
         $this->log("§dClosed");
     }
 
@@ -106,6 +114,8 @@ abstract class PlayerJob extends Job{
     abstract protected function getInitialAbility(): Ability;
 
     abstract protected function getInitialSkill(): Skill;
+
+    abstract protected function getInitialIdentityGroup(): IdentityGroup;
 
     public function canActivateAbility(): bool{
         return !$this->ability->getCooltimeHandler()->isActive();

@@ -14,7 +14,15 @@ class CustomCondition implements Condition{
         $this->closure = $closure;
     }
 
+    public function getClosure(): \Closure{
+        return $this->closure;
+    }
+
     public function check(Player $player): bool{
         return (($this->closure)($player));
+    }
+
+    public function asText(): string{
+        return "";
     }
 }

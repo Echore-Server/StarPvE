@@ -34,11 +34,26 @@ use Ramsey\Uuid\Type\Integer;
 class ThunderboltAbility extends Ability implements Ticking{
     use TickingController;
 
+    protected float $baseDamage = 6.0;
+    protected float $chainDamage = 2.0;
+
     private array $damaged = [];
 
     private ?Living $boltTarget = null;
     private ?RayTraceEntityResult $boltHitResult = null;
     private int $chainCount = 0;
+
+    public function getChainDamage(): float{
+        return $this->chainDamage;
+    }
+
+    public function setChainDamage(float $chainDamage): void{
+        $this->chainDamage = $chainDamage;
+    }
+
+    public function addChainDamage(float $add): void{
+        $this->chainDamage += $add;
+    }
 
     public function getCooltime(): int{
         return (Integer) ($this->job->getSkill()->isActive() ? (0.35 * 20) : (0.7 * 20)); #スキル依存
@@ -47,8 +62,8 @@ class ThunderboltAbility extends Ability implements Ticking{
     protected function onActivate(): ActionResult{
         $ep = $this->player->getEyePos();
         $epos = new Position($ep->x, $ep->y, $ep->z, $this->player->getWorld());
-        $par = new LineParticle($epos, 2);
-        $dir = $this->player->getDirectionVector()->multiply(9.0);
+        $par = new LineParticle($epos, 3);
+        $dir = $this->player->getDirectionVector()->multiply(14.0);
         $tpos = $ep->addVector($dir);
 
         $par->sendToPlayers(
@@ -61,7 +76,7 @@ class ThunderboltAbility extends Ability implements Ticking{
             ),
             "minecraft:balloon_gas_particle"
         );
-        $results = EntityUtil::getLineOfSight($this->player, 9.0);
+        $results = EntityUtil::getLineOfSight($this->player, 14.0);
         if (count($results) > 0){
             $result = $results[array_key_first($results)] ?? null;
             if ($result instanceof RayTraceEntityResult){
@@ -75,6 +90,24 @@ class ThunderboltAbility extends Ability implements Ticking{
     
 
         return ActionResult::ABANDONED();
+    }
+
+    public function activate(): ActionResult{
+        if (!$this->closed){
+            if (!$this->cooltimeHandler->isActive()){
+                if (!$this->active){
+                    $this->cooltimeHandler->start($this->getCooltime());
+    
+                    return $this->onActivate();
+                } else {
+                    return ActionResult::FAILED_ALREADY_ACTIVE();
+                }
+            } else {
+                return ActionResult::SUCCEEDED_SILENT(); #todo: 
+            }   
+        } else {
+            throw new \Exception("cannot activate closed ability");
+        }
     }
 
     private function resetState(): void{
@@ -96,15 +129,15 @@ class ThunderboltAbility extends Ability implements Ticking{
                 $hitPos = new Position($hv->x, $hv->y, $hv->z, $hitEntity->getWorld());
                 $ne = EntityUtil::getNearestMonsterWithout($hitPos, $this->damaged, 8.5);
                 if ($ne instanceof Living){
-                    $par = new LineParticle($hitPos, 2);
+                    $par = new LineParticle($hitPos, 3);
                     $nextPos = $ne->getPosition();
-                    $randHeight = $ne->size->getHeight() / 3;
+                    $randHeight = $ne->size->getHeight() / 4;
                     $nextPos->y += $ne->size->getEyeHeight();
                     $nextPos->y += RandomUtil::rand_float(-$randHeight, $randHeight);
                     $par->sendToPlayers($hitEntity->getWorld()->getPlayers(), $nextPos, "minecraft:balloon_gas_particle");
                     
                     PlayerUtil::broadcastSound($nextPos, "random.glass", 0.8 + ($this->chainCount * 0.15), 1.0);
-                    $damage = $this->chainCount == 0 ? 6.0 : 2.0;
+                    $damage = $this->chainCount == 0 ? $this->baseDamage : $this->chainDamage;
                     $source = new EntityDamageByEntityEvent($this->player, $ne, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $damage);
                     $source->setAttackCooldown(0);
                     EntityUtil::attackEntity($source, 0, 0);

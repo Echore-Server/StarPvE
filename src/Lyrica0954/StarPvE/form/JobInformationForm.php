@@ -61,7 +61,7 @@ class JobInformationForm implements Form{
             if ($data == 0){
                 if ($this->job->isSelectable($player)){
                     $class = $this->job::class;
-                    StarPvE::getInstance()->getJobManager()->setJob($player, new $class($player));
+                    StarPvE::getInstance()->getJobManager()->setJob($player, $class);
                     Messanger::talk($player, "職業", "§a{$this->job->getName()} を選択しました！");
                 } else {
                     Messanger::talk($player, "職業", "§c{$this->job->getName()} を選択できません");

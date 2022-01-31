@@ -56,8 +56,6 @@ class Attacker extends FightingEntity implements Neutral {
         } else {
             $this->close();
         }
-
-        $this->getAttributeMap()->get(Attribute::KNOCKBACK_RESISTANCE)->setValue(1.0);
     }
 
     protected function selectTarget(array $targets): void{

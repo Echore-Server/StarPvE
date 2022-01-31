@@ -9,7 +9,7 @@ use pocketmine\player\Player;
 
 class LevelCondition implements Condition{
 
-    private int $min;
+    public int $min;
 
     public function __construct(int $min){
         $this->min = $min;
@@ -18,5 +18,9 @@ class LevelCondition implements Condition{
     public function check(Player $player): bool{
         $level = PlayerDataCollector::getGenericConfig($player, "Level");
         return $level >= $this->min;
+    }
+
+    public function asText(): string{
+        return "プレイヤーレベル {$this->min} 以上";
     }
 }

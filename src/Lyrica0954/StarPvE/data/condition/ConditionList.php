@@ -8,6 +8,9 @@ use pocketmine\player\Player;
 
 class ConditionList implements Condition{
 
+    /**
+     * @var Condition[]
+     */
     private array $conditions;
 
     public function __construct(Condition ...$conditions){
@@ -21,5 +24,15 @@ class ConditionList implements Condition{
             }
         }
         return true;
+    }
+
+    public function asText(): string{
+        $t = "";
+
+        foreach($this->conditions as $condition){
+            $t .= $condition->asText() . "\n";
+        }
+
+        return $t;
     }
 }

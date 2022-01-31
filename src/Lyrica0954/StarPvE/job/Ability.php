@@ -12,6 +12,8 @@ use pocketmine\player\Player;
 
 abstract class Ability{
 
+    protected float $baseDamage = 0;
+
     protected bool $active;
 
     protected bool $closed;
@@ -40,12 +42,24 @@ abstract class Ability{
         return $this->cooltimeHandler;
     }
 
-    public function getPlayer(): Player{
+    public function getPlayer(): ?Player{
         return $this->player;
     }
 
     public function getJob(): PlayerJob{
         return $this->job;
+    }
+
+    public function getBaseDamage(): float{
+        return $this->baseDamage;
+    }
+
+    public function setBaseDamage(float $baseDamage): void{
+        $this->baseDamage = $baseDamage;
+    }
+
+    public function addBaseDamage(float $add): void{
+        $this->baseDamage += $add;
     }
 
     abstract public function getCooltime(): int;

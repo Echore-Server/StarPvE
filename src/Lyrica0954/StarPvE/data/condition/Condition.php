@@ -9,4 +9,6 @@ use pocketmine\player\Player;
 interface Condition {
 
     public function check(Player $player): bool;
+
+    public function asText(): string;
 }
