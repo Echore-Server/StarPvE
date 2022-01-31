@@ -23,6 +23,18 @@ abstract class Equipment {
         $this->maxLevel = $this->getInitialMaxLevel();
     }
 
+    public function setLevelToInitialLevel(): void{
+        $this->level = $this->getInitialLevel();
+    }
+
+    public function getLevel(): int{
+        return $this->level;
+    }
+
+    public function getMaxLevel(): int{
+        return $this->maxLevel;
+    }
+
     protected function getInitialLevel(): int{
         return 1;
     }
@@ -33,6 +45,10 @@ abstract class Equipment {
 
     public function isMaxLevel(): bool{
         return $this->level >= $this->maxLevel;
+    }
+
+    public function refresh(): void{
+        $this->onUpgrade($this->level);
     }
 
     public function canUpgradeTo(int $level): bool{
