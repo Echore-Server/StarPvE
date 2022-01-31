@@ -98,7 +98,7 @@ class GamePlayer {
             $this->equipSword($this->swordLevel);
             $this->updatePrice();
         }
-    }
+    }#
 
     public function equipSword(int $level){
         $sword = match($level){
