@@ -6,6 +6,10 @@ namespace Lyrica0954\StarPvE\game;
 
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\Villager;
+use Lyrica0954\StarPvE\game\shop\content\ArmorUpgradeContent;
+use Lyrica0954\StarPvE\game\shop\content\ItemContent;
+use Lyrica0954\StarPvE\game\shop\content\SwordUpgradeContent;
+use Lyrica0954\StarPvE\game\shop\Shop;
 use Lyrica0954\StarPvE\game\stage\Lane;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\game\wave\WaveData;
@@ -17,6 +21,8 @@ use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\entity\Location;
+use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\lang\Translatable;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
@@ -41,6 +47,7 @@ class Game implements CooltimeAttachable{
     protected Position $centerPos;
     protected ?Villager $villager;
     protected WaveController $waveController;
+    protected Shop $shop;
 
     public Lane $lane1;
     public Lane $lane2;
@@ -65,8 +72,13 @@ class Game implements CooltimeAttachable{
         $this->world = $world;
         $this->status = self::STATUS_PREPARE;
         $this->centerPos = new Position(-49.5, 48.6, -49.5, $world);
-        #todo: villager health
         $this->villager = null;
+
+        $this->shop = new Shop;
+        $this->shop->addContent(new SwordUpgradeContent("武器の強化"));
+        $this->shop->addContent(new ArmorUpgradeContent("防具の強化"));
+        $f = ItemFactory::getInstance();
+        $this->shop->addContent(new ItemContent("パン x4", $f->get(ItemIds::BREAD, 0, 4), $f->get(ItemIds::EMERALD, 0, 10)));
 
         $this->createCooltimeHandler("Game Tick", CooltimeHandler::BASE_SECOND, 1);
 
@@ -134,6 +146,10 @@ class Game implements CooltimeAttachable{
                 )
             ), 
         ]);
+    }
+
+    public function getShop(): Shop{
+        return $this->shop;
     }
 
     public function getVillagerHealth(){
@@ -316,7 +332,7 @@ class Game implements CooltimeAttachable{
 
         foreach($this->getPlayers() as $player){
             $player->sendTitle("ゲームが開始されます");
-            $this->getGamePlayer($player)?->updateStuff();
+            $this->getGamePlayer($player)?->refreshEquipment();
             PlayerUtil::playSound($player, "mob.evocation_illager.prepare_summon", 1.4);
         }
 
