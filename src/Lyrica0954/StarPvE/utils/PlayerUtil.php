@@ -63,6 +63,16 @@ class PlayerUtil {
         return null;
     }
 
+    public static function countItem(Player $player, int $id): int{
+        $has = 0;
+        foreach($player->getInventory()->getContents() as $item){
+            if ($id === $item->getId()){
+                $has += $item->getCount();
+            }
+        }
+        return $has;
+    }
+
 
     public static function flee(Player $player){
         $player->extinguish();
