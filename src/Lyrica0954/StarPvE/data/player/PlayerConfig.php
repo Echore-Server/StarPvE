@@ -12,13 +12,13 @@ class PlayerConfig {
     private Config $job;
 
     public static function getExpToCompleteLevel(int $level){
-        $exp = ($level * $level) * 4 + 10;
+        $exp = pow($level, 2) * 4 + 10;
 
         return $exp;
     }
 
     public static function getJobExpToCompleteLevel(int $level){
-        $jobExp = ($level * $level * $level) * 4 + ($level * 20);
+        $jobExp = pow($level, 3) * 4 + ($level * 20);
 
         return $jobExp;
     }
