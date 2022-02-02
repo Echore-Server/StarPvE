@@ -39,9 +39,14 @@ class GamePlayer {
     }
 
     public function resetEquipment(): void{
+        $this->swordEquipment->reset();
+        $this->armorEquipment->reset();
+
         $this->swordEquipment->setLevelToInitialLevel();
         $this->armorEquipment->setLevelToInitialLevel();
+    }
 
+    public function refreshEquipment(): void{
         $this->swordEquipment->refresh();
         $this->armorEquipment->refresh();
     }
