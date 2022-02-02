@@ -23,10 +23,10 @@ class SwordEquipment extends Equipment {
     public function getCost(int $level): Item{
         $f = ItemFactory::getInstance();
         $costItem = match($level){
-            1 => $f->get(ItemIds::EMERALD, 0),
-            2 => $f->get(ItemIds::EMERALD, 40),
-            3 => $f->get(ItemIds::EMERALD, 120),
-            default => $f->get(ItemIds::EMERALD, 0)
+            1 => $f->get(ItemIds::EMERALD, 0, 0),
+            2 => $f->get(ItemIds::EMERALD, 0, 40),
+            3 => $f->get(ItemIds::EMERALD, 0, 120),
+            default => $f->get(ItemIds::EMERALD, 0, 0)
         };
 
         return $costItem;

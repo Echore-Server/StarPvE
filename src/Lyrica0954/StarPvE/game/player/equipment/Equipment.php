@@ -41,8 +41,6 @@ abstract class Equipment {
 
     abstract protected function getInitialMaxLevel(): int;
 
-    abstract public function getCost(int $level): Item;
-
     public function isMaxLevel(): bool{
         return $this->level >= $this->maxLevel;
     }
@@ -51,20 +49,15 @@ abstract class Equipment {
         $this->onUpgrade($this->level);
     }
 
+    public function reset(): void{
+        $this->onUpgrade(0);
+    }
+
     public function canUpgradeTo(int $level): bool{
         if ($level > $this->maxLevel){
             return false;
         }
-
-        $costItem = $this->getCost($level);
-        $has = 0;
-        foreach($this->player->getInventory()->getContents() as $item){
-            if ($costItem->getId() === $item->getId()){
-                $has += $item->getCount();
-            }
-        }
-
-        return $has >= $costItem->getCount();
+        return true;
     }
 
     public function canUpgrade(): bool{
