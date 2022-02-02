@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\utils;
 
 use pocketmine\entity\Living;
 use pocketmine\item\Armor;
+use pocketmine\item\Durable;
 use pocketmine\item\Item;
 use pocketmine\item\ItemBlock;
 use pocketmine\item\ItemFactory;
@@ -75,10 +76,18 @@ class ArmorSet {
     }
 
     public function setUnbreakable(bool $unbreakable = true){
-        $this->helmet->setUnbreakable($unbreakable);
-        $this->chestplate->setUnbreakable($unbreakable);
-        $this->leggings->setUnbreakable($unbreakable);
-        $this->boots->setUnbreakable($unbreakable);
+        $parts = [
+            $this->helmet,
+            $this->chestplate,
+            $this->leggings,
+            $this->boots
+        ];
+
+        foreach($parts as $part){
+            if ($part instanceof Durable){
+                $part->setUnbreakable($unbreakable);
+            }
+        }
     }
 
     public function getHelmet(){
