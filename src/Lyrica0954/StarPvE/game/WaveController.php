@@ -69,7 +69,9 @@ class WaveController implements CooltimeAttachable, Listener{
             MonsterData::ATTACKER => new MonsterAttribute(110, 6.0, 0.025),
             MonsterData::CREEPER => new MonsterAttribute(15, 1.0, 0.45),
             MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 0.37),
-            MonsterData::HUSK => new MonsterAttribute(60, 9.0, 0.25)
+            MonsterData::HUSK => new MonsterAttribute(60, 9.0, 0.25),
+            MonsterData::SKELETON => new MonsterAttribute(30, 2.0, 0.21),
+            MonsterData::DEFENDER => new MonsterAttribute(56, 1.0, 0.3)
         ];
 
         $nullArmor = new ArmorSet(null, null, null, null);
@@ -78,30 +80,43 @@ class WaveController implements CooltimeAttachable, Listener{
             MonsterData::ATTACKER => clone $nullArmor,
             MonsterData::CREEPER => clone $nullArmor,
             MonsterData::SPIDER => clone $nullArmor,
+            MonsterData::DEFENDER => clone $nullArmor,
+            MonsterData::SKELETON => new ArmorSet($f->get(ItemIds::LEATHER_HELMET), $f->get(ItemIds::DIAMOND_CHESTPLATE), $f->get(ItemIds::DIAMOND_LEGGINGS), $f->get(ItemIds::LEATHER_BOOTS)),
             MonsterData::HUSK => new ArmorSet($f->get(ItemIds::DIAMOND_HELMET), $f->get(ItemIds::CHAIN_CHESTPLATE), $f->get(ItemIds::CHAIN_LEGGINGS), $f->get(ItemIds::CHAIN_BOOTS))
         ];
 
         $f = ItemFactory::getInstance();
         $this->monsterDrops = [
             MonsterData::ZOMBIE => [
-                $f->get(ItemIds::EMERALD, 1)
+                $f->get(ItemIds::EMERALD)
             ],
             MonsterData::ATTACKER => [
-                $f->get(ItemIds::EMERALD, 1),
-                $f->get(ItemIds::EMERALD, 1),
-                $f->get(ItemIds::EMERALD, 1),
-                $f->get(ItemIds::EMERALD, 1)
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD)
             ],
             MonsterData::CREEPER => [
-                $f->get(ItemIds::EMERALD, 1)
+                $f->get(ItemIds::EMERALD)
             ],
             MonsterData::SPIDER => [
-                $f->get(ItemIds::EMERALD, 1)
+                $f->get(ItemIds::EMERALD)
             ],
             MonsterData::HUSK => [
-                $f->get(ItemIds::EMERALD, 1),
-                $f->get(ItemIds::EMERALD, 1),
-                $f->get(ItemIds::BREAD, 1)
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::BREAD)
+            ],
+            MonsterData::SKELETON => [
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD)
+            ],
+            MonsterData::DEFENDER => [
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD)
             ]
         ];
 
@@ -130,7 +145,8 @@ class WaveController implements CooltimeAttachable, Listener{
                         $monsterMultiplier = match(true){
                             MonsterData::equal($entity, MonsterData::ATTACKER) => 3,
                             MonsterData::equal($entity, MonsterData::CREEPER) => 2,
-                            #MonsterData::equal($entity, ) => 2, #todo: defender
+                            MonsterData::equal($entity, MonsterData::SKELETON) => 4,
+                            MonsterData::equal($entity, MonsterData::DEFENDER) => 2,
                             default => 1
                         };
         

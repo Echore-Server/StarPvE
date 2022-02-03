@@ -8,7 +8,9 @@ use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\StarPvE\game\monster\Attacker;
 use Lyrica0954\StarPvE\game\monster\Creeper;
+use Lyrica0954\StarPvE\game\monster\Defender;
 use Lyrica0954\StarPvE\game\monster\Husk;
+use Lyrica0954\StarPvE\game\monster\Skeleton;
 use Lyrica0954\StarPvE\game\monster\Spider;
 use Lyrica0954\StarPvE\game\monster\Zombie;
 use pocketmine\entity\Entity;
@@ -20,6 +22,8 @@ class MonsterData {
     const ATTACKER = Attacker::class;
     const SPIDER = Spider::class;
     const HUSK = Husk::class;
+    const SKELETON = Skeleton::class;
+    const DEFENDER = Defender::class;
 
     public string $name;
     public int $count;

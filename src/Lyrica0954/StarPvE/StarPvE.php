@@ -8,10 +8,15 @@ use Lyrica0954\StarPvE\command\CommandLoader;
 use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\JobShop;
+use Lyrica0954\StarPvE\entity\MemoryEntity;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\GameManager;
 use Lyrica0954\StarPvE\game\monster\Attacker;
 use Lyrica0954\StarPvE\game\monster\Creeper;
+use Lyrica0954\StarPvE\game\monster\Defender;
+use Lyrica0954\StarPvE\game\monster\Husk;
+use Lyrica0954\StarPvE\game\monster\Skeleton;
+use Lyrica0954\StarPvE\game\monster\Spider;
 use Lyrica0954\StarPvE\game\monster\Zombie;
 use Lyrica0954\StarPvE\game\player\GamePlayerManager;
 use Lyrica0954\StarPvE\job\Job;
@@ -85,6 +90,27 @@ final class StarPvE extends PluginBase {
         $f->register(Attacker::class, function (World $world, CompoundTag $nbt): Attacker{
             return new Attacker(EntityDataHelper::parseLocation($nbt, $world), $nbt);
         }, ["starpve:attacker"], EntityLegacyIds::WITCH);
+
+        $f->register(Spider::class, function (World $world, CompoundTag $nbt): Spider{
+            return new Spider(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:spider"], EntityLegacyIds::SPIDER);
+
+        $f->register(Husk::class, function (World $world, CompoundTag $nbt): Husk{
+            return new Husk(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:husk"], EntityLegacyIds::HUSK);
+
+        $f->register(Skeleton::class, function (World $world, CompoundTag $nbt): Skeleton{
+            return new Skeleton(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:skeleton"], EntityLegacyIds::SKELETON);
+
+        $f->register(MemoryEntity::class, function (World $world, CompoundTag $nbt): MemoryEntity{
+            return new MemoryEntity(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:memory_entity"], EntityLegacyIds::SNOWBALL);
+
+        $f->register(Defender::class, function (World $world, CompoundTag $nbt): Defender{
+            return new Defender(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:defender"], EntityLegacyIds::DROWNED);
+
 
         $f->register(MonsterDropItem::class, function(World $world, CompoundTag $nbt) : MonsterDropItem{
             $itemTag = $nbt->getCompoundTag("Item");
