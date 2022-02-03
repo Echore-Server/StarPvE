@@ -20,7 +20,7 @@ class ShopForm implements Form{
     public function jsonSerialize(): mixed{
         $buttons = [];
         foreach($this->shop->getContents() as $content){
-            $text = "{$content->getName()}";
+            $text = "§l{$content->getName()}§r";
             if ($content->canBuy($this->player)){
                 $text .= "\n§a購入可能";
             } else {
