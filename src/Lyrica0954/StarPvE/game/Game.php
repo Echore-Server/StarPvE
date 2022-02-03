@@ -99,14 +99,16 @@ class Game implements CooltimeAttachable{
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 1),
-                    new MonsterData(MonsterData::ATTACKER, 1)
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::DEFENDER, 1)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ATTACKER, 1),
-                    new MonsterData(MonsterData::ZOMBIE, 1)
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::SKELETON, 1)
                 )
             ),
             2 => new WaveData(
