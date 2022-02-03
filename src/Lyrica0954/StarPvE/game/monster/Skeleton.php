@@ -21,16 +21,22 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\player\Player;
+use pocketmine\Server;
 
 class Skeleton extends SmartSkeleton {
     use HealthBarEntity;
 
     protected ?MemoryEntity $spark = null;
 
+    protected function getInitialFightStyle(): Style{
+        return new MeleeStyle($this);
+    }
+
     public function attackEntity(Entity $entity, float $range): bool{
         if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0){
             $this->broadcastAnimation(new ArmSwingAnimation($this));
-            $this->fireElectricSpark($entity, 10, 0.75);
+            $this->fireElectricSpark($entity, 20, 0.3);
             $this->attackCooldown = 10 + $this->getAddtionalAttackCooldown();
 
             $this->hitEntity($entity, $range);
@@ -46,18 +52,32 @@ class Skeleton extends SmartSkeleton {
             $eloc = $entity->getLocation();
             $loc->y += $this->getEyeHeight();
             $this->spark = new MemoryEntity($loc, null, 0.0, 0.0);
-            $dx = $loc->x - $eloc->x;
-            $dz = $loc->z - $eloc->z;
+            $dx = $eloc->x - $loc->x;
+            $dz = $eloc->z - $loc->z;
             $v = (new Vector3($dx, 0, $dz))->normalize();
             $this->spark->setMotion($v->multiply($speed));
 
-            $this->spark->addTickHook(function() use ($loc, $maxRange){
-                if ($this->spark->getPosition()->distance($loc) >= $maxRange){
-                    $this->spark->close();
+            $startTick = Server::getInstance()->getTick();
+            $this->spark->addTickHook(function(MemoryEntity $entity) use ($loc, $maxRange, $startTick){
+                $ct = Server::getInstance()->getTick();
+                if ($entity->getPosition()->distance($loc) >= $maxRange || ($ct - $startTick) >= 30){
+                    $entity->close();
+                    $this->spark = null;
+                    $this->attackCooldown = 20;
+                    return;
                 }
-                $par = new SingleParticle();
-                $par->sendToPlayers($this->spark->getWorld()->getPlayers(), $this->spark->getPosition(), "minecraft:balloon_gas_particle");
-                PlayerUtil::broadcastSound($this->spark, "firework.twinkle", 0.9, 0.4);
+
+                foreach(EntityUtil::getPlayersInsideVector($entity->getPosition(), new Vector3(0.4, 0.4, 0.4)) as $player){
+                    PlayerUtil::playSound($player, "fireworks.blast", 2.4, 1.0);
+                    $source = new EntityDamageByEntityEvent($entity, $player, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
+                    EntityUtil::attackEntity($source, 2.25, 1.0);
+                }
+
+                if ($ct % 2 == 0){
+                    $par = new SingleParticle();
+                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $entity->getPosition(), "minecraft:balloon_gas_particle");
+                    PlayerUtil::broadcastSound($entity, "firework.twinkle", 1.75, 0.3);
+                }
             });
         }
     }

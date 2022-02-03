@@ -40,7 +40,7 @@ class MemoryEntity extends Entity implements Ghost{
         $hasUpdate = parent::onUpdate($currentTick);
 
         foreach($this->tickHook as $hook){
-            ($hook)();
+            ($hook)($this);
         }
 
         return $hasUpdate;
