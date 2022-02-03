@@ -19,8 +19,10 @@ class EntityUtil {
     public static function getWithinRange(Position $pos, float $range): mixed{
         $entities = [];
         foreach($pos->getWorld()->getEntities() as $entity){
-            if ($entity->getPosition()->distance($pos) <= $range){
-                $entities[] = $entity;
+            if ($entity->isAlive()){
+                if ($entity->getPosition()->distance($pos) <= $range){
+                    $entities[] = $entity;
+                }
             }
         }
         return $entities;
@@ -28,8 +30,10 @@ class EntityUtil {
 
     public static function findWithinRange(Position $pos, float $range): Generator{
         foreach($pos->getWorld()->getEntities() as $entity){
-            if ($entity->getPosition()->distance($pos) <= $range){
-                yield $entity;
+            if ($entity->isAlive()){
+                if ($entity->getPosition()->distance($pos) <= $range){
+                    yield $entity;
+                }
             }
         }
     }
@@ -39,10 +43,12 @@ class EntityUtil {
         $nent = null;
 
         foreach($pos->getWorld()->getEntities() as $entity){
-            $dist = $entity->getPosition()->distance($pos);
-            if ($dist < $ndist){
-                $nent = $entity;
-                $ndist = $dist;
+            if ($entity->isAlive()){
+                $dist = $entity->getPosition()->distance($pos);
+                if ($dist < $ndist){
+                    $nent = $entity;
+                    $ndist = $dist;
+                }
             }
         }
 
@@ -55,7 +61,7 @@ class EntityUtil {
         $nent = null;
 
         foreach($pos->getWorld()->getEntities() as $entity){
-            if (MonsterData::isMonster($entity)){
+            if (MonsterData::isMonster($entity) && $entity->isAlive()){
                 $dist = $entity->getPosition()->distance($pos);
                 if ($dist < $ndist){
                     $nent = $entity;
@@ -65,6 +71,20 @@ class EntityUtil {
         }
 
         return $nent;
+    }
+
+    public static function getPlayersInsideVector(Position $pos, ?Vector3 $expand = null): array{
+        $expand = ($expand === null) ? (new Vector3(0, 0, 0)) : $expand;
+        $players = [];
+        foreach($pos->getWorld()->getPlayers() as $player){
+            if ($player->isAlive() && !$player->isSpectator()){
+                if ($player->getBoundingBox()->expandedCopy($expand->x, $expand->y, $expand->z)->isVectorInside($pos)){
+                    $players[] = $player;
+                }
+            }
+        }
+
+        return $players;
     }
 
     /**
@@ -79,7 +99,7 @@ class EntityUtil {
         $nent = null;
 
         foreach($pos->getWorld()->getEntities() as $entity){
-            if (MonsterData::isMonster($entity)){
+            if (MonsterData::isMonster($entity) && $entity->isAlive()){
                 if (!in_array(spl_object_hash($entity), $without)){
                     $dist = $entity->getPosition()->distance($pos);
                     if ($dist < $ndist){
@@ -117,10 +137,12 @@ class EntityUtil {
         foreach($entity->getWorld()->getEntities() as $target){
             if ($entity !== $target){
                 if ($target instanceof Living){
-                    $result = $target->getBoundingBox()->calculateIntercept($min, $max);
+                    if ($target->isAlive()){
+                        $result = $target->getBoundingBox()->calculateIntercept($min, $max);
 
-                    if ($result instanceof RayTraceResult){
-                        $entities[] = new RayTraceEntityResult($target, $result->getHitFace(), $result->getHitVector());
+                        if ($result instanceof RayTraceResult){
+                            $entities[] = new RayTraceEntityResult($target, $result->getHitFace(), $result->getHitVector());
+                        }
                     }
                 }
             }
@@ -149,7 +171,9 @@ class EntityUtil {
         $kb = self::modifyKnockback($entity, $damager, $xz, $y);
 
         $entity->attack($source);
-        $entity->setMotion($kb);
+        if (!$source->isCancelled()){
+            $entity->setMotion($kb);
+        }
     }
 
     public static function calculateKnockback(Entity $entity, float $x, float $z, float $base = 0.4){
