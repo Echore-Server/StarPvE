@@ -69,7 +69,7 @@ class PlayerDataCollector {
             $currentSelectableJobs = StarPvE::getInstance()->getJobManager()->getSelectableJobs($player);
             $newSelectableJobs = array_diff($currentSelectableJobs, $previousSelectableJobs);
             $previousLevel = $level - 1;
-            $player->sendMessage("§a------ §lレベルアップ！！ §a------");
+            $player->sendMessage("§a------ §lレベルアップ！！§r §a------");
             $player->sendMessage("§6> レベル: §a{$previousLevel} >> {$level}");
             $player->sendMessage("§6> 次のExp: §a{$newExp}§f/§a{$newNextExp}");
             $player->sendMessage("§a----------------------");
