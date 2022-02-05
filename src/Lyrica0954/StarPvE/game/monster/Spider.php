@@ -26,21 +26,27 @@ class Spider extends SmartSpider {
         if ($currentTick % 70 == 0){
             foreach(EntityUtil::getWithinRange($this->getPosition(), $this->getAttackRange()*2.0) as $entity){
                 if ($entity instanceof Player){
-                    PlayerUtil::playSound($entity, "mob.spider.death", 7.0, 0.6);
+                    if (!$entity->isSpectator() && $entity->isAlive()){
+                        PlayerUtil::playSound($entity, "mob.spider.death", 7.0, 0.6);
                     
-                    $ef = $entity->getEffects();
-                    $ef->add(new EffectInstance(VanillaEffects::SLOWNESS(), 4*20, 2, false));
-                    $ef->add(new EffectInstance(VanillaEffects::BLINDNESS(), 1*20, 0, false));
-                    $ef->add(new EffectInstance(VanillaEffects::POISON(), 2*20, 2, false));
-                    $ef->add(new EffectInstance(VanillaEffects::WEAKNESS(), 1*20, 0, false));
-
-                    $par = new SingleParticle();
-                    $epos = $entity->getPosition();
-                    $epos->y += $entity->getEyeHeight();
-                    $par->sendToPlayers($this->getWorld()->getPlayers(), $epos, new ExplodeParticle);
-                    
+                        $ef = $entity->getEffects();
+                        $ef->add(new EffectInstance(VanillaEffects::SLOWNESS(), 4*20, 2, false));
+                        $ef->add(new EffectInstance(VanillaEffects::BLINDNESS(), 1*20, 0, false));
+                        $ef->add(new EffectInstance(VanillaEffects::POISON(), 2*20, 2, false));
+                        $ef->add(new EffectInstance(VanillaEffects::WEAKNESS(), 1*20, 0, false));
+    
+                        $par = new SingleParticle();
+                        $epos = $entity->getPosition();
+                        $epos->y += $entity->getEyeHeight();
+                        $par->sendToPlayers($this->getWorld()->getPlayers(), $epos, new ExplodeParticle);
+                        
+                    }
                 }
             }
         }   
+    }
+
+    public function getFollowRange(): float{
+        return 40;
     }
 }
