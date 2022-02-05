@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\monster\Attacker;
+use Lyrica0954\StarPvE\game\wave\CustomWaveStart;
 use Lyrica0954\StarPvE\game\wave\MonsterAttribute;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\game\wave\WaveData;
@@ -71,7 +72,7 @@ class WaveController implements CooltimeAttachable, Listener{
             MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 0.37),
             MonsterData::HUSK => new MonsterAttribute(60, 9.0, 0.25),
             MonsterData::SKELETON => new MonsterAttribute(30, 2.0, 0.21),
-            MonsterData::DEFENDER => new MonsterAttribute(56, 1.0, 0.3)
+            MonsterData::DEFENDER => new MonsterAttribute(56, 0.5, 0.3)
         ];
 
         $nullArmor = new ArmorSet(null, null, null, null);
@@ -121,6 +122,10 @@ class WaveController implements CooltimeAttachable, Listener{
         ];
 
         $this->createCooltimeHandler("Wave Tick", CooltimeHandler::BASE_SECOND, 1);
+    }
+
+    public function getGame(): Game{
+        return $this->game;
     }
 
     public function onEntityDamageByEntity(EntityDamageByEntityEvent $event){
@@ -288,6 +293,12 @@ class WaveController implements CooltimeAttachable, Listener{
         $waveData = $this->getWaveDataFrom($this->wave);
         if ($waveData !== null){
             $this->log("§7Wave {$this->wave} Started!");
+            if (($customWaveStart = $waveData->getCustomWaveStart()) instanceof CustomWaveStart){
+                $c = $customWaveStart->getClosure();
+                if ($c instanceof \Closure){
+                    ($c)($this);
+                }
+            }
 
             foreach($this->game->getPlayers() as $player){
                 PlayerUtil::playSound($player, "mob.evocation_illager.prepare_attack");
