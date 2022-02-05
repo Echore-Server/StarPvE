@@ -29,4 +29,8 @@ class Husk extends SmartHusk{
             return false;
         }
     }
+
+    public function getFollowRange(): float{
+        return 40;
+    }
 }
