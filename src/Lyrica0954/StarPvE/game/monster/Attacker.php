@@ -66,7 +66,7 @@ class Attacker extends FightingEntity implements Neutral {
     }
 
     protected function getInitialSizeInfo(): EntitySizeInfo{
-        return new EntitySizeInfo(1.6, 0.8);
+        return new EntitySizeInfo(1.95, 0.8);
     }
 
     protected function getInitialFightStyle(): Style{
