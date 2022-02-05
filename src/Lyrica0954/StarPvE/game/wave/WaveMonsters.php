@@ -34,7 +34,7 @@ class WaveMonsters {
     public function spawnToAll(Position $pos, array $attributeMap, array $equipmentMap, \Closure $hook = null){
         foreach($this->monsters as $monster){
             $class = $monster->name;
-            $time = 40 * 20;
+            $time = 60 * 20;
             $period = (integer) floor($time / $monster->count);
             $attribute = $attributeMap[$class];
             $equipment = $equipmentMap[$class];
