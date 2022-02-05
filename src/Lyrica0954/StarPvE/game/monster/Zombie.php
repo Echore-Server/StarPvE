@@ -11,4 +11,8 @@ class Zombie extends SmartZombie {
     use HealthBarEntity;
 
     protected float $reach = 1.5;
+
+    public function getFollowRange(): float{
+        return 40;
+    }
 }
