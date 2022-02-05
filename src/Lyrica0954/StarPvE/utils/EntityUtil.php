@@ -128,7 +128,8 @@ class EntityUtil {
      * 
      * @return RayTraceEntityResult[]
      */
-    public static function getLineOfSight(Entity $entity, float $reach): array{
+    public static function getLineOfSight(Entity $entity, float $reach, ?Vector3 $expand = null): array{
+        $expand = ($expand !== null) ? $expand : (new Vector3(0, 0, 0));
         $dir = $entity->getDirectionVector();
         $min = $entity->getEyePos();
         $max = $min->addVector($dir->multiply($reach));
@@ -138,7 +139,7 @@ class EntityUtil {
             if ($entity !== $target){
                 if ($target instanceof Living){
                     if ($target->isAlive()){
-                        $result = $target->getBoundingBox()->calculateIntercept($min, $max);
+                        $result = $target->getBoundingBox()->expandedCopy($expand->x, $expand->y, $expand->z)->calculateIntercept($min, $max);
 
                         if ($result instanceof RayTraceResult){
                             $entities[] = new RayTraceEntityResult($target, $result->getHitFace(), $result->getHitVector());
