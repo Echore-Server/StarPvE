@@ -52,9 +52,9 @@ class Skeleton extends SmartSkeleton {
             $eloc = $entity->getLocation();
             $loc->y += $this->getEyeHeight();
             $this->spark = new MemoryEntity($loc, null, 0.0, 0.0);
-            $dx = $eloc->x - $loc->x;
-            $dz = $eloc->z - $loc->z;
-            $v = (new Vector3($dx, 0, $dz))->normalize();
+
+            $this->lookAt($entity);
+            $v = $this->getDirectionVector();
             $this->spark->setMotion($v->multiply($speed));
 
             $startTick = Server::getInstance()->getTick();
@@ -80,5 +80,9 @@ class Skeleton extends SmartSkeleton {
                 }
             });
         }
+    }
+
+    public function getFollowRange(): float{
+        return 40;
     }
 }
