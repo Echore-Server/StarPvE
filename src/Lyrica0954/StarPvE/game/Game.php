@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game;
 
+use Closure;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\shop\content\ArmorUpgradeContent;
@@ -11,6 +12,7 @@ use Lyrica0954\StarPvE\game\shop\content\ItemContent;
 use Lyrica0954\StarPvE\game\shop\content\SwordUpgradeContent;
 use Lyrica0954\StarPvE\game\shop\Shop;
 use Lyrica0954\StarPvE\game\stage\Lane;
+use Lyrica0954\StarPvE\game\wave\CustomWaveStart;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\game\wave\WaveData;
 use Lyrica0954\StarPvE\game\wave\WaveMonsters;
@@ -94,25 +96,25 @@ class Game implements CooltimeAttachable{
         $this->waveController = new WaveController($this, [
             1 => new WaveData(
                 $defaultTitleFormat,
+                null,
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 1),
-                    new MonsterData(MonsterData::ATTACKER, 1),
-                    new MonsterData(MonsterData::DEFENDER, 1)
+                    new MonsterData(MonsterData::ATTACKER, 1)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ATTACKER, 1),
-                    new MonsterData(MonsterData::ZOMBIE, 1),
-                    new MonsterData(MonsterData::SKELETON, 1)
+                    new MonsterData(MonsterData::ZOMBIE, 1)
                 )
             ),
             2 => new WaveData(
                 $defaultTitleFormat,
+                null,
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 3),
                     new MonsterData(MonsterData::ATTACKER, 1)
@@ -131,6 +133,7 @@ class Game implements CooltimeAttachable{
             ), 
             3 => new WaveData(
                 $defaultTitleFormat,
+                null,
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 4),
                     new MonsterData(MonsterData::ATTACKER, 1)
@@ -140,11 +143,101 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ATTACKER, 1)
                 ),
                 new WaveMonsters(
-                    new MonsterData(MonsterData::ZOMBIE, 3)
+                    new MonsterData(MonsterData::ZOMBIE, 3),
+                    new MonsterData(MonsterData::CREEPER, 1) #NEW: CREEPER
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ATTACKER, 1),
                     new MonsterData(MonsterData::ZOMBIE, 2)
+                )
+            ), 
+            4 => new WaveData(
+                $defaultTitleFormat,
+                null,
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 4),
+                    new MonsterData(MonsterData::CREEPER, 2)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 6),
+                    new MonsterData(MonsterData::ATTACKER, 3),
+                    new MonsterData(MonsterData::CREEPER, 1)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 3)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 2)
+                )
+            ), 
+            5 => new WaveData(
+                $defaultTitleFormat,
+                new CustomWaveStart(function (WaveController $wc){
+                    $wc->getGame()->broadcastMessage("§l§cゾンビの群れがレーン §e3 §cに接近中です！！");
+                }),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 6),
+                    new MonsterData(MonsterData::ATTACKER, 2),
+                    new MonsterData(MonsterData::CREEPER, 2)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 3),
+                    new MonsterData(MonsterData::ATTACKER, 2)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 17)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::ZOMBIE, 4),
+                    new MonsterData(MonsterData::CREEPER, 2)
+                )
+            ), 
+            6 => new WaveData(
+                $defaultTitleFormat,
+                null,
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 9),
+                    new MonsterData(MonsterData::CREEPER, 3),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::HUSK, 1), #NEW: HUSK
+
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 3),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::CREEPER, 1)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 4),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 5),
+                    new MonsterData(MonsterData::HUSK, 1),
+                    new MonsterData(MonsterData::ATTACKER, 2),
+                )
+            ), 
+            7 => new WaveData(
+                $defaultTitleFormat,
+                null,
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 9),
+                    new MonsterData(MonsterData::ATTACKER, 5),
+                    new MonsterData(MonsterData::HUSK, 3),
+
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 5),
+                    new MonsterData(MonsterData::CREEPER, 3)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 4),
+                    new MonsterData(MonsterData::ATTACKER, 2)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 5),
+                    new MonsterData(MonsterData::HUSK, 1)
                 )
             ), 
         ]);
