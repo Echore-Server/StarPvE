@@ -22,6 +22,7 @@ use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\math\Facing;
 use pocketmine\math\RayTraceResult;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\network\mcpe\protocol\types\ParticleIds;
@@ -62,7 +63,7 @@ class ThunderboltAbility extends Ability implements Ticking{
     protected function onActivate(): ActionResult{
         $ep = $this->player->getEyePos();
         $epos = new Position($ep->x, $ep->y, $ep->z, $this->player->getWorld());
-        $par = new LineParticle($epos, 3);
+        $par = new LineParticle($epos, 2);
         $dir = $this->player->getDirectionVector()->multiply(14.0);
         $tpos = $ep->addVector($dir);
 
@@ -76,7 +77,7 @@ class ThunderboltAbility extends Ability implements Ticking{
             ),
             "minecraft:balloon_gas_particle"
         );
-        $results = EntityUtil::getLineOfSight($this->player, 14.0);
+        $results = EntityUtil::getLineOfSight($this->player, 14.0, new Vector3(0.5, 0.5, 0.5));
         if (count($results) > 0){
             $result = $results[array_key_first($results)] ?? null;
             if ($result instanceof RayTraceEntityResult){
@@ -129,7 +130,7 @@ class ThunderboltAbility extends Ability implements Ticking{
                 $hitPos = new Position($hv->x, $hv->y, $hv->z, $hitEntity->getWorld());
                 $ne = EntityUtil::getNearestMonsterWithout($hitPos, $this->damaged, 8.5);
                 if ($ne instanceof Living){
-                    $par = new LineParticle($hitPos, 3);
+                    $par = new LineParticle($hitPos, 2);
                     $nextPos = $ne->getPosition();
                     $randHeight = $ne->size->getHeight() / 4;
                     $nextPos->y += $ne->size->getEyeHeight();
