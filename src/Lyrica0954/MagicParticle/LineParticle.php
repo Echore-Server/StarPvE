@@ -18,10 +18,10 @@ class LineParticle extends SendableParticle {
 
         $subt = $end->subtractVector($start);
         
-        $div = $subt->length() * $this->ppb;
+        $div = 1 + ($subt->length() * $this->ppb);
         $step = $subt->divide($div);
         $positions = [];
-        for ($i = 0; $i <= $div; $i += $this->ppb){
+        for ($i = 0; $i <= $div; $i ++){
             $positions[] = $start->addVector($step->multiply($i));
         }
 
