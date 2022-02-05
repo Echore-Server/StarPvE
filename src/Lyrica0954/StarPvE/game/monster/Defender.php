@@ -90,7 +90,7 @@ class Defender extends FightingEntity implements Neutral{
         $next->y += (2.25 * sin($n));
         $velocity = $next->subtractVector($current);
 
-        if ($currentTick % 1 == 0){
+        if ($currentTick % 5 == 0){
 
             $par = new CircleParticle(5, 6, 0);
             $par->sendToPlayers($this->getWorld()->getPlayers(), $current, "minecraft:basic_crit_particle");
@@ -111,7 +111,8 @@ class Defender extends FightingEntity implements Neutral{
                         if ($xzd <= 5 && ($current->y >= $minY && $current->y <= $maxY)){
                             $source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
                             $source->setAttackCooldown(4);
-                            EntityUtil::attackEntity($source, 0.25, $velocity->y*10);
+                            PlayerUtil::playSound($entity, "mob.player.hurt_freeze", 1.2, 0.9);
+                            EntityUtil::attackEntity($source, 0.25, $velocity->y*8);
                         }
                     }
                 }
