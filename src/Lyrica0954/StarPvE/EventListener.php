@@ -55,6 +55,12 @@ class EventListener implements Listener {
         }
     }
 
+    public function onInteract(PlayerInteractEvent $event){
+        if ($event->getAction() === PlayerInteractEvent::RIGHT_CLICK_BLOCK){
+            $this->plugin->getJobManager()->onItemUse($event);
+        }
+    }
+
     public function onDamage(EntityDamageEvent $event){
         $entity = $event->getEntity();
 

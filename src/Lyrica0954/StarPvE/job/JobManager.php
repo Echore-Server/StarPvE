@@ -81,7 +81,7 @@ class JobManager {
         return isset($this->players[spl_object_hash($player)]);
     }
 
-    public function onItemUse(PlayerItemUseEvent $event){
+    public function onItemUse(PlayerItemUseEvent|PlayerInteractEvent $event){
         $item = $event->getItem();
         $player = $event->getPlayer();
         if ($this->isManaged($player)){
