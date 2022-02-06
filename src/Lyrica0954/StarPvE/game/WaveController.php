@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game;
 
+use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
@@ -212,6 +213,11 @@ class WaveController implements CooltimeAttachable, Listener{
                 $particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
                 $entity->getWorld()->addParticle($entity->getPosition()->add(0, 0.1, 0), $particle);
     
+                $par = new SingleParticle();
+                $pp = $entity->getPosition();
+                $pp->y += 1.5;
+                $par->sendToPlayers($entity->getWorld()->getPlayers(), $pp, "starpve:totem_jet_particle");
+                
                 foreach($drops as $item){
                     $motion = new Vector3(
                         RandomUtil::rand_float(-0.12, 0.12),
