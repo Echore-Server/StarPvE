@@ -210,8 +210,8 @@ class WaveController implements CooltimeAttachable, Listener{
             if (MonsterData::isMonster($entity)){
                 $drops = $this->monsterDrops[$entity::class] ?? [];
 
-                $particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
-                $entity->getWorld()->addParticle($entity->getPosition()->add(0, 0.1, 0), $particle);
+                #$particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
+                #$entity->getWorld()->addParticle($entity->getPosition()->add(0, 0.1, 0), $particle);
     
                 $par = new SingleParticle();
                 $pp = $entity->getPosition();
