@@ -240,6 +240,30 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::HUSK, 1)
                 )
             ), 
+            8 => new WaveData(
+                $defaultTitleFormat,
+                null,
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 12),
+                    new MonsterData(MonsterData::ATTACKER, 4),
+                    new MonsterData(MonsterData::HUSK, 3),
+
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 5),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::SPIDER, 1) #NEW: SPIDER
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 4),
+                    new MonsterData(MonsterData::ATTACKER, 2),
+                    new MonsterData(MonsterData::SPIDER, 1)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 5),
+                    new MonsterData(MonsterData::HUSK, 1)
+                )
+            ),  
         ]);
     }
 
