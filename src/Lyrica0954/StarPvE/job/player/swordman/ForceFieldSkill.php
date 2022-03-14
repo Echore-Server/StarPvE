@@ -7,10 +7,12 @@ namespace Lyrica0954\StarPvE\job\player\swordman;
 use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\job\ticking\Ticking;
 use Lyrica0954\StarPvE\job\ticking\TickingController;
+use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -23,19 +25,33 @@ use pocketmine\world\particle\ExplodeParticle;
 
 class ForceFieldSkill extends Skill{
 
-    protected float $baseDamage = 6.0;
-
     public function getCooltime(): int{
         return (25 * 20);
     }
 
+    public function getName(): String{
+        return "フォースフィールド";
+    }
+
+    public function getDescription(): String{
+        $area = DescriptionTranslator::number($this->area, "m");
+        $damage = DescriptionTranslator::health($this->damage);
+        return
+sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。', $area, $damage);
+    }
+
+    protected function init(): void{
+        $this->damage = new AbilityStatus(6.0);
+        $this->area = new AbilityStatus(9.0);
+    }
+
     protected function onActivate(): ActionResult{
-        $particle = new SphereParticle(9.0, 8.5);
+        $particle = new SphereParticle($this->area->get(), 8.5, 8.5);
         $particle->sendToPlayers($this->player->getWorld()->getPlayers(), $this->player->getPosition(), "minecraft:basic_flame_particle");
 
         PlayerUtil::broadcastSound($this->player->getPosition(), "block.false_permissions", 0.5);
 
-        foreach(EntityUtil::getWithinRange($this->player->getPosition(), 9.0) as $entity){
+        foreach(EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity){
             if (MonsterData::isMonster($entity)){
                 $xz = 6.0;
                 $y = 2.0;
@@ -44,7 +60,7 @@ class ForceFieldSkill extends Skill{
                     $y = 1.0;
                 }
 
-                $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->baseDamage);
+                $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->damage->get());
 
                 EntityUtil::attackEntity($source, $xz, $y);
             }

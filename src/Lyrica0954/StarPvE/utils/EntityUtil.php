@@ -10,13 +10,39 @@ use pocketmine\entity\Attribute;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\Listener;
 use pocketmine\math\RayTraceResult;
+use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
+use pocketmine\player\Player;
+use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\world\Position;
+use pocketmine\world\World;
 
-class EntityUtil {
+class EntityUtil implements Listener{
 
-    public static function getWithinRange(Position $pos, float $range): mixed{
+    const DAMAGE_MODIFIER_ADJUST = 99;
+    const DAMAGE_MODIFIER_PERCENTAGE = 100;
+
+    public static array $multiplyDamage = [];
+
+    public static ?EntityUtil $instance = null;
+
+    public function init(PluginBase $plugin): void{
+        self::$instance = $this;
+        $plugin->getServer()->getPluginManager()->registerEvents($this, $plugin);
+    }
+
+    /**
+     * @param Position $pos
+     * @param float $range
+     * 
+     * @return Entity[]
+     */
+    public static function getWithinRange(Position $pos, float $range): array{
         $entities = [];
         foreach($pos->getWorld()->getEntities() as $entity){
             if ($entity->isAlive()){
@@ -28,17 +54,30 @@ class EntityUtil {
         return $entities;
     }
 
-    public static function findWithinRange(Position $pos, float $range): Generator{
-        foreach($pos->getWorld()->getEntities() as $entity){
+    /**
+     * @param Vector2 $pos
+     * @param World $world
+     * @param float $range
+     * 
+     * @return Entity[]
+     */
+    public static function getWithinRangePlane(Vector2 $pos, World $world, float $range): array{
+        $entities = [];
+        foreach($world->getEntities() as $entity){
             if ($entity->isAlive()){
-                if ($entity->getPosition()->distance($pos) <= $range){
-                    yield $entity;
+                $ep = $entity->getPosition();
+                $ev2 = new Vector2($ep->x, $ep->z);
+                $dist = $ev2->distance($pos);
+                if ($dist <= $range){
+                    $entities[] = $entity;
                 }
             }
         }
+
+        return $entities;
     }
 
-    public static function getNearest(Position $pos, float $maxDistance = PHP_INT_MAX){
+    public static function getNearest(Position $pos, float $maxDistance = PHP_INT_MAX): ?Entity{
         $ndist = $maxDistance;
         $nent = null;
 
@@ -56,7 +95,7 @@ class EntityUtil {
     }
 
     
-    public static function getNearestMonster(Position $pos, float $maxDistance = PHP_INT_MAX){
+    public static function getNearestMonster(Position $pos, float $maxDistance = PHP_INT_MAX): ?Entity{
         $ndist = $maxDistance;
         $nent = null;
 
@@ -73,6 +112,12 @@ class EntityUtil {
         return $nent;
     }
 
+    /**
+     * @param Position $pos
+     * @param Vector3|null $expand
+     * 
+     * @return Player[]
+     */
     public static function getPlayersInsideVector(Position $pos, ?Vector3 $expand = null): array{
         $expand = ($expand === null) ? (new Vector3(0, 0, 0)) : $expand;
         $players = [];
@@ -85,6 +130,16 @@ class EntityUtil {
         }
 
         return $players;
+    }
+
+    public static function immobile(Entity $entity, int $duration): void{
+        $duration = max(0, $duration);
+        if ($duration > 0){
+            $entity->setImmobile(true);
+            TaskUtil::delayed(new ClosureTask(function() use($entity){
+                $entity->setImmobile(false);
+            }), $duration);
+        }
     }
 
     /**
@@ -152,7 +207,7 @@ class EntityUtil {
         return $entities;
     }
 
-    public static function modifyKnockback(Entity $entity, Entity $attacker, float $xz = 1.0, float $y = 1.0){
+    public static function modifyKnockback(Entity $entity, Entity $attacker, float $xz = 1.0, float $y = 1.0): Vector3{
         $epos = $entity->getPosition();
         $apos = $attacker->getPosition();
         $deltaX = $epos->x - $apos->x;
@@ -164,7 +219,49 @@ class EntityUtil {
         return $motion;
     }
 
-    public static function attackEntity(EntityDamageByEntityEvent $source, float $xz = 1.0, float $y = 1.0){
+    public static function getCollisionMin(Entity $entity){
+        $bb = $entity->getBoundingBox();
+        return new Vector3($bb->minX, $bb->minY, $bb->minZ);
+    }
+
+    public static function getCollisionMax(Entity $entity){
+        $bb = $entity->getBoundingBox();
+        return new Vector3($bb->maxX, $bb->maxY, $bb->maxZ);
+    }
+
+    public static function setMaxHealthSynchronously(Entity $entity, int $maxHealth){
+        $health = $entity->getHealth();
+        if ($entity->getMaxHealth() <= $maxHealth){ #増加
+            if ($health >= $entity->getMaxHealth()){
+                $health = $maxHealth;
+            } else {
+                $percentage = ($health / $entity->getMaxHealth());
+                $health = ($maxHealth * $percentage);
+            }       
+        } else {
+            if ($health >= $maxHealth){
+                $health = $maxHealth;
+            }
+        }
+
+        $entity->setMaxHealth($maxHealth);
+        $entity->setHealth($health);
+    }
+
+    public static function addMaxHealthSynchronously(Entity $entity, int $add){
+        self::setMaxHealthSynchronously($entity, ($entity->getMaxHealth() + $add));
+    }
+
+    public static function setHealthSynchronously(Entity $entity, float $health){
+        $maxHealth = $entity->getMaxHealth();
+        if ($health > $maxHealth){
+            $health = $maxHealth;
+        }
+
+        $entity->setHealth($health);
+    }
+
+    public static function attackEntity(EntityDamageByEntityEvent $source, float $xz = 1.0, float $y = 1.0, bool $forceMotion = false){
         $source->setKnockBack(0);
         $entity = $source->getEntity();
         $damager = $source->getDamager();
@@ -172,12 +269,12 @@ class EntityUtil {
         $kb = self::modifyKnockback($entity, $damager, $xz, $y);
 
         $entity->attack($source);
-        if (!$source->isCancelled()){
+        if (!$source->isCancelled() || $forceMotion){
             $entity->setMotion($kb);
         }
     }
 
-    public static function calculateKnockback(Entity $entity, float $x, float $z, float $base = 0.4){
+    public static function calculateKnockback(Entity $entity, float $x, float $z, float $base = 0.4): Vector3{
         $f = sqrt($x * $x + $z * $z);
         if($f <= 0){
             return new Vector3(0, 0, 0);
@@ -201,6 +298,40 @@ class EntityUtil {
             return $motion;
         } else {
             return new Vector3(0, 0, 0);
+        }
+    }
+
+
+    public static function multiplyFinalDamage(EntityDamageEvent $source, float $multiplier): void{
+        $before = $source->getModifier(self::DAMAGE_MODIFIER_PERCENTAGE);
+        $finalDamage = $source->getFinalDamage() + (-$before);
+        $subtractDamage = ($finalDamage) * (1 - $multiplier);
+        $source->setModifier(
+            $before - $subtractDamage,
+            self::DAMAGE_MODIFIER_PERCENTAGE
+        );
+    }
+
+    public static function multiplyDamageFor(Entity $entity, float $multiplier, int $duration){
+        $duration = max(0, $duration);
+        if ($duration > 0){
+            $h = spl_object_hash($entity);
+            self::$multiplyDamage[$h] = [$entity, $multiplier];
+            TaskUtil::delayed(new ClosureTask(function() use($h){
+                unset(self::$multiplyDamage[$h]);
+            }), $duration);
+        }
+    }
+
+    public function onEntityDamage(EntityDamageEvent $event){
+        $entity = $event->getEntity();
+
+        $h = spl_object_hash($entity);
+
+        $data = self::$multiplyDamage[$h] ?? null;
+        if ($data !== null){
+            $multiplier = $data[1];
+            self::multiplyFinalDamage($event, $multiplier);
         }
     }
 

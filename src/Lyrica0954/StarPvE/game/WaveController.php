@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game;
 
+use Lyrica0954\BossBar\BossBar;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\LivingBase;
+use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\Villager;
@@ -36,6 +38,7 @@ use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
@@ -53,6 +56,8 @@ class WaveController implements CooltimeAttachable, Listener{
 
     protected Game $game;
 
+    protected ?WaveData $currentWaveData;
+
     protected array $waveData;
     protected int $monsterRemain;
     protected int $wave;
@@ -64,15 +69,17 @@ class WaveController implements CooltimeAttachable, Listener{
 
         $this->reset();
 
+        $this->currentWaveData = null;
+
         $f = ItemFactory::getInstance();
 
         $this->monsterAttributes = [
-            MonsterData::ZOMBIE => new MonsterAttribute(24, 5.0, 0.35),
+            MonsterData::ZOMBIE => new MonsterAttribute(24, 4.5, 0.35),
             MonsterData::ATTACKER => new MonsterAttribute(110, 6.0, 0.025),
             MonsterData::CREEPER => new MonsterAttribute(15, 1.0, 0.45),
             MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 0.37),
-            MonsterData::HUSK => new MonsterAttribute(60, 9.0, 0.25),
-            MonsterData::SKELETON => new MonsterAttribute(30, 2.0, 0.21),
+            MonsterData::HUSK => new MonsterAttribute(60, 8.0, 0.25),
+            MonsterData::SKELETON => new MonsterAttribute(50, 2.0, 0.21),
             MonsterData::DEFENDER => new MonsterAttribute(56, 0.5, 0.3)
         ];
 
@@ -143,35 +150,7 @@ class WaveController implements CooltimeAttachable, Listener{
                     $event->setKnockBack(0);
                 }
                 
-                if ($damager instanceof Player){
-                    if ($entity->getHealth() <= $event->getFinalDamage()){
-                        PlayerUtil::playSound($damager, "random.orb", 1.0, 0.8);
-    
-                        $waveBase = 1 + floor(($this->wave - 1) / 2);
-                        $monsterMultiplier = match(true){
-                            MonsterData::equal($entity, MonsterData::ATTACKER) => 3,
-                            MonsterData::equal($entity, MonsterData::CREEPER) => 2,
-                            MonsterData::equal($entity, MonsterData::SKELETON) => 4,
-                            MonsterData::equal($entity, MonsterData::DEFENDER) => 2,
-                            default => 1
-                        };
-        
-                        $gainExp = $waveBase * $monsterMultiplier;
-                        PlayerDataCollector::addGenericDigit($damager, "MonsterKills", 1);
-                        $exp = PlayerDataCollector::addExp($damager, $gainExp);
-                        $nextExp = PlayerDataCollector::getGenericConfig($damager, "NextExp");
-        
-                        $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
-                        $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
-                        
-                        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
-                            $par->setInvisible(true);
-                            $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
-                        }), 20);
-                        #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
-                        #$entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
-                    }
-                }
+
             }
         }
     }
@@ -207,7 +186,44 @@ class WaveController implements CooltimeAttachable, Listener{
                 return;
             }
 
-            if (MonsterData::isMonster($entity)){
+            if ($entity instanceof FightingEntity){
+
+
+
+                $ldc = $entity->getLastDamageCauseByPlayer();
+
+
+                if ($ldc instanceof EntityDamageByEntityEvent){
+                    $damager = $ldc->getdamager();
+                    if ($damager instanceof Player){
+                        PlayerUtil::playSound($damager, "random.orb", 1.0, 0.8);
+    
+                        $waveBase = 1 + floor(($this->wave - 1) / 2);
+                        $monsterMultiplier = match(true){
+                            MonsterData::equal($entity, MonsterData::ATTACKER) => 3,
+                            MonsterData::equal($entity, MonsterData::CREEPER) => 2,
+                            MonsterData::equal($entity, MonsterData::SKELETON) => 4,
+                            MonsterData::equal($entity, MonsterData::DEFENDER) => 2,
+                            MonsterData::equal($entity, MonsterData::ZOMBIE) => 10,
+                            default => 1
+                        };
+        
+                        $gainExp = $waveBase * $monsterMultiplier;
+                        PlayerDataCollector::addGenericDigit($damager, "MonsterKills", 1);
+                        $exp = PlayerDataCollector::addExp($damager, $gainExp);
+                        $nextExp = PlayerDataCollector::getGenericConfig($damager, "NextExp");
+        
+                        $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
+                        $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
+                        
+                        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
+                            $par->setInvisible(true);
+                            $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
+                        }), 20);
+                        #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
+                        #$entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
+                    }
+                }
                 $drops = $this->monsterDrops[$entity::class] ?? [];
 
                 #$particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
@@ -240,16 +256,19 @@ class WaveController implements CooltimeAttachable, Listener{
                     $dropItemEntity->spawnToAll();
                 }
     
-                #todo: scoreboard
     
                 $this->monsterRemain--;
+
+                $per = max(0.0, ($this->monsterRemain / $this->currentWaveData->getMonsterCount()));
+                $this->game->getBossBar()->setHealthPercent($per);
+                $this->game->getBossBar()->update();
     
                 if ($this->monsterRemain == 0){
                     $this->waveClear();
                 }
     
                 if ($this->monsterRemain < 0){
-                    $this->game->broadcastMessage("§cエラー: monsterRemain が {$this->mobRmeain} です");
+                    $this->game->broadcastMessage("§cUnexpected: monsterRemain が {$this->mobRemain} です");
                 }
             }
         }
@@ -333,6 +352,7 @@ class WaveController implements CooltimeAttachable, Listener{
     public function spawnWaveMonster(int $wave){
         $waveData = $this->getWaveDataFrom($wave);
         if ($waveData !== null){
+            $this->currentWaveData = $waveData;
             $this->spawnMonster($waveData->lane1, $this->game->lane1->getStart(), function(Living $entity){
                 if ($entity instanceof Attacker){
                     $this->game->lane1->addAttacker($entity);
@@ -367,6 +387,10 @@ class WaveController implements CooltimeAttachable, Listener{
                 PlayerUtil::playSound($player, "random.levelup", 1.0, 0.5);
                 $player->sendTitle("§eWave Clear!", "§7Next wave in 30 seconds...");
             }
+
+            $this->game->getBossBar()->setHealthPercent(0.0);
+            $this->game->getBossBar()->update();
+
             $this->cooltimeHandler->start(30 * 20);
         }
     }
@@ -376,7 +400,11 @@ class WaveController implements CooltimeAttachable, Listener{
             foreach($this->game->getPlayers() as $player){
                 PlayerUtil::playSound($player, "random.click", 1.5, 0.5);
                 $player->sendActionBarMessage("次のウェーブまで残り {$remain}秒");
+                
             }
+            $per = max(0.0, 1.0 - ($remain / $cooltimeHandler->getTime()));
+            $this->game->getBossBar()->setHealthPercent($per);
+            $this->game->getBossBar()->update();
             return true;
         }
 
@@ -386,6 +414,8 @@ class WaveController implements CooltimeAttachable, Listener{
     public function cooltimeFinished(CooltimeHandler $cooltimeHandler): void{
         if ($cooltimeHandler->getId() === "Wave Tick"){
             $this->waveStart();
+            $this->game->getBossBar()->setHealthPercent(1.0);
+            $this->game->getBossBar()->update();
         }
     }
 }

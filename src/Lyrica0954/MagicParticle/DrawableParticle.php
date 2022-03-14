@@ -17,4 +17,11 @@ interface DrawableParticle {
      */
     public function draw(Position $pos): array;
 
+    /**
+     * @param Position $pos
+     * 
+     * @return Vector3[]
+     */
+    public function drawAsDelayed(Position $pos): array;
+
 }

@@ -13,6 +13,8 @@ class WaveData {
 
     protected ?CustomWaveStart $customWaveStart;
 
+    protected int $monsterCount;
+
     public WaveMonsters $lane1;
     public WaveMonsters $lane2;
     public WaveMonsters $lane3;
@@ -26,6 +28,18 @@ class WaveData {
         $this->lane2 = $lane2;
         $this->lane3 = $lane3;
         $this->lane4 = $lane4;
+
+        $this->monsterCount = 0;
+
+        foreach([$lane1, $lane2, $lane3, $lane4] as $monsters){
+            foreach($monsters->getAll() as $data){
+                $this->monsterCount += $data->count;
+            }
+        }
+    }
+
+    public function getMonsterCount(): int{
+        return $this->monsterCount;
     }
 
     public function parseTitleFormat(int $wave){

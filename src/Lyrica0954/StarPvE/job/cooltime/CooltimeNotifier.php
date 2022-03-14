@@ -15,11 +15,22 @@ class CooltimeNotifier{
 
     private ?Task $task;
 
+    protected string $prefix;
+
     public function __construct(Player $player){
         $this->player = $player;
         $this->cooltimes = [];
         $this->task = null;
+        $this->prefix = "";
         
+    }
+
+    public function getPrefix(): string{
+        return $this->prefix;
+    }
+
+    public function setPrefix(string $prefix): void{
+        $this->prefix = $prefix;
     }
 
     public function log(string $message){
@@ -53,7 +64,7 @@ class CooltimeNotifier{
     }
 
     public function tick(){
-        $text = "";
+        $text = $this->prefix;
         foreach($this->cooltimes as $cooltimeHandler){
             $seconds = round($cooltimeHandler->getRemain() / 20);
             $status = (!$cooltimeHandler->isActive() ? "§a使用可能": "§c残り {$seconds}秒");

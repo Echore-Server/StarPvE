@@ -4,15 +4,42 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job;
 
+use Exception;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use Lyrica0954\StarPvE\StarPvE;
+use pocketmine\event\Listener;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\player\Player;
+use pocketmine\Server;
 
 abstract class Ability{
 
-    protected float $baseDamage = 0;
+    /**
+     * @var AbilityStatus
+     */
+    protected AbilityStatus $damage;
+    /**
+     * @var AbilityStatus
+     */
+    protected AbilityStatus $area;
+    /**
+     * @var AbilityStatus
+     */
+    protected AbilityStatus $speed; 
+    /**
+     * @var AbilityStatus
+     */
+    protected AbilityStatus $duration;
+    /**
+     * @var AbilityStatus
+     */
+    protected AbilityStatus $amount;
+    /**
+     * @var AbilityStatus
+     */
+    protected AbilityStatus $percentage;
 
     protected bool $active;
 
@@ -28,9 +55,28 @@ abstract class Ability{
         $this->closed = false;
         $this->active = false;
         $this->cooltimeHandler = new CooltimeHandler("アビリティ", CooltimeHandler::BASE_TICK, 1);
+
+        if ($this->player instanceof Player){
+            if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
+        }
+
+        $this->damage = new AbilityStatus(0.0);
+        $this->area = new AbilityStatus(0.0);
+        $this->speed = new AbilityStatus(0.0);
+        $this->duration = new AbilityStatus(0.0);
+        $this->amount = new AbilityStatus(0.0);
+        $this->percentage = new AbilityStatus(0.0);
+        
+        $this->init();
     }
 
-    public function close(){
+    abstract public function getName(): string;
+
+    abstract public function getDescription(): string;
+
+    abstract protected function init(): void;
+    
+    public function close(): void{
         $this->cooltimeHandler->forceStop();
     }
 
@@ -50,16 +96,28 @@ abstract class Ability{
         return $this->job;
     }
 
-    public function getBaseDamage(): float{
-        return $this->baseDamage;
+    public function getDamage(): AbilityStatus{
+        return $this->damage;
     }
 
-    public function setBaseDamage(float $baseDamage): void{
-        $this->baseDamage = $baseDamage;
+    public function getArea(): AbilityStatus{
+        return $this->area;
     }
 
-    public function addBaseDamage(float $add): void{
-        $this->baseDamage += $add;
+    public function getSpeed(): AbilityStatus{
+        return $this->speed;
+    }
+
+    public function getDuration(): AbilityStatus{
+        return $this->duration;
+    }
+
+    public function getAmount(): AbilityStatus{
+        return $this->amount;
+    }
+
+    public function getPercentage(): AbilityStatus{
+        return $this->percentage;
     }
 
     abstract public function getCooltime(): int;

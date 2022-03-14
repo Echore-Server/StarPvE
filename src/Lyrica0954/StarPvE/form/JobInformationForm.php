@@ -10,6 +10,7 @@ use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
@@ -31,21 +32,24 @@ class JobInformationForm implements Form{
         $skillCooltime = round($this->job->getSkill()->getCooltime() / 20, 1);
         return [
             "type"=>"form",
-            "title"=>"ショップ >> 職業 >> 職業一覧",
+            "title"=>"ショップ >> 職業 >> {$this->job->getName()}",
             "content"=>
 "{$this->job->getDescription()}
 ---------------------------
-{$add}§lアビリティ§r §7- §d{$this->job->getAbilityName()}§f
+{$add}§lアビリティ§r §7- §d{$this->job->getAbility()->getName()}§f
 §bクールタイム: §c{$abilityCooltime}秒§f
-{$this->job->getAbilityDescription()}
+{$this->job->getAbility()->getDescription()}
 §f---------------------------
-§lスキル§r§7 - §d{$this->job->getSkillName()}§f
+§lスキル§r§7 - §d{$this->job->getSkill()->getName()}§f
 §bクールタイム: §c{$skillCooltime}秒§f
-{$this->job->getSkillDescription()}
+{$this->job->getSkill()->getDescription()}
 §f---------------------------",
             "buttons"=>[
                 [
                     "text" => "§a§lこの職業に就く"
+                ],
+                [
+                    "text" => "§d§l特性"
                 ],
                 [
                     "text" => "戻る"
@@ -55,22 +59,32 @@ class JobInformationForm implements Form{
     }
 
     public function handleResponse(Player $player, $data): void{
-        if ($data !== null){
-            if ($data == 0){
-                if ($this->job->isSelectable($player)){
-                    $class = $this->job::class;
-                    StarPvE::getInstance()->getJobManager()->setJob($player, $class);
-                    Messanger::talk($player, "職業", "§a{$this->job->getName()} を選択しました！");
+        if ($player === $this->player){
+            if ($data !== null){
+                if ($data == 0){
+                    if ($this->job->isSelectable($player)){
+                        $class = $this->job::class;
+                        StarPvE::getInstance()->getJobManager()->setJob($player, $class);
+                        Messanger::talk($player, "職業", "§a{$this->job->getName()} を選択しました！");
+                    } else {
+                        Messanger::talk($player, "職業", "§c{$this->job->getName()} を選択できません");
+                    }
+                } elseif ($data == 1) {
+                    TaskUtil::delayed(new ClosureTask(function() use($player){
+                        $jobIdentity = new JobIdentityForm($player, $this->job);
+                        $player->sendForm($jobIdentity);
+                    }), 1);
                 } else {
-                    Messanger::talk($player, "職業", "§c{$this->job->getName()} を選択できません");
+                    TaskUtil::delayed(new ClosureTask(function() use($player){
+                        $jobSelect = new JobSelectForm($player);
+                        $player->sendForm($jobSelect);
+                    }), 1);
                 }
-            } else {
-                StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($player){
-                    $jobSelect = new JobSelectForm($player);
-                    $player->sendForm($jobSelect);
-                }), 1);
+                
             }
-            
+        } else {
+            Messanger::error($player, "Invalid Sender", Messanger::getIdFromObject($this, "handleResponse"));
         }
     }
+
 }

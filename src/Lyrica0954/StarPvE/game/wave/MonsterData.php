@@ -33,7 +33,7 @@ class MonsterData {
         $this->count = $count;
     }
 
-    public static function isMonster(Entity $entity){
+    public static function isMonster(Entity $entity): bool{
         return ($entity instanceof FightingEntity);
     }
 

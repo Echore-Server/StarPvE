@@ -47,6 +47,6 @@ class Spider extends SmartSpider {
     }
 
     public function getFollowRange(): float{
-        return 40;
+        return 50;
     }
 }

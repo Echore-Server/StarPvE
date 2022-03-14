@@ -13,6 +13,9 @@ use pocketmine\player\Player;
 use pocketmine\Server;
 
 abstract class Identity {
+    
+    protected PlayerJob $playerJob;
+    protected ?Condition $activateCondition;
 
     public function close(): void{
         if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
@@ -22,19 +25,47 @@ abstract class Identity {
         if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
     }
 
-    abstract public function apply(PlayerJob $playerJob): void;
+    private function init(PlayerJob $playerJob){
+        $this->playerJob = $playerJob;
+    }
 
-    abstract public function reset(PlayerJob $playerJob): void;
+    public static function setCondition(Identity $identity, ?Condition $condition): Identity{
+        $identity->setActivateCondition($condition);
+        return $identity;
+    }
 
-    abstract public function getActivateCondition(): ?Condition;
+    public function __construct(PlayerJob $playerJob){
+        $this->init($playerJob);
+        $this->activateCondition = null;
+    }
 
-    public function isActivateable(Player $player): bool{
+    public function setActivateCondition(?Condition $condition){
+        $this->activateCondition = $condition;
+    }
+
+    public function getActivateCondition(): ?Condition{
+        return $this->activateCondition;
+    }
+
+    abstract public function apply(): void;
+
+    abstract public function reset(): void;
+
+    public function isActivateableFor(Player $player): bool{
         $condition = $this->getActivateCondition();
+
         if ($condition !== null){
             return $condition->check($player);
         } else {
             return true;
         }
+    }
+
+    public function isActivateable(): bool{
+        if (!$this->playerJob->getPlayer() instanceof Player){
+            return true;
+        }
+        return $this->isActivateableFor($this->playerJob->getPlayer());
     }
 
     abstract public function getName(): string;

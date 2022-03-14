@@ -64,7 +64,7 @@ class PlayerDataCenter extends DataCenter implements Listener{
             $count++;
         }
 
-        $this->log("§6Loaded {$count}");
+        $this->log("§6Loaded {$count} Data");
     }
 
     public function exist(Player $player){

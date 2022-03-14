@@ -14,22 +14,29 @@ class IdentityGroup {
      */
     protected array $identities;
 
-    public function __construct(Identity... $identities){
-        $this->identities = $identities;
+    protected PlayerJob $playerJob;
+
+    public function __construct(PlayerJob $playerJob){
+        $this->playerJob = $playerJob;
+        $this->identities = [];
     }
 
-    public function reset(PlayerJob $playerJob): void{
+    public function add(Identity $identity){
+        $this->identities[] = $identity;
+    }
+
+    public function reset(): void{
         foreach($this->identities as $identity){
-            if ($identity->isActivateable($playerJob->getPlayer())){
-                $identity->reset($playerJob);
+            if ($identity->isActivateable()){
+                $identity->reset();
             }
         }
     }
 
-    public function apply(PlayerJob $playerJob): void{
+    public function apply(): void{
         foreach($this->identities as $identity){
-            if ($identity->isActivateable($playerJob->getPlayer())){
-                $identity->apply($playerJob);
+            if ($identity->isActivateable()){
+                $identity->apply();
             }
         }
     }

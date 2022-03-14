@@ -17,6 +17,11 @@ class MemoryEntity extends Entity implements Ghost{
      */
     private array $tickHook = [];
 
+    /**
+     * @var \Closure[]
+     */
+    private array $closeHook = [];
+
     public static function getNetworkTypeId(): string{
         return EntityIds::SNOWBALL;
     }
@@ -36,8 +41,20 @@ class MemoryEntity extends Entity implements Ghost{
         $this->tickHook[] = $hook;
     }
 
+    public function addCloseHook(\Closure $hook){
+        $this->closeHook[] = $hook;
+    }
+
     public function onUpdate(int $currentTick): bool{
         $hasUpdate = parent::onUpdate($currentTick);
+
+        if ($this->closed && !$this->isAlive()){
+            foreach($this->closeHook as $hook){
+                ($hook)($this);
+            }
+
+            $this->closeHook = [];
+        }
 
         foreach($this->tickHook as $hook){
             ($hook)($this);

@@ -27,7 +27,7 @@ class Creeper extends SmartCreeper {
     }
 
     public function getFollowRange(): float{
-        return 40;
+        return 50;
     }
 
     public function explode(): void{
@@ -71,7 +71,6 @@ class Creeper extends SmartCreeper {
                     $impact = (1 - $distance) * ($exposure = 1);
      
                     $damage = (int) ((($impact * $impact + $impact) / 2) * 8 * $explosionSize + 1);
-                    $damage *= 0.6;
 
                     $ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, $damage);
      

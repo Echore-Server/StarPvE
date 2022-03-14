@@ -5,16 +5,27 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\swordman;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\AlwaysAbility;
+use Lyrica0954\StarPvE\job\Identity;
+use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AddBaseDamageIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\translate\DescriptionTranslator;
+use Lyrica0954\StarPvE\utils\EntityUtil;
 use ParentIterator;
+use pocketmine\entity\Entity;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\Listener;
 use pocketmine\network\mcpe\protocol\types\ParticleIds;
+use pocketmine\player\Player;
 
-
-
-class Swordman extends PlayerJob{
+class Swordman extends PlayerJob implements AlwaysAbility, Listener{
 
     protected function getInitialAbility(): Ability{
         return new LeapAbility($this);
@@ -25,7 +36,14 @@ class Swordman extends PlayerJob{
     }
 
     protected function getInitialIdentityGroup(): IdentityGroup{
-        return new IdentityGroup();
+        $g = new IdentityGroup($this);
+        $lists = [
+        ];
+
+        foreach($lists as $identity){
+            $g->add($identity);
+        }
+        return $g;
     }
 
     public function getName(): string{
@@ -40,32 +58,35 @@ class Swordman extends PlayerJob{
 この職業はどの能力もクールタイムが短いため、どんどん使っていこう。";
     }
 
-    public function getAbilityName(): string{
-        return "リープ";
+    public function getAlAbilityName(): string{
+        return "シールド";
     }
 
-    public function getAbilityDescription(): String{
+    public function getAlAbilityDescription(): string{
         return 
-"発動時: 視線の先に向かってジャンプする。
-着地中: ジャンプの高さが低く飛距離が長い
-空中: ジャンプの高さが高く飛距離は少し短い
-
-ジャンプ中、周りに風を発生させ§c3.5m§f以内の敵全てを前方に吹き飛ばし、§c1.5♡§fのダメージを与える。
-ジャンプ中、ノックバックしなくなる。
-吹き飛ばした敵が§dアタッカー§fの場合は、吹き飛びが軽減される。";
-    }
-
-    public function getSkillName(): String{
-        return "フォースフィールド";
-    }
-
-    public function getSkillDescription(): String{
-        return
-"発動時: §c9m§f以内の敵に§c3♡§fのダメージを与えて、遠くに吹き飛ばす。";
+"自分が受けるダメージを (§c6m§f 以内にいる敵の数 x §c3§f)%% 軽減する(最大§c12体§f分)";
     }
 
     public function getSelectableCondition(): ?Condition{
         return null;
     }
 
+    public function onEntityDamage(EntityDamageEvent $event){
+        $entity = $event->getEntity();
+        if ($entity === $this->player){
+            if ($entity instanceof Player){
+                $entities = array_filter(
+                    EntityUtil::getWithinRange($entity->getPosition(), 6.0),
+                    function(Entity $entity){
+                        return (MonsterData::isMonster($entity));
+                    }
+                );
+                $count = min(12, count($entities));
+
+                $reduce = ($count) * 0.03;
+
+                EntityUtil::multiplyFinalDamage($event, (1.0 - $reduce));
+            }
+        }
+    }
 }

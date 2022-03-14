@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\utils;
 use Generator;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\entity\Entity;
+use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\item\Sword;
@@ -72,6 +73,12 @@ class PlayerUtil {
         }
         return $has;
     }
+    
+    public static function give(Player $player, Item $item): void{
+        if ($player->getInventory()->canAddItem($item)){
+            $player->getInventory()->addItem($item);
+        }
+    }
 
 
     public static function flee(Player $player){
@@ -84,7 +91,6 @@ class PlayerUtil {
     }
 
     public static function reset(Player $player){
-        $player->setMaxHealth(20);
         self::flee($player);
         $player->getArmorInventory()->clearAll();
         $player->getInventory()->clearAll();

@@ -21,7 +21,7 @@ use pocketmine\Server;
 
 abstract class PlayerJob extends Job{
 
-    protected ?Player $player;
+    protected ?Player $player = null;
 
     protected Ability $ability;
     protected Skill $skill;
@@ -31,29 +31,28 @@ abstract class PlayerJob extends Job{
     protected CooltimeNotifier $cooltimeNotifier;
 
     public function __construct(?Player $player){
+
         if ($player instanceof Player){ #JobManager への登録を簡単にするため
             $this->player = $player;
 
             $this->log("§dCreated for {$player->getName()}");
-
-            $this->ability = $this->getInitialAbility();
-            $this->skill = $this->getInitialSkill();
-            $this->identityGroup = $this->getInitialIdentityGroup();
-            $this->identityGroup->apply($this);
-    
-            $this->cooltimeNotifier = new CooltimeNotifier($player);
-            $this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
-            $this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
-            $this->cooltimeNotifier->start();
 
             if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
         } else {
             $this->player = null;
 
             #$this->log("§dCreated for none");
+        }
+        $this->ability = $this->getInitialAbility();
+        $this->skill = $this->getInitialSkill();
+        $this->identityGroup = $this->getInitialIdentityGroup();
+        $this->identityGroup->apply($this);
 
-            $this->ability = $this->getInitialAbility();
-            $this->skill = $this->getInitialSkill();
+        if ($player instanceof Player){
+            $this->cooltimeNotifier = new CooltimeNotifier($player);
+            $this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
+            $this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
+            $this->cooltimeNotifier->start();
         }
     }
 
@@ -80,7 +79,7 @@ abstract class PlayerJob extends Job{
             }
 
             $name = $activated->getCooltimeHandler()->getId();
-            $this->log("Activated {$name}");
+            #$this->log("Activated {$name}");
             if ($result->isFailedByCooltime()){
                 $this->player->sendMessage("§c現在{$name}はクールタイム中です！");
             } elseif($result->isFailedAlreadyActive()){
@@ -109,6 +108,10 @@ abstract class PlayerJob extends Job{
 
     public function getSkill(): Skill{
         return $this->skill;
+    }
+
+    public function getIdentityGroup(): IdentityGroup{
+        return $this->identityGroup;
     }
 
     abstract protected function getInitialAbility(): Ability;

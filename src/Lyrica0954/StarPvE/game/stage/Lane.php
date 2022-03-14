@@ -41,9 +41,9 @@ class Lane{
 
         $this->start->y = $this->end->y;
 
-        $this->addRepeatingTask(new ClosureTask(function (){
-            $this->updateLaneState();
-        }), 1);
+        #$this->addRepeatingTask(new ClosureTask(function (){
+        #    $this->updateLaneState();
+        #}), 1);
     }
 
     public function getStart(): Position{

@@ -21,10 +21,10 @@ trait TickingController {
             if ($this->task[$id] instanceof TickingTask){
                 $this->task[$id]->getHandler()->cancel();
             } else {
-                throw new \Exception("JobTicking id {$id} is not instance of JobTicking");
+                throw new \Exception("Ticking id {$id} is not instance of Ticking");
             }
         } else {
-            throw new \Exception("JobTicking id {$id} not found");
+            throw new \Exception("Ticking id {$id} not found");
         }
     }
 }

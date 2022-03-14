@@ -13,6 +13,6 @@ class Zombie extends SmartZombie {
     protected float $reach = 1.5;
 
     public function getFollowRange(): float{
-        return 40;
+        return 50;
     }
 }

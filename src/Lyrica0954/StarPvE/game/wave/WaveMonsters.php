@@ -17,13 +17,19 @@ use pocketmine\world\Position;
 
 class WaveMonsters {
 
+    /**
+     * @var MonsterData[]
+     */
     private array $monsters;
 
     public function __construct(MonsterData ...$monsters){
         $this->monsters = $monsters;
     }
 
-    public function getAll(){
+    /**
+     * @return MonsterData[]
+     */
+    public function getAll(): array{
         return $this->monsters;
     }
 

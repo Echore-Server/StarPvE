@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\utils;
 
+use Lyrica0954\StarPvE\data\condition\Condition;
 use pocketmine\player\Player;
 
 class Messanger {
@@ -26,5 +27,19 @@ class Messanger {
         self::reward($player, $content, $amount, "§b");
     }
 
-    
+    public static function error(Player $player, string $message, string $id){
+        $player->sendMessage("§c<!> {$message} §7(ID: {$id})");
+    }
+
+    public static function getIdFromObject(object $object, string $function, string $add = ""){
+        $ref = new \ReflectionClass($object);
+        $name = $ref->getShortName();
+        $id = "{$name}#{$function}<F>-{$add}<C>";
+        return $id;
+    }
+
+    public static function condition(Player $player, ?Condition $condition){
+        $text = ($condition instanceof Condition) ? ($condition->asText()) : "なし";
+        $player->sendMessage("§c--------------\n§7{$text}\n§c--------------");
+    }
 }

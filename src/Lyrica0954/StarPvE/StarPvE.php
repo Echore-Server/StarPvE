@@ -21,8 +21,17 @@ use Lyrica0954\StarPvE\game\monster\Zombie;
 use Lyrica0954\StarPvE\game\player\GamePlayerManager;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\JobManager;
+use Lyrica0954\StarPvE\job\player\engineer\Engineer;
+use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
+use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
+use Lyrica0954\StarPvE\job\player\fighter\Fighter;
+use Lyrica0954\StarPvE\job\player\healer\Healer;
 use Lyrica0954\StarPvE\job\player\magician\Magician;
+use Lyrica0954\StarPvE\job\player\shaman\Shaman;
 use Lyrica0954\StarPvE\job\player\swordman\Swordman;
+use Lyrica0954\StarPvE\player\indicator\damage\DamageEventListener;
+use Lyrica0954\StarPvE\utils\EntityUtil;
+use pocketmine\block\Gravel;
 use pocketmine\data\bedrock\EntityLegacyIds;
 use pocketmine\data\SavedDataLoadingException;
 use pocketmine\entity\EntityDataHelper;
@@ -34,6 +43,7 @@ use pocketmine\network\upnp\UPnP;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Internet;
 use pocketmine\world\World;
+use xenialdan\apibossbar\API;
 
 final class StarPvE extends PluginBase {
 
@@ -124,6 +134,32 @@ final class StarPvE extends PluginBase {
             }
             return new MonsterDropItem(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
         }, ['starpve:monster_drop_item'], EntityLegacyIds::ITEM);
+
+        $f->register(GravityBall::class, function(World $world, CompoundTag $nbt) : GravityBall{
+            $itemTag = $nbt->getCompoundTag("Item");
+            if($itemTag === null){
+                throw new SavedDataLoadingException("Expected \"Item\" NBT tag not found");
+            }
+ 
+            $item = Item::nbtDeserialize($itemTag);
+            if($item->isNull()){
+                throw new SavedDataLoadingException("Item is invalid");
+            }
+            return new GravityBall(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
+        }, ['starpve:gravity_ball'], EntityLegacyIds::ITEM);
+
+        $f->register(ShieldBall::class, function(World $world, CompoundTag $nbt) : ShieldBall{
+            $itemTag = $nbt->getCompoundTag("Item");
+            if($itemTag === null){
+                throw new SavedDataLoadingException("Expected \"Item\" NBT tag not found");
+            }
+ 
+            $item = Item::nbtDeserialize($itemTag);
+            if($item->isNull()){
+                throw new SavedDataLoadingException("Item is invalid");
+            }
+            return new ShieldBall(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
+        }, ['starpve:shield_ball'], EntityLegacyIds::ITEM);
     }
 
     protected function onDisable(): void{
@@ -142,15 +178,12 @@ final class StarPvE extends PluginBase {
         $this->log("Registering Entities...");
         $this->registerEntities();
 
-        $this->log("Registering Jobs...");
-        $this->jobManager->register(new Swordman(null));
-        $this->jobManager->register(new Magician(null));
-
         $this->log("Deleting Unused World...");
         $this->gameManager->deleteUnusedWorld();
 
         $this->log("Loading Commands...");
         CommandLoader::load($this);
+
     }
 
     protected function onEnable(): void{
@@ -160,15 +193,30 @@ final class StarPvE extends PluginBase {
         $this->map = $wm->getWorldByName("map");
         $this->hub = $wm->getWorldByName("hub");
 
+        $this->log("Loading Utilities...");
+        (new EntityUtil)->init($this);
+
+        $this->log("Registering Jobs...");
+        $this->jobManager->register(new Swordman(null));
+        $this->jobManager->register(new Magician(null));
+        $this->jobManager->register(new Fighter(null));
+        $this->jobManager->register(new Engineer(null));
+        $this->jobManager->register(new Healer(null));
+        $this->jobManager->register(new Shaman(null));
+
         
         $this->log("Starting Player Data Center...");
         $this->playerDataCenter = new PlayerDataCenter($this->getDataFolder() . "player_data");
 
         new EventListener($this);
+        new DamageEventListener($this);
         $this->log((string) Internet::getInternalIP());
 
         $this->log("Creating New Game...");
         $this->gameManager->createNewGame();
+
+        #$this->log("Loading Boss Bar API...");
+        #API::load($this);
     }
 
     public function log(string $message){

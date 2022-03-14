@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Lyrica0954\MagicParticle;
 
 use Generator;
+use Lyrica0954\StarPvE\utils\RandomUtil;
 use pocketmine\world\Position;
 
 class CircleParticle extends SendableParticle {
 
-    public function __construct(private float $size, private float $space, private float $pitch, private float $maxYaw = 360){
+    public function __construct(private float $size, private float $space, private float $pitch = 0, private float $maxYaw = 360, private float $unstableRate = 0){
         #これきもちー！！
     }
 
@@ -26,7 +27,9 @@ class CircleParticle extends SendableParticle {
             $z = cos(deg2rad($yaw)) * 1; #絶対固定
 
             $y = -sin(deg2rad($altYaw)) * $pitchDe;
-            $positions[] = $pos->add($x * $this->size, $y * $this->size, $z * $this->size);
+            $size = $this->size;
+            $size += RandomUtil::rand_float(-$this->unstableRate, $this->unstableRate);
+            $positions[] = $pos->add($x * $size, $y * $size, $z * $size);
         }
 
         return $positions;

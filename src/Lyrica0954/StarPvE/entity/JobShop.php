@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\entity;
 
+use Lyrica0954\MagicParticle\effect\PartDelayedEffect;
+use Lyrica0954\MagicParticle\effect\SaturatedLineworkEffect;
 use Lyrica0954\StarPvE\form\JobSelectForm;
 use pocketmine\entity\Human;
 use pocketmine\network\mcpe\protocol\EmotePacket;
@@ -12,6 +14,7 @@ use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use Lyrica0954\StarPvE\PlayerController;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EmoteIds;
+use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
@@ -46,6 +49,9 @@ class JobShop extends Human implements Ghost{
         $this->lookTick += $tickDiff;
         if ($this->lookTick >= 6){
             $this->lookTick = 0;
+
+            $ef = new PartDelayedEffect((new SaturatedLineworkEffect(16, 3, 1, 7)), 2, 1, true);
+            $ef->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), "minecraft:balloon_gas_particle");
 
             $nearestDist = PHP_INT_MAX;
             $nearestPlayer = null;

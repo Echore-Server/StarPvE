@@ -91,7 +91,6 @@ class Defender extends FightingEntity implements Neutral{
         $velocity = $next->subtractVector($current);
 
         if ($currentTick % 5 == 0){
-
             $par = new CircleParticle(5, 6, 0);
             $par->sendToPlayers($this->getWorld()->getPlayers(), $current, "minecraft:basic_crit_particle");
         }

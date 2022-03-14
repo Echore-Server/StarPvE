@@ -38,4 +38,8 @@ class MonsterDropItem extends ItemEntity {
 
         parent::onCollideWithPlayer($player);
     }
+
+    public function isMergeable(ItemEntity $entity): bool{
+        return false;
+    }
 }

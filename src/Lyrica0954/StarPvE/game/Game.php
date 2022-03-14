@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\game;
 
 use Closure;
+use Lyrica0954\BossBar\BossBar;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\shop\content\ArmorUpgradeContent;
@@ -26,6 +27,7 @@ use pocketmine\entity\Location;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\lang\Translatable;
+use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\Task;
@@ -50,6 +52,7 @@ class Game implements CooltimeAttachable{
     protected ?Villager $villager;
     protected WaveController $waveController;
     protected Shop $shop;
+    protected BossBar $bossBar;
 
     public Lane $lane1;
     public Lane $lane2;
@@ -75,6 +78,9 @@ class Game implements CooltimeAttachable{
         $this->status = self::STATUS_PREPARE;
         $this->centerPos = new Position(-49.5, 48.6, -49.5, $world);
         $this->villager = null;
+
+        $this->bossBar = new BossBar("Monster Remain");
+        $this->bossBar->setColor(BossBarColor::RED);
 
         $this->shop = new Shop;
         $this->shop->addContent(new SwordUpgradeContent("武器の強化"));
@@ -185,7 +191,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ATTACKER, 2)
                 ),
                 new WaveMonsters(
-                    new MonsterData(MonsterData::ZOMBIE, 17)
+                    new MonsterData(MonsterData::ZOMBIE, 18)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ATTACKER, 1),
@@ -261,10 +267,70 @@ class Game implements CooltimeAttachable{
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 5),
-                    new MonsterData(MonsterData::HUSK, 1)
+                    new MonsterData(MonsterData::ATTACKER, 1)
+                )
+            ),  
+            9 => new WaveData(
+                $defaultTitleFormat,
+                null,
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 13),
+                    new MonsterData(MonsterData::ATTACKER, 2),
+                    new MonsterData(MonsterData::HUSK, 2),
+                    new MonsterData(MonsterData::SPIDER, 3)
+
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 8),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::SPIDER, 3),
+                    new MonsterData(MonsterData::HUSK, 2)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 6),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::SPIDER, 2),
+                    new MonsterData(MonsterData::CREEPER, 3)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 3),
+                    new MonsterData(MonsterData::ATTACKER, 2),
+                    new MonsterData(MonsterData::CREEPER, 7)
+                )
+            ),  
+            10 => new WaveData( #todo: boss
+                $defaultTitleFormat,
+                null,
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 12),
+                    new MonsterData(MonsterData::ATTACKER, 4),
+                    new MonsterData(MonsterData::HUSK, 6),
+                    new MonsterData(MonsterData::SPIDER, 3)
+
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 8),
+                    new MonsterData(MonsterData::ATTACKER, 3),
+                    new MonsterData(MonsterData::SPIDER, 3),
+                    new MonsterData(MonsterData::HUSK, 2)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 6),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::SPIDER, 2),
+                    new MonsterData(MonsterData::CREEPER, 3)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 3),
+                    new MonsterData(MonsterData::ATTACKER, 2),
+                    new MonsterData(MonsterData::CREEPER, 7)
                 )
             ),  
         ]);
+    }
+
+    public function getBossBar(): BossBar{
+        return $this->bossBar;
     }
 
     public function getShop(): Shop{
@@ -353,6 +419,10 @@ class Game implements CooltimeAttachable{
         if ($player->getWorld() !== $this->world){
             $this->log("§c{$player->getName()} has left the game");
             $this->broadcastMessage("§c{$player->getName()} がゲームから去りました");
+
+            if ($this->bossBar->isShowed($player)){
+                $this->bossBar->hideFromPlayer($player);
+            }
         }
 
         if (count($this->getPlayers()) <= 0 && !$this->canJoin(null) && !$this->closed){
@@ -426,6 +496,8 @@ class Game implements CooltimeAttachable{
         $this->status = self::STATUS_IDLE;
         $this->closed = true;
 
+        $this->bossBar->hide();
+
         $gameManager = StarPvE::getInstance()->getGameManager();
         foreach($this->getPlayers() as $player){
             $gamePlayer = $this->getGamePlayer($player);
@@ -443,6 +515,8 @@ class Game implements CooltimeAttachable{
         $this->status = self::STATUS_STARTING;
         $this->log("Starting Game...");
 
+        $this->bossBar->showToWorld($this->world);
+
         $this->cooltimeHandler = new CooltimeHandler("Game Start Tick", CooltimeHandler::BASE_SECOND, 1);
         $this->cooltimeHandler->attach($this);
         $this->cooltimeHandler->start(10 * 20);
@@ -452,6 +526,8 @@ class Game implements CooltimeAttachable{
         foreach($this->getPlayers() as $player){
             $player->sendTitle("ゲームが開始されます");
             $this->getGamePlayer($player)?->refreshEquipment();
+            PlayerUtil::give($player, ItemFactory::getInstance()->get(ItemIds::BOOK, 0, 1));
+            PlayerUtil::give($player, ItemFactory::getInstance()->get(ItemIds::BREAD, 0, 12));
             PlayerUtil::playSound($player, "mob.evocation_illager.prepare_summon", 1.4);
         }
 

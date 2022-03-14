@@ -28,6 +28,7 @@ use pocketmine\inventory\Inventory;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\ItemIds;
+use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
 use pocketmine\network\mcpe\protocol\SpawnParticleEffectPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
@@ -144,6 +145,9 @@ class EventListener implements Listener {
         $player = $event->getPlayer();
 
         $event->setJoinMessage("§a> §7{$player->getName()}");
+
+        #$pk = ChunkRadiusUpdatedPacket::create(10000);
+        #$player->getNetworkSession()->sendDataPacket($pk);
 
         $player->sendTitle("§eStar PvE", "");
         PlayerUtil::reset($player);

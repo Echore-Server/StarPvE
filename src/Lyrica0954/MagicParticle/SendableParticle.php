@@ -13,6 +13,10 @@ use pocketmine\world\particle\Particle;
 use pocketmine\world\Position;
 
 abstract class SendableParticle implements DrawableParticle{
+
+    public function drawAsDelayed(Position $pos): array{
+        return $this->draw($pos);
+    }
     
     public function getPackets(Position $pos, string|Particle $particle): array{
         $packets = [];
@@ -42,7 +46,14 @@ abstract class SendableParticle implements DrawableParticle{
         }
     }
 
-    public function sendToPlayers(array $players, Position $pos, string|Particle $particle){
+    /**
+     * @param Player[] $players
+     * @param Position $pos
+     * @param string|Particle $particle
+     * 
+     * @return void
+     */
+    public function sendToPlayers(array $players, Position $pos, string|Particle $particle): void{
         foreach($this->getPackets($pos, $particle) as $packed){
             foreach ($packed as $pk){
                 foreach($players as $player){
@@ -56,7 +67,7 @@ abstract class SendableParticle implements DrawableParticle{
         }
     }
 
-    protected function filter(Player $player, Vector3 $pos, float $maxRange = 20){
+    protected function filter(Player $player, Vector3 $pos, float $maxRange = 20): ?Vector3{
         return ($player->canInteract($pos, $maxRange, M_SQRT3/3)) ? $pos : null;
     }
 } 

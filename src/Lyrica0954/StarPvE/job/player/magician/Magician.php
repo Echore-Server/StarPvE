@@ -10,8 +10,7 @@ use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
-
-
+use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 
 class Magician extends PlayerJob{
 
@@ -24,7 +23,7 @@ class Magician extends PlayerJob{
     }
 
     protected function getInitialIdentityGroup(): IdentityGroup{
-        return new IdentityGroup();
+        return new IdentityGroup($this);
     }
 
     public function getName(): string{
@@ -41,30 +40,8 @@ class Magician extends PlayerJob{
 敵に狙われると少し危ない。";
     }
 
-    public function getAbilityName(): string{
-        return "サンダーボルト";
-    }
-
-    public function getAbilityDescription(): String{
-        return 
-"発動時: 視線の先に§e稲妻§fを放つ。
-稲妻が敵に当たった場合、その敵に§c3.5♡§fのダメージを与えて、その敵の§c8.5m§f以内に別の敵がいた場合は、その敵にも§e稲妻§fが回っていく(チェイン)。
-チェインによって与えられるダメージは§c2♡§fで、最大§c6回§fまでチェインできる。。";
-    }
-
-    public function getSkillName(): String{
-        return "パワーブースト";
-    }
-
-    public function getSkillDescription(): String{
-        return
-"§b効果時間: §c12秒§f
-発動時: 花火が発射される音とともに、§aスピードII§fが付与される。
-さらに発動中はアビリティのクールタイムが§c0.35秒§fにスピードアップする。";
-    }
-
     public function getSelectableCondition(): ?Condition{
-        return new LevelCondition(2);
+        return null;
     }
 
 }

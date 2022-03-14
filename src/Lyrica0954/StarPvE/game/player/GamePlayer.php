@@ -60,23 +60,28 @@ class GamePlayer {
     }
 
     public function setGame(?Game $game){
+        if ($this->game instanceof Game){
+            if (!$this->game->isClosed()){
+                $this->game->onPlayerLeave($this->player);
+            }
+        }
         $this->game = $game;
+        if ($game instanceof Game && !$game?->isClosed()){
+            $game->onPlayerJoin($this->player);
+        }
     }
 
     public function joinGame(Game $game){
-        $this->setGame($game);
         PlayerUtil::reset($this->player);
         $this->player->teleport($game->getCenterPosition());
-        $game->onPlayerJoin($this->player);
         
+        $this->setGame($game);
     }
 
     public function leaveGame(){
         PlayerUtil::reset($this->player);
         PlayerUtil::teleportToLobby($this->player);
-        if ($this->game instanceof Game){
-            $this->game->onPlayerLeave($this->player);
-        }
+
         $this->resetEquipment();
         $this->setGame(null);
     }

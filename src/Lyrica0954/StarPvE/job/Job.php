@@ -13,14 +13,6 @@ abstract class Job {
 
     abstract public function getDescription(): string;
 
-    abstract public function getAbilityName(): string; #todo: ability クラスに移動すべき？
-
-    abstract public function getAbilityDescription(): string;
-
-    abstract public function getSkillName(): string;
-
-    abstract public function getSkillDescription(): string;
-
     public function isSelectable(Player $player): bool{
         $condition = $this->getSelectableCondition();
         if ($condition !== null){

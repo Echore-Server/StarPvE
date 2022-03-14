@@ -33,7 +33,8 @@ class TickingTask extends Task{
         $this->count ++;
         $this->ticking->onTick($this->id, $this->count);
         if ($this->count >= 300){
-            StarPvE::getInstance()->log("§7[TickingTask] §cWarning: sending to {$this->job->getName()} {$this->count} ticks");
+            $name = (new \ReflectionClass($this->ticking))->getShortName();
+            StarPvE::getInstance()->log("§7[TickingTask] §cWarning: sending to \"{$name}\"(id: {$this->id}) {$this->count} ticks");
         }
     }
 }

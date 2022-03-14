@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player\magician;
 
+use Lyrica0954\MagicParticle\EmitterParticle;
 use Lyrica0954\MagicParticle\LineParticle;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\ticking\Ticking;
 use Lyrica0954\StarPvE\job\ticking\TickingController;
 use Lyrica0954\StarPvE\particle\ElectricSparkParticle;
+use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\RandomUtil;
 use Lyrica0954\StarPvE\utils\RayTraceEntityResult;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\block\BlockLegacyIds;
+use pocketmine\entity\effect\EffectInstance;
+use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -35,8 +40,7 @@ use Ramsey\Uuid\Type\Integer;
 class ThunderboltAbility extends Ability implements Ticking{
     use TickingController;
 
-    protected float $baseDamage = 6.0;
-    protected float $chainDamage = 2.0;
+    protected AbilityStatus $chainDamage;
 
     private array $damaged = [];
 
@@ -44,20 +48,39 @@ class ThunderboltAbility extends Ability implements Ticking{
     private ?RayTraceEntityResult $boltHitResult = null;
     private int $chainCount = 0;
 
-    public function getChainDamage(): float{
-        return $this->chainDamage;
-    }
-
-    public function setChainDamage(float $chainDamage): void{
-        $this->chainDamage = $chainDamage;
-    }
-
-    public function addChainDamage(float $add): void{
-        $this->chainDamage += $add;
-    }
 
     public function getCooltime(): int{
         return (Integer) ($this->job->getSkill()->isActive() ? (0.35 * 20) : (0.7 * 20)); #スキル依存
+    }
+
+    public function getName(): string{
+        return "サンダーボルト";
+    }
+
+    public function getDescription(): String{
+        $damage = DescriptionTranslator::health($this->damage);
+        $duration = DescriptionTranslator::second($this->duration);
+        $area = DescriptionTranslator::number($this->area, "m");
+        $amount = DescriptionTranslator::number($this->amount, "回");
+        $chainDamage = DescriptionTranslator::health($this->chainDamage);
+        
+        return 
+sprintf('§b発動時:§f 視線の先に§e稲妻§fを放つ。
+稲妻が敵に当たった場合、その敵に %1$s のダメージを与えて %2$s 動けなくする。
+その敵の %3$s 以内に別の敵がいた場合は、その敵にも§e稲妻§fが回っていく(チェイン)。
+チェインによって与えられるダメージは %4$s で、最大 %5$s までチェインできる。', $damage, $duration, $area, $chainDamage, $amount);
+    }
+
+    protected function init(): void{
+        $this->damage = new AbilityStatus(6.0);
+        $this->duration = new AbilityStatus(4);
+        $this->chainDamage = new AbilityStatus(2.0);
+        $this->amount = new AbilityStatus(6);
+        $this->area = new AbilityStatus(8.5);
+    }
+
+    public function getChainDamage(): AbilityStatus{
+        return $this->chainDamage;
     }
 
     protected function onActivate(): ActionResult{
@@ -120,7 +143,7 @@ class ThunderboltAbility extends Ability implements Ticking{
 
     public function onTick(string $id, int $tick): void{
         if ($id === "chain"){
-            if ($this->chainCount >= 6){
+            if ($this->chainCount >= ($this->amount->get())){
                 $this->active = false;
                 $this->resetState();
                 $this->stopTicking($id);
@@ -128,7 +151,7 @@ class ThunderboltAbility extends Ability implements Ticking{
                 $hv = $this->boltHitResult->getHitVector();
                 $hitEntity = $this->boltHitResult->getEntity();
                 $hitPos = new Position($hv->x, $hv->y, $hv->z, $hitEntity->getWorld());
-                $ne = EntityUtil::getNearestMonsterWithout($hitPos, $this->damaged, 8.5);
+                $ne = EntityUtil::getNearestMonsterWithout($hitPos, $this->damaged, $this->area->get());
                 if ($ne instanceof Living){
                     $par = new LineParticle($hitPos, 2);
                     $nextPos = $ne->getPosition();
@@ -138,10 +161,19 @@ class ThunderboltAbility extends Ability implements Ticking{
                     $par->sendToPlayers($hitEntity->getWorld()->getPlayers(), $nextPos, "minecraft:balloon_gas_particle");
                     
                     PlayerUtil::broadcastSound($nextPos, "random.glass", 0.8 + ($this->chainCount * 0.15), 1.0);
-                    $damage = $this->chainCount == 0 ? $this->baseDamage : $this->chainDamage;
+                    $damage = $this->chainCount == 0 ? $this->damage->get() : $this->chainDamage->get();
                     $source = new EntityDamageByEntityEvent($this->player, $ne, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $damage);
                     $source->setAttackCooldown(0);
                     EntityUtil::attackEntity($source, 0, 0);
+
+                    EntityUtil::immobile($ne, (integer) $this->duration->get());
+                    $min = EntityUtil::getCollisionMin($ne);
+                    $emitter = EmitterParticle::createEmitterForEntity($ne, 0.3, 6);
+                    $emitter->sendToPlayers(
+                        $ne->getWorld()->getPlayers(),
+                        VectorUtil::insertWorld($min, $ne->getWorld()),
+                        "minecraft:sparkler_emitter"
+                    );
 
                     $this->damaged[] = spl_object_hash($ne);
                     

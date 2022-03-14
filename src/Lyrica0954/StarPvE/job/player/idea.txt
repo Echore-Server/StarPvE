@@ -1,0 +1,20 @@
+想定しているペア
+
+Fighter(戦闘スタイル) - Healer(スキル、アビリティ)
+
+Fighter(アビリティ) - Swordman(スキル)
+
+Shaman(常時アビリティ、スキル) - Engineer(アビリティ)
+
+Magician(アビリティ、常時アビリティ) - Engineer(アビリティ、スキル)
+
+
+
+想定している戦闘スタイル
+
+Fighter - 突っ込み
+Swordman - 突っ込み
+Shaman - 突っ込み&戦闘をサポート
+Magician - 後衛で遠距離攻撃
+Engineer - 戦闘をサポート
+Healer - 味方をサポート

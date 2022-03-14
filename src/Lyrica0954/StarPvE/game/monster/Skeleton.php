@@ -58,18 +58,21 @@ class Skeleton extends SmartSkeleton {
             $this->spark->setMotion($v->multiply($speed));
 
             $startTick = Server::getInstance()->getTick();
+            $this->spark->addCloseHook(function(MemoryEntity $entity){
+                $this->spark = null;
+                $this->attackCooldown = 20;
+            });
+            
             $this->spark->addTickHook(function(MemoryEntity $entity) use ($loc, $maxRange, $startTick){
                 $ct = Server::getInstance()->getTick();
                 if ($entity->getPosition()->distance($loc) >= $maxRange || ($ct - $startTick) >= 30){
                     $entity->close();
-                    $this->spark = null;
-                    $this->attackCooldown = 20;
                     return;
                 }
 
                 foreach(EntityUtil::getPlayersInsideVector($entity->getPosition(), new Vector3(0.4, 0.4, 0.4)) as $player){
                     PlayerUtil::playSound($player, "fireworks.blast", 2.4, 1.0);
-                    $source = new EntityDamageByEntityEvent($entity, $player, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
+                    $source = new EntityDamageByEntityEvent($entity, $player, EntityDamageByEntityEvent::CAUSE_MAGIC, $this->getAttackDamage());
                     EntityUtil::attackEntity($source, 2.25, 1.0);
                 }
 
@@ -83,6 +86,6 @@ class Skeleton extends SmartSkeleton {
     }
 
     public function getFollowRange(): float{
-        return 40;
+        return 50;
     }
 }
