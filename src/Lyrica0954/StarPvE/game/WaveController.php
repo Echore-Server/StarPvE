@@ -80,7 +80,8 @@ class WaveController implements CooltimeAttachable, Listener{
             MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 0.37),
             MonsterData::HUSK => new MonsterAttribute(60, 8.0, 0.25),
             MonsterData::SKELETON => new MonsterAttribute(50, 2.0, 0.21),
-            MonsterData::DEFENDER => new MonsterAttribute(56, 0.5, 0.3)
+            MonsterData::DEFENDER => new MonsterAttribute(56, 0.5, 0.3),
+            MonsterData::ZOMBIE_LORD => new MonsterAttribute(200, 1.0, 0.21)
         ];
 
         $nullArmor = new ArmorSet(null, null, null, null);
@@ -91,7 +92,8 @@ class WaveController implements CooltimeAttachable, Listener{
             MonsterData::SPIDER => clone $nullArmor,
             MonsterData::DEFENDER => clone $nullArmor,
             MonsterData::SKELETON => new ArmorSet($f->get(ItemIds::LEATHER_HELMET), $f->get(ItemIds::DIAMOND_CHESTPLATE), $f->get(ItemIds::DIAMOND_LEGGINGS), $f->get(ItemIds::LEATHER_BOOTS)),
-            MonsterData::HUSK => new ArmorSet($f->get(ItemIds::DIAMOND_HELMET), $f->get(ItemIds::CHAIN_CHESTPLATE), $f->get(ItemIds::CHAIN_LEGGINGS), $f->get(ItemIds::CHAIN_BOOTS))
+            MonsterData::HUSK => new ArmorSet($f->get(ItemIds::DIAMOND_HELMET), $f->get(ItemIds::CHAIN_CHESTPLATE), $f->get(ItemIds::CHAIN_LEGGINGS), $f->get(ItemIds::CHAIN_BOOTS)),
+            MonsterData::ZOMBIE_LORD => clone $nullArmor,
         ];
 
         $f = ItemFactory::getInstance();
@@ -126,6 +128,19 @@ class WaveController implements CooltimeAttachable, Listener{
                 $f->get(ItemIds::EMERALD),
                 $f->get(ItemIds::EMERALD),
                 $f->get(ItemIds::EMERALD)
+            ],
+            MonsterData::ZOMBIE_LORD => [
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+                $f->get(ItemIds::EMERALD),
+
             ]
         ];
 
@@ -160,17 +175,23 @@ class WaveController implements CooltimeAttachable, Listener{
 
         if ($entity->getWorld() === $this->game->getWorld()){
             if ($entity instanceof Player){
-                if ($entity->getHealth() <= $event->getFinalDamage()){
-                    $event->setModifier(PHP_INT_MIN, EntityDamageEvent::MODIFIER_PREVIOUS_DAMAGE_COOLDOWN);
-                    $entity->setGamemode(GameMode::fromString("3"));
-                    $entity->sendTitle("死んでしまった...", "10秒後にリスポーンします");
-                    PlayerUtil::flee($entity);
-                    StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($entity){
-                        $entity->teleport($this->game->getCenterPosition());
-                        $entity->setGamemode(GameMode::fromString("2"));
-                        $entity->sendTitle("復活しました！");
-                        $entity->getEffects()->add(new EffectInstance(VanillaEffects::RESISTANCE(), (6 * 20), 255, false, true));
-                    }), (10 * 20));
+                if ($this->game->getStatus() === Game::STATUS_PLAYING){
+                    if ($entity->getHealth() <= $event->getFinalDamage()){
+                        $event->setModifier(PHP_INT_MIN, EntityDamageEvent::MODIFIER_PREVIOUS_DAMAGE_COOLDOWN);
+                        $entity->setGamemode(GameMode::fromString("3"));
+                        $entity->sendTitle("死んでしまった...", "10秒後にリスポーンします");
+                        PlayerUtil::flee($entity);
+                        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($entity){
+                            if (!$this->game->isClosed()){
+                                $entity->teleport($this->game->getCenterPosition());
+                                $entity->setGamemode(GameMode::fromString("2"));
+                                $entity->sendTitle("復活しました！");
+                                $entity->getEffects()->add(new EffectInstance(VanillaEffects::RESISTANCE(), (6 * 20), 255, false, true));
+                            }
+                        }), (10 * 20));
+                    }
+                } else {
+                    $event->cancel();
                 }
             }
         }
@@ -186,89 +207,87 @@ class WaveController implements CooltimeAttachable, Listener{
                 return;
             }
 
+
             if ($entity instanceof FightingEntity){
 
-
-
                 $ldc = $entity->getLastDamageCauseByPlayer();
-
-
-                if ($ldc instanceof EntityDamageByEntityEvent){
-                    $damager = $ldc->getdamager();
-                    if ($damager instanceof Player){
-                        PlayerUtil::playSound($damager, "random.orb", 1.0, 0.8);
-    
-                        $waveBase = 1 + floor(($this->wave - 1) / 2);
-                        $monsterMultiplier = match(true){
-                            MonsterData::equal($entity, MonsterData::ATTACKER) => 3,
-                            MonsterData::equal($entity, MonsterData::CREEPER) => 2,
-                            MonsterData::equal($entity, MonsterData::SKELETON) => 4,
-                            MonsterData::equal($entity, MonsterData::DEFENDER) => 2,
-                            MonsterData::equal($entity, MonsterData::ZOMBIE) => 10,
-                            default => 1
-                        };
+                $ldcI = $entity->getLastDamageCause();
+                if ($ldcI?->getCause() !== EntityDamageEvent::CAUSE_SUICIDE){
+                    if ($ldc instanceof EntityDamageByEntityEvent){
+                        $damager = $ldc->getdamager();
+                        if ($damager instanceof Player){
+                            PlayerUtil::playSound($damager, "random.orb", 1.0, 0.8);
         
-                        $gainExp = $waveBase * $monsterMultiplier;
-                        PlayerDataCollector::addGenericDigit($damager, "MonsterKills", 1);
-                        $exp = PlayerDataCollector::addExp($damager, $gainExp);
-                        $nextExp = PlayerDataCollector::getGenericConfig($damager, "NextExp");
-        
-                        $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
-                        $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
-                        
-                        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
-                            $par->setInvisible(true);
+                            $waveBase = 1 + floor(($this->wave - 1) / 2);
+                            $monsterMultiplier = match(true){
+                                MonsterData::equal($entity, MonsterData::ATTACKER) => 3,
+                                MonsterData::equal($entity, MonsterData::CREEPER) => 2,
+                                MonsterData::equal($entity, MonsterData::SKELETON) => 4,
+                                MonsterData::equal($entity, MonsterData::DEFENDER) => 2,
+                                default => 1
+                            };
+            
+                            $gainExp = $waveBase * $monsterMultiplier;
+                            PlayerDataCollector::addGenericDigit($damager, "MonsterKills", 1);
+                            $exp = PlayerDataCollector::addExp($damager, $gainExp);
+                            $nextExp = PlayerDataCollector::getGenericConfig($damager, "NextExp");
+            
+                            $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
                             $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
-                        }), 20);
-                        #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
-                        #$entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
+                            
+                            StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
+                                $par->setInvisible(true);
+                                $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
+                            }), 20);
+                            #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
+                            #$entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
+                        }
                     }
-                }
-                $drops = $this->monsterDrops[$entity::class] ?? [];
-
-                #$particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
-                #$entity->getWorld()->addParticle($entity->getPosition()->add(0, 0.1, 0), $particle);
+                    $drops = $this->monsterDrops[$entity::class] ?? [];
     
-                $par = new SingleParticle();
-                $pp = $entity->getPosition();
-                $pp->y += 1.5;
-                $par->sendToPlayers($entity->getWorld()->getPlayers(), $pp, "starpve:totem_jet_particle");
-                
-                foreach($drops as $item){
-                    $motion = new Vector3(
-                        RandomUtil::rand_float(-0.12, 0.12),
-                        RandomUtil::rand_float(0.2, 0.45),
-                        RandomUtil::rand_float(-0.12, 0.12)
-                    );
-    
-                    $loc = $entity->getLocation();
-                    $loc->yaw = lcg_value() * 360;
-                    $loc->pitch = 0;
-                    $dropItemEntity = new MonsterDropItem($loc, clone $item);
-                    $dropItemEntity->setMotion($motion);
-                    $dropItemEntity->setPickupDelay(8);
-                    if ($item->getId() === ItemIds::BREAD){
-                        $dropItemEntity->setSound("block.beehive.enter", 0.9, 0.5);
-                    } else {
-                        $dropItemEntity->setSound("step.amethyst_block", 2.0, 1.0);
+                    #$particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
+                    #$entity->getWorld()->addParticle($entity->getPosition()->add(0, 0.1, 0), $particle);
+        
+                    $par = new SingleParticle();
+                    $pp = $entity->getPosition();
+                    $pp->y += 1.5;
+                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $pp, "starpve:totem_jet_particle");
+                    
+                    foreach($drops as $item){
+                        $motion = new Vector3(
+                            RandomUtil::rand_float(-0.12, 0.12),
+                            RandomUtil::rand_float(0.2, 0.45),
+                            RandomUtil::rand_float(-0.12, 0.12)
+                        );
+        
+                        $loc = $entity->getLocation();
+                        $loc->yaw = lcg_value() * 360;
+                        $loc->pitch = 0;
+                        $dropItemEntity = new MonsterDropItem($loc, clone $item);
+                        $dropItemEntity->setMotion($motion);
+                        $dropItemEntity->setPickupDelay(8);
+                        if ($item->getId() === ItemIds::BREAD){
+                            $dropItemEntity->setSound("block.beehive.enter", 0.9, 0.5);
+                        } else {
+                            $dropItemEntity->setSound("step.amethyst_block", 2.0, 1.0);
+                        }
+        
+                        $dropItemEntity->spawnToAll();
                     }
+        
+                    if ($this->monsterRemain <= 0){
+                        $this->game->broadcastMessage("§cUnexpected: monsterRemain が 0以下 です");
+                    }
+        
+                    $this->monsterRemain = max(0, $this->monsterRemain - 1);
     
-                    $dropItemEntity->spawnToAll();
-                }
-    
-    
-                $this->monsterRemain--;
-
-                $per = max(0.0, ($this->monsterRemain / $this->currentWaveData->getMonsterCount()));
-                $this->game->getBossBar()->setHealthPercent($per);
-                $this->game->getBossBar()->update();
-    
-                if ($this->monsterRemain == 0){
-                    $this->waveClear();
-                }
-    
-                if ($this->monsterRemain < 0){
-                    $this->game->broadcastMessage("§cUnexpected: monsterRemain が {$this->mobRemain} です");
+                    $per = max(0.0, ($this->monsterRemain / $this->currentWaveData->getMonsterCount()));
+                    $this->game->getBossBar()->setHealthPercent($per);
+                    $this->game->getBossBar()->update();
+        
+                    if ($this->monsterRemain == 0){
+                        $this->waveClear();
+                    }
                 }
             }
         }
@@ -341,12 +360,16 @@ class WaveController implements CooltimeAttachable, Listener{
         $this->log("§dDemon killed");
     }
 
-    protected function spawnMonster(WaveMonsters $monsters, Position $pos, \Closure $hook = null){
-       foreach($monsters->getAll() as $monsterData){
-           $this->monsterRemain += $monsterData->count;
-       }
 
-       $monsters->spawnToAll($pos, $this->monsterAttributes, $this->monsterEquipments, $hook);
+    public function spawnMonster(WaveMonsters $monsters, Position $pos, \Closure $hook = null){
+        if (!$this->game->isClosed()){
+            foreach($monsters->getAll() as $monsterData){
+                $this->monsterRemain += $monsterData->count;
+            }       
+            $monsters->spawnToAll($pos, $this->monsterAttributes, $this->monsterEquipments, $hook);
+        } else {
+            throw new \Exception("Game is closed: WaveController: spawnMonster called");
+        }
     }
 
     public function spawnWaveMonster(int $wave){

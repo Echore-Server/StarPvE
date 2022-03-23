@@ -15,7 +15,11 @@ use Lyrica0954\StarPvE\job\player\healer\ident\HealerIdent1;
 use Lyrica0954\StarPvE\job\player\healer\identity\FastFeedIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\StarPvE;
+use Lyrica0954\StarPvE\utils\EntityUtil;
+use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
+use pocketmine\player\Player;
 
 class Healer extends PlayerJob implements AlwaysAbility, Listener{
 
@@ -23,7 +27,7 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
         $g = new IdentityGroup($this);
         $lists = [
             Identity::setCondition(new AddMaxHealthIdentity($this, 2), null),
-            Identity::setCondition(new AddBaseAreaIdentity($this, AddBaseAreaIdentity::ATTACH_ABILITY, 2), null),
+            Identity::setCondition(new AddBaseAreaIdentity($this, AddBaseAreaIdentity::ATTACH_ABILITY, 0.5), null),
             Identity::setCondition(new FastFeedIdentity($this, 30), null)
         ];
 
@@ -57,10 +61,24 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
     }
 
     public function getAlAbilityDescription(): string{
-        return "自分から半径§c6m§f以内にいる味方が攻撃を受けた場合、その攻撃のダメージを§c10%%§f軽減させる。";
+        return "自分から半径 §c6m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c10%%§f 軽減させる。";
     }
 
     public function getSelectableCondition(): ?Condition{
         return null;
+    }
+
+    public function onEntityDamage(EntityDamageEvent $event){
+        $entity = $event->getEntity();
+        if ($entity instanceof Player){
+            if ($this->player instanceof Player){
+                if ($entity !== $this->player){
+                    $gp = StarPvE::getInstance()->getGamePlayerManager();
+                    if ($gp->areSameGame($entity, $this->player)){
+                        EntityUtil::multiplyFinalDamage($event, 0.9);
+                    }
+                }
+            }
+        }
     }
 }

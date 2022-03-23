@@ -42,7 +42,7 @@ sprintf('§b発動時:§f 視線の先にグラビティボールを射出する
     protected function init(): void{
         $this->speed = new AbilityStatus(0.9);
         $this->area = new AbilityStatus(5.0);
-        $this->amount = new AbilityStatus(1.0);
+        $this->amount = new AbilityStatus(2.0);
         $this->duration = new AbilityStatus(11 * 20);
         $this->effect = new EffectInstance(VanillaEffects::SLOWNESS(), 30, 1, false, true);
     }
@@ -58,6 +58,7 @@ sprintf('§b発動時:§f 視線の先にグラビティボールを射出する
         $entity->period = (integer) floor(20 / $this->amount->get());
         $entity->effect = clone $this->effect;
         $entity->setMotion($motion);
+        $entity->setOwningEntity($this->player);
         $entity->spawnToAll();
         
         return ActionResult::SUCCEEDED();

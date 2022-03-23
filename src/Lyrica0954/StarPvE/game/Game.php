@@ -6,8 +6,11 @@ namespace Lyrica0954\StarPvE\game;
 
 use Closure;
 use Lyrica0954\BossBar\BossBar;
+use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\Villager;
+use Lyrica0954\StarPvE\event\game\GameStartEvent;
 use Lyrica0954\StarPvE\game\shop\content\ArmorUpgradeContent;
 use Lyrica0954\StarPvE\game\shop\content\ItemContent;
 use Lyrica0954\StarPvE\game\shop\content\SwordUpgradeContent;
@@ -22,8 +25,12 @@ use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
+use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\TaskUtil;
+use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\Location;
+use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\lang\Translatable;
@@ -104,6 +111,7 @@ class Game implements CooltimeAttachable{
                 $defaultTitleFormat,
                 null,
                 new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE_LORD, 1),
                     new MonsterData(MonsterData::ZOMBIE, 2)
                 ),
                 new WaveMonsters(
@@ -364,6 +372,10 @@ class Game implements CooltimeAttachable{
         return $this->world->getPlayers();
     }
 
+    public function getWaveController(): WaveController{
+        return $this->waveController;
+    }
+
     public function hasMinPlayer(){
         return count($this->getPlayers()) >= 1;
     }
@@ -464,16 +476,44 @@ class Game implements CooltimeAttachable{
     }
 
     public function gameover(): void{
-        foreach($this->getPlayers() as $player){
-            PlayerUtil::reset($player);
-            PlayerUtil::playSound($player, "mob.evocation_illager.prepare_wololo", 1.0, 1.0);
-            PlayerDataCollector::addGenericDigit($player, "GameLost", 1);
-            PlayerDataCollector::addGenericDigit($player, "PlayCount", 1);
-        }
+        $step = 1.2;
+        $pos = $this->getCenterPosition();
+        $std = new \stdClass;
+        $std->size = $step;
+        TaskUtil::repeatingClosureLimit(function() use($step, $std, $pos){
+            $std->size += $step;
+            $min = ($std->size - $step);
+            $max = ($std->size + $step);
+            foreach(EntityUtil::getWithin($pos, $min, $max) as $entity){
+                if (!$entity instanceof Player){
+                    $source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_SUICIDE, 100000);
+                    $entity->attack($source);
+                }
+            }
+            
+            (new SphereParticle($std->size, 8, 8, 360, -90, 0))->sendToPlayers($this->getWorld()->getPlayers(), $pos, "starpve:freeze_gas");
+
+            foreach($this->getWorld()->getPlayers() as $player){
+                $anchor = VectorUtil::getNearestSpherePosition($player->getPosition(), $pos, $std->size);
+                $dist = $anchor->distance($player->getPosition());
+                #(new SingleParticle())->sendToPlayer($player, VectorUtil::insertWorld($anchor, $player->getWorld()), "minecraft:balloon_gas_particle");
+                #$player->sendMessage("dist: {$dist} anchor: {$anchor} player: {$player->getPosition()->asVector3()}");
+                $volume = max(0, 1.0 - ($dist / 12));
+                PlayerUtil::playSound($player, "block.false_permissions", 0.2, $volume);
+            }
+        }, 2, 25);
+        TaskUtil::delayed(new ClosureTask(function(){
+            foreach($this->getPlayers() as $player){
+                PlayerUtil::reset($player);
+                PlayerUtil::playSound($player, "mob.evocation_illager.prepare_wololo", 1.0, 1.0);
+                PlayerDataCollector::addGenericDigit($player, "GameLost", 1);
+                PlayerDataCollector::addGenericDigit($player, "PlayCount", 1);
+            }
+    
+            $this->end(15 * 20);
+        }), 10 + (2 * 25));
 
         $this->log("§6Game Over...");
-
-        $this->end(15 * 20);
     }
 
     public function end(int $closeDelay){
@@ -544,6 +584,9 @@ class Game implements CooltimeAttachable{
 
         $this->villager->spawnToAll();
 
+
+        $ev = new GameStartEvent($this);
+        $ev->call();
     }
 
     protected function onStarted(): void{

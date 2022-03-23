@@ -51,6 +51,7 @@ sprintf('§b発動時:§f 視線の先にシールドボールを射出する。
         $entity = new ShieldBall($loc, $item);
         $entity->lossPeriod = (integer) $this->duration->get();
         $entity->setMotion($motion);
+        $entity->setOwningEntity($this->player);
         $entity->spawnToAll();
         
         return ActionResult::SUCCEEDED();

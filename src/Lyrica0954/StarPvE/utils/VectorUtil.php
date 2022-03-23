@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\utils;
 
+use pocketmine\math\Facing;
 use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\world\Position;
@@ -16,6 +17,52 @@ class VectorUtil {
     
         $hor = new Vector3($x, 0, $z);
         return $hor->normalize();
+    }
+
+    public static function getDirection(int $facing): Vector3{
+        switch($facing){
+            case Facing::DOWN:
+                return new Vector3(0, -1, 0);
+            case Facing::UP:
+                return new Vector3(0, 1, 0);
+            case Facing::NORTH:
+                return new Vector3(0, 0, 1);
+            case Facing::SOUTH:
+                return new Vector3(0, 0, -1);
+            case Facing::WEST:
+                return new Vector3(1, 0, 0);
+            case Facing::EAST:
+                return new Vector3(-1, 0, 0);
+            default:
+                return new Vector3(0, 0, 0);
+
+        }
+    }
+
+    public static function getNearestSpherePosition(Vector3 $vec, Vector3 $center, float $size): Vector3{
+        $angle = self::getAngle($center, $vec);
+        $dir = self::getDirectionVector($angle->x, $angle->y);
+        $dir->x = -$dir->x;
+        $dir->z = -$dir->z;
+        $nearest = $center->addVector($dir->multiply($size));
+        return $nearest;
+    }
+
+    public static function reAdd(Vector3 $vec, float $add): Vector3{
+        $new = clone $vec;
+        if ($new->x > 0){
+            $new->x += $add;
+        }
+
+        if ($new->y > 0){
+            $new->y += $add;
+        }
+
+        if ($new->z > 0){
+            $new->z += $add;
+        }
+
+        return $new;
     }
 
     public static function getDirectionVector(float $yaw, float $pitch){

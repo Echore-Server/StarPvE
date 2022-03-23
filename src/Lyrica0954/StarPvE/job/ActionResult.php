@@ -55,7 +55,7 @@ class ActionResult {
     }
 
     public function isSucceeded(): bool{
-        return $this->result === self::SUCCEEDED;
+        return $this->result === self::SUCCEEDED || $this->result === self::SUCCEEDED_SILENT;
     }
 
     public function isAbandoned(): bool{

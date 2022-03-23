@@ -91,7 +91,7 @@ class ShieldBall extends GhostItemEntity {
         if ($this->preparing){
             if ($this->power < 100){
                 $this->power = min(100, ($this->power + $tickDiff));
-                PlayerUtil::broadcastSound($this, "block.blastfurnace.fire_crackle", 1.5, 0.9);
+                PlayerUtil::broadcastSound($this, "block.blastfurnace.fire_crackle", 1.5, 1.0);
             } elseif ($this->power >= 100 && !$this->active){
                 $this->power = 100.0;
                 $this->active = true;

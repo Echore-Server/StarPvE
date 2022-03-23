@@ -73,9 +73,10 @@ class GravityBall extends GhostItemEntity {
                     $this->kill();
                 }
             } else {
+                $this->attackTick += 1;
                 (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), "minecraft:end_chest");
                 if ($this->attackTick >= $this->period){
-                    $this->attackTick += 1;
+                    $this->attackTick = 0;
                     $par = new LineParticle($this->getPosition(), 3);
                     foreach(EntityUtil::getWithinRange(
                         VectorUtil::insertWorld(

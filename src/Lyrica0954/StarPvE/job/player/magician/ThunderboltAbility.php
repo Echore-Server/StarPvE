@@ -98,7 +98,7 @@ sprintf('§b発動時:§f 視線の先に§e稲妻§fを放つ。
                 $tpos->z,
                 $this->player->getWorld()
             ),
-            "minecraft:balloon_gas_particle"
+            "starpve:magician_gas"
         );
         $results = EntityUtil::getLineOfSight($this->player, 14.0, new Vector3(0.5, 0.5, 0.5));
         if (count($results) > 0){
@@ -158,7 +158,7 @@ sprintf('§b発動時:§f 視線の先に§e稲妻§fを放つ。
                     $randHeight = $ne->size->getHeight() / 4;
                     $nextPos->y += $ne->size->getEyeHeight();
                     $nextPos->y += RandomUtil::rand_float(-$randHeight, $randHeight);
-                    $par->sendToPlayers($hitEntity->getWorld()->getPlayers(), $nextPos, "minecraft:balloon_gas_particle");
+                    $par->sendToPlayers($hitEntity->getWorld()->getPlayers(), $nextPos, "starpve:magician_gas");
                     
                     PlayerUtil::broadcastSound($nextPos, "random.glass", 0.8 + ($this->chainCount * 0.15), 1.0);
                     $damage = $this->chainCount == 0 ? $this->damage->get() : $this->chainDamage->get();

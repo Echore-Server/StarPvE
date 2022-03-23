@@ -7,8 +7,18 @@ namespace Lyrica0954\StarPvE\job\player\engineer;
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\IdentityGroup;
+use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
+use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
+use pocketmine\data\bedrock\EntityLegacyIds;
+use pocketmine\data\SavedDataLoadingException;
+use pocketmine\entity\EntityDataHelper;
+use pocketmine\entity\EntityFactory;
+use pocketmine\item\Item;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\player\Player;
+use pocketmine\world\World;
 
 class Engineer extends PlayerJob {
 
@@ -30,7 +40,7 @@ class Engineer extends PlayerJob {
 
     public function getDescription(): string{
         return 
-"§7- §l§a支援[⚔]§r
+"§7- §l§a防衛§r
 
 特殊なアビリティーを持つエンジニア。
 シールドで味方を守ったり、敵の進行を止めたりできる優秀な職業だが、
@@ -39,5 +49,36 @@ class Engineer extends PlayerJob {
 
     public function getSelectableCondition(): ?Condition{
         return null;
+    }
+
+    public function __construct(?Player $player){
+        parent::__construct($player);
+        
+        $f = EntityFactory::getInstance();
+        $f->register(GravityBall::class, function(World $world, CompoundTag $nbt) : GravityBall{
+            $itemTag = $nbt->getCompoundTag("Item");
+            if($itemTag === null){
+                throw new SavedDataLoadingException("Expected \"Item\" NBT tag not found");
+            }
+ 
+            $item = Item::nbtDeserialize($itemTag);
+            if($item->isNull()){
+                throw new SavedDataLoadingException("Item is invalid");
+            }
+            return new GravityBall(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
+        }, ['starpve:gravity_ball'], EntityLegacyIds::ITEM);
+
+        $f->register(ShieldBall::class, function(World $world, CompoundTag $nbt) : ShieldBall{
+            $itemTag = $nbt->getCompoundTag("Item");
+            if($itemTag === null){
+                throw new SavedDataLoadingException("Expected \"Item\" NBT tag not found");
+            }
+ 
+            $item = Item::nbtDeserialize($itemTag);
+            if($item->isNull()){
+                throw new SavedDataLoadingException("Item is invalid");
+            }
+            return new ShieldBall(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
+        }, ['starpve:shield_ball'], EntityLegacyIds::ITEM);
     }
 }

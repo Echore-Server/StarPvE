@@ -34,7 +34,7 @@ class EffectGroup {
 	public function apply(Living $living): void{
 		$ef = $living->getEffects();
 		foreach($this->effects as $effect){
-			$ef->add($effect);
+			$ef->add(clone $effect);
 		}
 	}
 }

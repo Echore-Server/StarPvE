@@ -55,6 +55,28 @@ class EntityUtil implements Listener{
     }
 
     /**
+     * @param Position $pos
+     * @param float $min
+     * @param float $max
+     * 
+     * @return Entity[]
+     */
+    public static function getWithin(Position $pos, float $min, float $max): array{
+        $entities = [];
+        foreach($pos->getWorld()->getEntities() as $entity){
+            if ($entity->isAlive()){
+                $ep = $entity->getPosition();
+                $ev2 = new Vector2($ep->x, $ep->z);
+                $dist = $ev2->distance(new Vector2($pos->x, $pos->z));
+                if ($dist <= $max && $dist >= $min){
+                    $entities[] = $entity;
+                }
+            }
+        }
+        return $entities;
+    }
+
+    /**
      * @param Vector2 $pos
      * @param World $world
      * @param float $range

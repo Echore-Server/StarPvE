@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\ArmorSet;
 use Lyrica0954\StarPvE\utils\Random;
 use Lyrica0954\StarPvE\utils\RandomUtil;
+use pocketmine\entity\Living;
 use pocketmine\entity\Location;
 use pocketmine\item\Armor;
 use pocketmine\scheduler\ClosureTask;
@@ -72,7 +73,15 @@ class WaveMonsters {
                         $entity = new $class($loc);
                         $this->attribute->apply($entity);
                         $this->equipment->equip($entity);
-                        $entity->spawnToAll();
+                        $defAnimation = new SpawnAnimation(function(){return false;}, 1);
+                        $defAnimation->setInitiator(function(Living $entity){
+                            $pos = $entity->getPosition();
+                            $pos->x += RandomUtil::rand_float(-1.75, 1.75);
+                            $pos->z += RandomUtil::rand_float(-1.75, 1.75);
+                            $entity->teleport($pos);
+                        });
+                        $animation = $this->monster->animation ?? $defAnimation;
+                        $animation->spawn($entity);
                         if ($this->hook !== null){
                             $h = $this->hook;
                             $h($entity);

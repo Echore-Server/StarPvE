@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\StarPvE;
+use pocketmine\event\HandlerListManager;
 use pocketmine\event\Listener;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\player\Player;
@@ -78,6 +79,7 @@ abstract class Ability{
     
     public function close(): void{
         $this->cooltimeHandler->forceStop();
+        if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
     }
 
     public function isActive(): bool{
@@ -126,7 +128,9 @@ abstract class Ability{
         if (!$this->closed){
             if (!$this->cooltimeHandler->isActive()){
                 if (!$this->active){
-                    $this->cooltimeHandler->start($this->getCooltime());
+                    if ($this->getCooltime() > 0){
+                        $this->cooltimeHandler->start($this->getCooltime());
+                    }
     
                     return $this->onActivate();
                 } else {

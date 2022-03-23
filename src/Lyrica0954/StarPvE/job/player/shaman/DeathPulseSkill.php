@@ -71,18 +71,11 @@ sprintf('§b発動時:§f 自分から %1$s の地点にパルスを発生させ
 
 			$std->size -= $step;
 
-			$rxm = ($std->size + $step);
-			$rm = ($std->size - $step);
-			foreach($this->player->getWorld()->getEntities() as $entity){
-				if ($entity->isAlive()){
-					if (MonsterData::isMonster($entity)){
-						$ep = $entity->getPosition();
-						$ev2 = new Vector2($ep->x, $ep->z);
-						$dist = $ev2->distance(new Vector2($pos->x, $pos->z));
-						if ($dist <= $rxm && $dist >= $rm){
-							EntityUtil::immobile($entity, (integer) $this->duration->get());
-						}
-					}
+			$max = ($std->size + $step);
+			$min = ($std->size - $step);
+			foreach(EntityUtil::getWithin($pos, $min, $max) as $entity){
+				if (MonsterData::isMonster($entity)){
+					EntityUtil::immobile($entity, (integer) $this->duration->get());
 				}
 			}
 		}, $preparePeriod, $prepareLimit);

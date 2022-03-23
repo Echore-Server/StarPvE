@@ -12,6 +12,7 @@ use Lyrica0954\StarPvE\entity\MemoryEntity;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\GameManager;
 use Lyrica0954\StarPvE\game\monster\Attacker;
+use Lyrica0954\StarPvE\game\monster\boss\ZombieLord;
 use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\monster\Defender;
 use Lyrica0954\StarPvE\game\monster\Husk;
@@ -21,6 +22,7 @@ use Lyrica0954\StarPvE\game\monster\Zombie;
 use Lyrica0954\StarPvE\game\player\GamePlayerManager;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\JobManager;
+use Lyrica0954\StarPvE\job\player\archer\Archer;
 use Lyrica0954\StarPvE\job\player\engineer\Engineer;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
@@ -121,6 +123,10 @@ final class StarPvE extends PluginBase {
             return new Defender(EntityDataHelper::parseLocation($nbt, $world), $nbt);
         }, ["starpve:defender"], EntityLegacyIds::DROWNED);
 
+        $f->register(ZombieLord::class, function (World $world, CompoundTag $nbt): ZombieLord{
+            return new ZombieLord(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:zombie_lord"], EntityLegacyIds::ZOMBIE);
+
 
         $f->register(MonsterDropItem::class, function(World $world, CompoundTag $nbt) : MonsterDropItem{
             $itemTag = $nbt->getCompoundTag("Item");
@@ -134,32 +140,6 @@ final class StarPvE extends PluginBase {
             }
             return new MonsterDropItem(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
         }, ['starpve:monster_drop_item'], EntityLegacyIds::ITEM);
-
-        $f->register(GravityBall::class, function(World $world, CompoundTag $nbt) : GravityBall{
-            $itemTag = $nbt->getCompoundTag("Item");
-            if($itemTag === null){
-                throw new SavedDataLoadingException("Expected \"Item\" NBT tag not found");
-            }
- 
-            $item = Item::nbtDeserialize($itemTag);
-            if($item->isNull()){
-                throw new SavedDataLoadingException("Item is invalid");
-            }
-            return new GravityBall(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
-        }, ['starpve:gravity_ball'], EntityLegacyIds::ITEM);
-
-        $f->register(ShieldBall::class, function(World $world, CompoundTag $nbt) : ShieldBall{
-            $itemTag = $nbt->getCompoundTag("Item");
-            if($itemTag === null){
-                throw new SavedDataLoadingException("Expected \"Item\" NBT tag not found");
-            }
- 
-            $item = Item::nbtDeserialize($itemTag);
-            if($item->isNull()){
-                throw new SavedDataLoadingException("Item is invalid");
-            }
-            return new ShieldBall(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
-        }, ['starpve:shield_ball'], EntityLegacyIds::ITEM);
     }
 
     protected function onDisable(): void{
@@ -169,6 +149,12 @@ final class StarPvE extends PluginBase {
 
     protected function onLoad(): void{
         self::$instance = $this;
+        $wm = $this->getServer()->getWorldManager();
+        $wm->loadWorld("map", true);
+        $wm->loadWorld("hub", true);
+
+        $this->map = $wm->getWorldByName("map");
+        $this->hub = $wm->getWorldByName("hub");
 
         $this->log("Loading Managers...");
         $this->jobManager = new JobManager();
@@ -187,14 +173,14 @@ final class StarPvE extends PluginBase {
     }
 
     protected function onEnable(): void{
-        $wm = $this->getServer()->getWorldManager();
-        $wm->loadWorld("map");
-        $wm->loadWorld("hub");
-        $this->map = $wm->getWorldByName("map");
-        $this->hub = $wm->getWorldByName("hub");
-
         $this->log("Loading Utilities...");
         (new EntityUtil)->init($this);
+
+        $wm = $this->getServer()->getWorldManager();
+        $wm->loadWorld("map", true);
+        $wm->loadWorld("hub", true);
+        $this->map = $wm->getWorldByName("map");
+        $this->hub = $wm->getWorldByName("hub");
 
         $this->log("Registering Jobs...");
         $this->jobManager->register(new Swordman(null));
@@ -203,6 +189,7 @@ final class StarPvE extends PluginBase {
         $this->jobManager->register(new Engineer(null));
         $this->jobManager->register(new Healer(null));
         $this->jobManager->register(new Shaman(null));
+        $this->jobManager->register(new Archer(null));
 
         
         $this->log("Starting Player Data Center...");
