@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\monster\boss;
 
+use Lyrica0954\MagicParticle\CircleParticle;
+use Lyrica0954\MagicParticle\effect\SaturatedLineworkEffect;
+use Lyrica0954\MagicParticle\LineParticle;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
@@ -14,16 +17,31 @@ use Lyrica0954\StarPvE\game\wave\WaveMonsters;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
+use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\RandomUtil;
+use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityRegainHealthEvent;
+use pocketmine\event\HandlerListManager;
+use pocketmine\event\Listener;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\Server;
 
-class ZombieLord extends SmartZombie {
+class ZombieLord extends SmartZombie implements Listener {
     use HealthBarEntity;
 
-    protected float $reach = 1.5;
+    protected float $reach = 2.25;
+
+	protected int $lastParticle = 0;
+	
+	public float $defendArea = 6.5;
 
 	protected int $callTick = 0;
+
+	protected int $regenTick = 0;
 
     public function getFollowRange(): float{
         return 50;
@@ -33,6 +51,15 @@ class ZombieLord extends SmartZombie {
 		parent::initEntity($nbt);
 
 		$this->setScale(1.5);
+		Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
+	}
+
+	protected function onDispose(): void{
+		parent::onDispose();
+
+		(new SaturatedLineworkEffect(10, 3, 0.1, 10, 360, -90, 0))->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), "starpve:soft_red_gas");
+
+		HandlerListManager::global()->unregisterAll($this);
 	}
 
 	protected function callZombie(){
@@ -43,8 +70,17 @@ class ZombieLord extends SmartZombie {
 		$std->tick = 0;
 		$animation = new SpawnAnimation(function(Living $entity){return false;}, 1);
 		$animation->setInitiator(function(Living $entity){
-			$motion = EntityUtil::modifyKnockback($entity, $this, 1.8, 1.0);
-			$entity->setMotion($motion);
+			if (($target = $this->getTarget()) instanceof Entity){
+				if ($entity instanceof FightingEntity){
+					$entity->setTarget($target);
+				}
+
+				$dist = $target->getPosition()->distance($this->getPosition());
+				$motion = EntityUtil::modifyKnockback($target, $this, $dist / 2, 1.0);
+				$entity->setMotion($motion);
+			} else {
+				$entity->setMotion(new Vector3(RandomUtil::rand_float(-1.0, 1.0), 0.4, RandomUtil::rand_float(-1.0, 1.0)));
+			}
 		});
 
 		$monsters = new WaveMonsters(new MonsterData(MonsterData::ZOMBIE, 1, $animation));
@@ -64,11 +100,70 @@ class ZombieLord extends SmartZombie {
 
 
 		$this->callTick += $tickDiff;
-		if ($this->callTick >= 200){
+		if ($this->callTick >= 160 && !$this->isFriend()){
 			$this->callTick = 0;
 			$this->callZombie();
 		}
 
+		if ($this->getHealth() <= ($this->getMaxHealth() / 3) && !$this->isFriend()){
+			$this->regenTick += $tickDiff;
+			if ($this->regenTick >= 3){
+				$this->regenTick = 0;
+				$heal = 0.5;
+				$pos = $this->getPosition();
+				$pos->y += 0.3;
+				foreach(EntityUtil::getWithinRange($this->getPosition(), $this->defendArea) as $entity){
+					if (MonsterData::isMonster($entity)){
+						if ($entity !== $this){
+							$ev = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_SUICIDE, $heal);
+							$epos = $entity->getPosition();
+							$epos->y += 0.3;
+							$ev->setAttackCooldown(0);
+							$entity->attack($ev);
+							(new LineParticle($pos, 3))->sendToPlayers($this->getWorld()->getPlayers(), $epos, "starpve:red_gas");
+		
+							PlayerUtil::broadcastSound($entity, "dig.nylium", 0.65, 0.8);
+		
+							$regain = new EntityRegainHealthEvent($this, $ev->getFinalDamage(), EntityRegainHealthEvent::CAUSE_CUSTOM);
+							$this->heal($regain);
+						}
+					}
+				}
+			}
+		}
+
 		return $update;
+	}
+
+	public function onEntityDamage(EntityDamageEvent $event){
+		$entity = $event->getEntity();
+
+		if (MonsterData::isMonster($entity)){
+			if ($event->getCause() !== EntityDamageEvent::CAUSE_CUSTOM && $event->getCause() !== EntityDamageEvent::CAUSE_SUICIDE){
+				if ($entity !== $this){
+					$pos = $this->getPosition();
+					$pos->y += 0.3;
+					$epos = $entity->getPosition();
+					$epos->y += 0.3;
+		
+					if ($pos->distance($epos) <= $this->defendArea){
+						$players = $this->getWorld()->getPlayers();
+						(new LineParticle($pos, 3))->sendToPlayers($players, $epos, "minecraft:falling_dust_top_snow_particle");
+			
+						$diff = Server::getInstance()->getTick() - $this->lastParticle;
+						if ($diff >= 10){
+							$this->lastParticle = Server::getInstance()->getTick();
+							(new CircleParticle($this->defendArea, 6))->sendToPlayers($players, $pos, "starpve:soft_red_gas");
+						}
+			
+						EntityUtil::multiplyFinalDamage($event, 0.65);
+			
+						PlayerUtil::broadcastSound($entity, "item.shield.block", 1.5, 0.3);
+					}
+				}
+			}
+		}
+
+
 	}
 }

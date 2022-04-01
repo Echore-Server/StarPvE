@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job;
 
+use Lyrica0954\StarPvE\event\job\player\PlayerLeftJobEvent;
+use Lyrica0954\StarPvE\event\job\player\PlayerSelectJobEvent;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -53,9 +55,16 @@ class JobManager {
 
     public function setJob(Player $player, ?string $job){
         $currentJob = $this->players[spl_object_hash($player)] ?? null;
-        $currentJob?->close();
+        if ($currentJob !== null){
+            $currentJob->close();
+            $lev = new PlayerLeftJobEvent($player, $currentJob);
+            $lev->call();
+        }
         if ($job !== null){
-            $this->players[spl_object_hash($player)] = new $job($player);
+            $jobInstance = new $job($player);
+            $ev = new PlayerSelectJobEvent($player, $jobInstance);
+            $ev->call();
+            $this->players[spl_object_hash($player)] = $jobInstance;
         } else {
             $this->players[spl_object_hash($player)] = null;
         }
@@ -70,7 +79,7 @@ class JobManager {
     }
 
     public function getJobName(Player $player){
-        return $this->getJob($player)->getName();
+        return (($job = $this->getJob($player)) !== null ? $job->getName() : "None");
     }
 
     public function isJobName(Player $player, string $jobName){

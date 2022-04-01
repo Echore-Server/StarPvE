@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\game\monster;
 
 use Lyrica0954\MagicParticle\CircleParticle;
+use Lyrica0954\MagicParticle\LineParticle;
 use Lyrica0954\SmartEntity\entity\fightstyle\helper\HelpEntity;
 use Lyrica0954\SmartEntity\entity\fightstyle\HelperStyle;
 use Lyrica0954\SmartEntity\entity\fightstyle\Style;
@@ -27,6 +28,8 @@ class Defender extends FightingEntity implements Neutral{
     use HelpEntity, HealthBarEntity;
 
     private float $n = 0;
+
+    protected int $ptick = 0;
 
     public static function getNetworkTypeId(): string{
         return EntityIds::DROWNED;
@@ -76,6 +79,23 @@ class Defender extends FightingEntity implements Neutral{
                     break;
                 }
             }
+        } else {
+            $helping = $this->getHelping();
+            if (!$helping->isAlive() || $helping->isClosed()){
+                $this->setHelping(null);
+            } else {
+                $this->ptick ++;
+                $epos = $helping->getPosition();
+                $epos->y += 0.6;
+                $pos = $this->getPosition();
+                $pos->y += 0.6;
+    
+                $par = (new LineParticle($pos, 3));
+                if ($this->ptick >= 10){
+                    $this->ptick = 0;
+                    $par->sendToPlayers($this->getWorld()->getPlayers(), $epos, "starpve:soft_green_gas");
+                }
+            }
         }
         
         $this->n += 0.1;
@@ -111,7 +131,7 @@ class Defender extends FightingEntity implements Neutral{
                             $source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
                             $source->setAttackCooldown(4);
                             PlayerUtil::playSound($entity, "mob.player.hurt_freeze", 1.2, 0.9);
-                            EntityUtil::attackEntity($source, 0.25, $velocity->y*8);
+                            EntityUtil::attackEntity($source, 0.25, $velocity->y*8.5);
                         }
                     }
                 }

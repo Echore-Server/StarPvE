@@ -42,4 +42,8 @@ class Messanger {
         $text = ($condition instanceof Condition) ? ($condition->asText()) : "なし";
         $player->sendMessage("§c--------------\n§7{$text}\n§c--------------");
     }
+
+    public static function tooltip(Player $player, string $message){
+        $player->sendMessage($message);
+    }
 }

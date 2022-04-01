@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE;
 
+use Lyrica0954\Service\ServiceHost;
 use Lyrica0954\StarPvE\command\CommandLoader;
 use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
@@ -31,7 +32,9 @@ use Lyrica0954\StarPvE\job\player\healer\Healer;
 use Lyrica0954\StarPvE\job\player\magician\Magician;
 use Lyrica0954\StarPvE\job\player\shaman\Shaman;
 use Lyrica0954\StarPvE\job\player\swordman\Swordman;
-use Lyrica0954\StarPvE\player\indicator\damage\DamageEventListener;
+use Lyrica0954\StarPvE\service\BlockFriendlyFireService;
+use Lyrica0954\StarPvE\service\indicator\InboundDamageService;
+use Lyrica0954\StarPvE\service\indicator\PlayerHealthIndicatorService;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use pocketmine\block\Gravel;
 use pocketmine\data\bedrock\EntityLegacyIds;
@@ -62,6 +65,7 @@ final class StarPvE extends PluginBase {
     private GameManager $gameManager;
     private GamePlayerManager $gamePlayerManager; #todo: gameManager の中に入れるべき？
     private PlayerDataCenter $playerDataCenter;
+    private ServiceHost $serviceHost;
 
     public function getJobManager(): JobManager{
         return $this->jobManager;
@@ -77,6 +81,10 @@ final class StarPvE extends PluginBase {
 
     public function getPlayerDataCenter(): PlayerDataCenter{
         return $this->playerDataCenter;
+    }
+
+    public function getServiceHost(): ServiceHost{
+        return $this->serviceHost;
     }
 
     private function registerEntities(){
@@ -196,14 +204,24 @@ final class StarPvE extends PluginBase {
         $this->playerDataCenter = new PlayerDataCenter($this->getDataFolder() . "player_data");
 
         new EventListener($this);
-        new DamageEventListener($this);
         $this->log((string) Internet::getInternalIP());
+
+        $this->log("Starting Service Host...");
+        $this->serviceHost = new ServiceHost($this);
+
+        $this->log("Opening Service Session...");
+        $session = $this->serviceHost->open();
+
+        $this->log("Registering Services...");
+        $session->add(new InboundDamageService($session));
+        $session->add(new PlayerHealthIndicatorService($session));
+        $session->add(new BlockFriendlyFireService($session));
+
+        $this->log("Starting Service Session...");
+        $session->start();
 
         $this->log("Creating New Game...");
         $this->gameManager->createNewGame();
-
-        #$this->log("Loading Boss Bar API...");
-        #API::load($this);
     }
 
     public function log(string $message){

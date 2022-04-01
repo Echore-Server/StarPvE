@@ -32,6 +32,7 @@ use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
+use Ramsey\Uuid\Type\Integer;
 
 class FreezeArrow extends SpecialArrow implements Listener {
 
@@ -50,6 +51,9 @@ class FreezeArrow extends SpecialArrow implements Listener {
 	protected float $particleCTick = 0;
 	protected float $areaC = 0;
 
+	protected int $soundTick = 0;
+	protected int $soundPeriod = 20;
+
 	private bool $activatedInternal = false;
 
 	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult): void{
@@ -66,7 +70,7 @@ class FreezeArrow extends SpecialArrow implements Listener {
 	protected function entityBaseTick(int $tickDiff = 1): bool{
 		$update = parent::entityBaseTick($tickDiff);
 		$players = $this->getWorld()->getPlayers();
-		#(new SingleParticle)->sendToPlayers($players, $this->getPosition(), "minecraft:ice_evaporation_emitter");
+		(new SingleParticle)->sendToPlayers($players, $this->getPosition(), "minecraft:ice_evaporation_emitter");
 
 		if ($this->activatedInternal){
 			$vec = $this->activatePosition;
@@ -76,18 +80,23 @@ class FreezeArrow extends SpecialArrow implements Listener {
 				$this->particleTick += $tickDiff;
 				$this->explodeTick += $tickDiff;
 				$this->particleCTick += $tickDiff;
+				$this->soundTick += $tickDiff;
 
 				$pos = VectorUtil::insertWorld($vec, $this->getWorld());
 				$players = $this->getWorld()->getPlayers();
 
 				if ($this->activeTick >= $this->period){
 					$this->activeTick = 0;
+					$ecount = 0;
 					$entities = EntityUtil::getWithinRange($pos, $this->areaC);
 					$this->areaC = $this->area;
 
 					foreach($entities as $entity){
 						if (MonsterData::isMonster($entity) && $entity instanceof Living){
-							$this->areaC += 1;
+							$ecount += 1;
+							if ($ecount <= 14){
+								$this->areaC += (1 * 0.5);
+							}
 							$effects = ($this->areaEffects ?? (new EffectGroup()));
 							$effects->apply($entity);
 							if ($entity instanceof FightingEntity && !MonsterData::equal($entity, MonsterData::ATTACKER)){
@@ -95,8 +104,6 @@ class FreezeArrow extends SpecialArrow implements Listener {
 									$entity->setFriend(true);
 									$beforeTarget = $entity->getTarget();
 									TaskUtil::reapeatingClosureCheck(function() use($entity){
-										$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_MAGIC, 0.25);
-										$entity->attack($source);
 										$min = EntityUtil::getCollisionMin($entity);
 										$emitter = EmitterParticle::createEmitterForEntity($entity, 0.3, 3);
 										$emitter->sendToPlayers($entity->getWorld()->getPlayers(), VectorUtil::insertWorld($min, $entity->getWorld()), "minecraft:magnesium_salts_emitter");
@@ -121,16 +128,30 @@ class FreezeArrow extends SpecialArrow implements Listener {
 					}
 				}
 
-				if ($this->particleTick >= 19){
+				if ($this->particleTick >= 20){
 					$this->particleTick = 0;
 
 					$spar = (new SphereParticle($this->areaC, 6, 6, 360, -90, 0));
 					$eff = new PartDelayedEffect(new SaturatedLineworkEffect($this->areaC, 3, 0.0, 7, 360, -90, 0), 3, 1, true);
 					$spar->sendToPlayers($players, $pos, "starpve:freeze_gas");
 					$eff->sendToPlayers($players, $pos, "minecraft:magnesium_salts_emitter");
+				}
+
+				if ($this->soundTick >= $this->soundPeriod){
+					$this->soundTick = 0;
 
 					PlayerUtil::broadcastSound($this, "respawn_anchor.ambient", 1.5, 1.0);
 					PlayerUtil::broadcastSound($this, "respawn_anchor.charge", 0.5, 1.0);
+
+					$sec = 2;
+					$p = ($this->duration - ($sec * 20));
+					if ($this->explodeTick >= $p){
+						$diff = ($this->explodeTick - $p);
+						# wont minus
+						if ($diff >= 0){
+							$this->soundPeriod = (integer) (20 - ($diff / $sec));
+						}
+					}
 				}
 
 				if ($this->explodeTick >= $this->duration){

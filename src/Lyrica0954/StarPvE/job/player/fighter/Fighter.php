@@ -118,57 +118,59 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener{
 
         if (!$event->isCancelled()){
             if ($damager === $this->player){
-                if (true){
-                    $tick = Server::getInstance()->getTick();
-                    if ($tick - $this->lastAttackTick > 80){
-                        $this->combo = 0;
-                    }
-
-                    $this->combo ++;
-                    $delay = match(true){
-                        $this->combo >= 19 => 5,
-                        $this->combo >= 15 => 6,
-                        $this->combo >= 12 => 7,
-                        $this->combo >= 9 => 8,
-                        $this->combo >= 4 => 9,
-                        $this->combo >= 2 => 10,
-                        default => 11
-                    };
-                    $skillAdjust = ($this->getSkill()->isActive() ? ((integer) $this->getSkill()->getAmount()->get()) : 0);
-                    $delay -= $skillAdjust;
-                    $delay = max(0, $delay);
-
-                    $this->comboLevel = (11 - $delay) - $skillAdjust;
-                    if ($this->comboLevel >= 6){
-                        $this->comboLevel = 6;
-                    }
-                    $color = "§7";
-                    if ($this->comboLevel == 6){
-                        $color = ($this->combo % 2 === 0) ? "§c" : "§d";
-
-                        if ($this->combo % 3 === 0){
-                            $par = new SingleParticle;
-                            $pos = VectorUtil::keepAdd($entity->getPosition(), 0, 1.0, 0);
-                            $par->sendToPlayers($this->player->getWorld()->getPlayers(), $pos, "minecraft:dragon_destroy_block");
-                            PlayerUtil::broadcastSound($entity, "cauldron.explode", 1.3, 1.0); #スキルで聞こえにくくなるから　結局 0.75 になる
-                            foreach(EntityUtil::getWithinRange($pos, 1.5) as $exEntity){
-                                if ($exEntity !== $entity){
-                                    if (MonsterData::isMonster($exEntity)){
-                                        $source = new EntityDamageByEntityEvent($this->player, $exEntity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $event->getBaseDamage(), [], 0);
-                                        $source->setAttackCooldown(0);
-                                        $exEntity->attack($source);
+                if (MonsterData::isMonster($entity)){
+                    if (true){
+                        $tick = Server::getInstance()->getTick();
+                        if ($tick - $this->lastAttackTick > 80){
+                            $this->combo = 0;
+                        }
+    
+                        $this->combo ++;
+                        $delay = match(true){
+                            $this->combo >= 19 => 5,
+                            $this->combo >= 15 => 6,
+                            $this->combo >= 12 => 7,
+                            $this->combo >= 9 => 8,
+                            $this->combo >= 4 => 9,
+                            $this->combo >= 2 => 10,
+                            default => 11
+                        };
+                        $skillAdjust = ($this->getSkill()->isActive() ? ((integer) $this->getSkill()->getAmount()->get()) : 0);
+                        $delay -= $skillAdjust;
+                        $delay = max(0, $delay);
+    
+                        $this->comboLevel = (11 - $delay) - $skillAdjust;
+                        if ($this->comboLevel >= 6){
+                            $this->comboLevel = 6;
+                        }
+                        $color = "§7";
+                        if ($this->comboLevel == 6){
+                            $color = ($this->combo % 2 === 0) ? "§c" : "§d";
+    
+                            if ($this->combo % 3 === 0){
+                                $par = new SingleParticle;
+                                $pos = VectorUtil::keepAdd($entity->getPosition(), 0, 1.0, 0);
+                                $par->sendToPlayers($this->player->getWorld()->getPlayers(), $pos, "minecraft:dragon_destroy_block");
+                                PlayerUtil::broadcastSound($entity, "cauldron.explode", 1.3, 1.0); #スキルで聞こえにくくなるから　結局 0.75 になる
+                                foreach(EntityUtil::getWithinRange($pos, 1.5) as $exEntity){
+                                    if ($exEntity !== $entity){
+                                        if (MonsterData::isMonster($exEntity)){
+                                            $source = new EntityDamageByEntityEvent($this->player, $exEntity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $event->getBaseDamage(), [], 0);
+                                            $source->setAttackCooldown(0);
+                                            $exEntity->attack($source);
+                                        }
                                     }
                                 }
                             }
                         }
+    
+                        $this->player->sendTitle("§r", "                               §c§l{$this->combo} §fCombo\n§r§f                               {$color}Level {$this->comboLevel}", 0, 80, 0);
+                        $this->fixTitle();
+                        
+    
+                        $event->setAttackCooldown($delay);
+                        $this->lastAttackTick = $tick;
                     }
-
-                    $this->player->sendTitle("§r", "                               §c§l{$this->combo} §fCombo\n§r§f                               {$color}Level {$this->comboLevel}", 0, 80, 0);
-                    $this->fixTitle();
-                    
-
-                    $event->setAttackCooldown($delay);
-                    $this->lastAttackTick = $tick;
                 }
             }
         }

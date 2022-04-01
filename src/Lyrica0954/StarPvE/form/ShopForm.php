@@ -25,9 +25,10 @@ class ShopForm implements Form{
                 $text .= "\n§a購入可能";
             } else {
                 $costItem = $content->getCost($this->player);
-                $need = $costItem->getCount() - PlayerUtil::countItem($this->player, $costItem->getId());
+                $has = PlayerUtil::countItem($this->player, $costItem->getId());
+                $need = $costItem->getCount() - $has;
                 if ($need > 0){
-                    $text .= "\n§c{$costItem->getName()}が不足しています §f/ §c{$need} 必要";
+                    $text .= "\n§c{$costItem->getName()}が不足しています §f| §6{$has}§f/§e{$costItem->getCount()}";
                 } else {
                     $text .= "\n§cこのアイテムは購入できません";
                 }

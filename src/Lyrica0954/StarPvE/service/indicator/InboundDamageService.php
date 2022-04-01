@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace Lyrica0954\StarPvE\player\indicator\damage;
+namespace Lyrica0954\StarPvE\service\indicator;
 
+use Lyrica0954\Service\Service;
+use Lyrica0954\StarPvE\service\ListenerService;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\HandlerListManager;
 use pocketmine\event\Listener;
 use pocketmine\player\Player;
 
-class DamageEventListener implements Listener {
+class InboundDamageService extends ListenerService {
 
     /**
      * @var array{playerHash: string, originalEvent: EntityDamageByEntityEvent}
      */
     private array $originalStore;
 
-    public function __construct(StarPvE $plugin){
+    protected function init(): void{
         $this->originalStore = [];
-        $plugin->getServer()->getPluginManager()->registerEvents($this, $plugin);
     }
 
 
@@ -57,7 +59,7 @@ class DamageEventListener implements Listener {
 
                 $diffString = ($diff >= 0 ? "+" : "") . (string) $diff;
 
-                $entity->sendMessage("§c§l<< §r§7{$originalDamage} §f-> §c{$finalDamage} §d({$diffString})");
+                $entity->sendMessage("§c§l<< §r§8{$originalEvent->getOriginalBaseDamage()} §f-> §7{$originalDamage} §f-> §c{$finalDamage} §d({$diffString})");
             }
         }
     }

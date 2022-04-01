@@ -81,7 +81,7 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 
 		$damage = $entity->getMaxHealth() * $per;
 
-		(new CircleParticle($range, 4, unstableRate: 0.15))->sendToPlayers($players, $pos, "minecraft:obsidian_glow_dust_particle");
+		(new CircleParticle($range, 4, unstableRate: 0.05))->sendToPlayers($players, $pos, "minecraft:obsidian_glow_dust_particle");
 
 		PlayerUtil::broadcastSound($pos, "dig.basalt", 0.8, 1.0);
 
@@ -91,10 +91,11 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 					if ($target->getHealth() > 0){
 						$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
 						$source->setAttackCooldown(0);
-						$target->attack($source);
 						if ($target->getHealth() <= $source->getFinalDamage()){
 							$target->kill();
 							$this->causeCollapse($target);
+						} else {
+							$target->attack($source);
 						}
 
 					}

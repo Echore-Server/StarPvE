@@ -73,7 +73,7 @@ sprintf('§b発動時:§f 視線の先に§e稲妻§fを放つ。
 
     protected function init(): void{
         $this->damage = new AbilityStatus(6.0);
-        $this->duration = new AbilityStatus(4);
+        $this->duration = new AbilityStatus(3);
         $this->chainDamage = new AbilityStatus(2.0);
         $this->amount = new AbilityStatus(6);
         $this->area = new AbilityStatus(8.5);

@@ -26,6 +26,7 @@ use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -111,8 +112,7 @@ class Game implements CooltimeAttachable{
                 $defaultTitleFormat,
                 null,
                 new WaveMonsters(
-                    new MonsterData(MonsterData::ZOMBIE_LORD, 1),
-                    new MonsterData(MonsterData::ZOMBIE, 2)
+                    new MonsterData(MonsterData::ZOMBIE, 2),
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 1),
@@ -154,7 +154,7 @@ class Game implements CooltimeAttachable{
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 7),
-                    new MonsterData(MonsterData::ATTACKER, 1)
+                    new MonsterData(MonsterData::ATTACKER, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 3),
@@ -169,7 +169,7 @@ class Game implements CooltimeAttachable{
                 $defaultTitleFormat,
                 null,
                 new WaveMonsters(
-                    new MonsterData(MonsterData::ZOMBIE, 4),
+                    new MonsterData(MonsterData::ZOMBIE, 5),
                     new MonsterData(MonsterData::CREEPER, 2)
                 ),
                 new WaveMonsters(
@@ -178,33 +178,41 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::CREEPER, 1)
                 ),
                 new WaveMonsters(
-                    new MonsterData(MonsterData::ZOMBIE, 3)
+                    new MonsterData(MonsterData::ZOMBIE, 4)
                 ),
                 new WaveMonsters(
-                    new MonsterData(MonsterData::ZOMBIE, 2)
+                    new MonsterData(MonsterData::ZOMBIE, 3)
                 )
             ), 
             5 => new WaveData(
                 $defaultTitleFormat,
                 new CustomWaveStart(function (WaveController $wc){
-                    $wc->getGame()->broadcastMessage("§l§cゾンビの群れがレーン §e3 §cに接近中です！！");
+                    $wc->getGame()->broadcastMessage("§l§cクリーパーの群れがレーン §e3 §cに接近中です！！");
+                    $wc->getGame()->broadcastMessage("§l§cボスがレーン §e3 §cに出現しました！");
                 }),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 6),
                     new MonsterData(MonsterData::ATTACKER, 2),
-                    new MonsterData(MonsterData::CREEPER, 2)
+                    new MonsterData(MonsterData::CREEPER, 1)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 3),
                     new MonsterData(MonsterData::ATTACKER, 2)
                 ),
                 new WaveMonsters(
-                    new MonsterData(MonsterData::ZOMBIE, 18)
+                    new MonsterData(MonsterData::ZOMBIE_LORD, 1),
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::CREEPER, 10)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ATTACKER, 1),
                     new MonsterData(MonsterData::ZOMBIE, 4),
-                    new MonsterData(MonsterData::CREEPER, 2)
+                    new MonsterData(MonsterData::CREEPER, 1)
                 )
             ), 
             6 => new WaveData(
@@ -313,27 +321,92 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ZOMBIE, 12),
                     new MonsterData(MonsterData::ATTACKER, 4),
                     new MonsterData(MonsterData::HUSK, 6),
-                    new MonsterData(MonsterData::SPIDER, 3)
+                    new MonsterData(MonsterData::SPIDER, 3),
+                    new MonsterData(MonsterData::SKELETON, 1) #NEW: SKELETON
 
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 8),
                     new MonsterData(MonsterData::ATTACKER, 3),
                     new MonsterData(MonsterData::SPIDER, 3),
-                    new MonsterData(MonsterData::HUSK, 2)
+                    new MonsterData(MonsterData::HUSK, 2),
+                    new MonsterData(MonsterData::SKELETON, 1)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 6),
                     new MonsterData(MonsterData::ATTACKER, 1),
                     new MonsterData(MonsterData::SPIDER, 2),
-                    new MonsterData(MonsterData::CREEPER, 3)
+                    new MonsterData(MonsterData::CREEPER, 3),
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 3),
                     new MonsterData(MonsterData::ATTACKER, 2),
-                    new MonsterData(MonsterData::CREEPER, 7)
+                    new MonsterData(MonsterData::CREEPER, 7),
+                    new MonsterData(MonsterData::SKELETON, 1)
                 )
-            ),  
+            ),
+            11 => new WaveData(
+                $defaultTitleFormat,
+                new CustomWaveStart(function (WaveController $wc){
+                    $wc->getGame()->broadcastMessage("§l§cハスクとクモの群れがレーン §e1 §cに接近中です！！");
+                }),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::HUSK, 18),
+                    new MonsterData(MonsterData::SPIDER, 9)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 8),
+                    new MonsterData(MonsterData::ATTACKER, 7),
+                    new MonsterData(MonsterData::CREEPER, 6),
+                    new MonsterData(MonsterData::SPIDER, 3),
+                    new MonsterData(MonsterData::SKELETON, 2)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 4),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::SPIDER, 1),
+                    new MonsterData(MonsterData::CREEPER, 2),
+                    new MonsterData(MonsterData::SKELETON, 1)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 2),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::CREEPER, 3),
+                    new MonsterData(MonsterData::SKELETON, 3)
+                )
+            ), 
+            12 => new WaveData(
+                $defaultTitleFormat,
+                new CustomWaveStart(function (WaveController $wc){
+                    $wc->getGame()->broadcastMessage("§l§cアタッカーとクリーパーの群れがレーン §e2 §cに接近中です！");
+                    $wc->getGame()->broadcastMessage("§l§cゾンビの群れがレーン §e4 §cに接近中です！");
+                }),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::HUSK, 6),
+                    new MonsterData(MonsterData::SPIDER, 3),
+                    new MonsterData(MonsterData::SKELETON, 7)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 2),
+                    new MonsterData(MonsterData::ATTACKER, 8),
+                    new MonsterData(MonsterData::DEFENDER, 3), #NEW: DEFENDER
+                    new MonsterData(MonsterData::CREEPER, 34),
+                    new MonsterData(MonsterData::SPIDER, 3),
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 1),
+                    new MonsterData(MonsterData::SPIDER, 1),
+                    new MonsterData(MonsterData::CREEPER, 2),
+                    new MonsterData(MonsterData::SKELETON, 1)
+                ),
+                new WaveMonsters(
+                    new MonsterData(MonsterData::ZOMBIE, 20),
+                    new MonsterData(MonsterData::ATTACKER, 1),
+                    new MonsterData(MonsterData::DEFENDER, 1),
+                    new MonsterData(MonsterData::CREEPER, 3)
+                )
+            ), 
         ]);
     }
 
@@ -472,7 +545,7 @@ class Game implements CooltimeAttachable{
             PlayerDataCollector::addGenericDigit($player, "PlayCount", 1);
         }
 
-        $this->end(10 * 20);
+        $this->end(11 * 20);
     }
 
     public function gameover(): void{
@@ -488,6 +561,13 @@ class Game implements CooltimeAttachable{
                 if (!$entity instanceof Player){
                     $source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_SUICIDE, 100000);
                     $entity->attack($source);
+                } else {
+                    $angle = VectorUtil::getAngle($pos, $entity->getPosition());
+                    $dir = VectorUtil::getDirectionHorizontal($angle->x);
+                    $dir->x = -$dir->x;
+                    $dir->z = -$dir->z;
+
+                    $entity->setMotion($dir->add(0, 0.4, 0));
                 }
             }
             

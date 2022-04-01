@@ -46,8 +46,19 @@ abstract class Ability{
 
     protected bool $closed;
 
+    /**
+     * @var PlayerJob
+     */
     protected PlayerJob $job;
+    
+    /**
+     * @var Player|null
+     */
     protected ?Player $player;
+
+    /**
+     * @var CooltimeHandler
+     */
     protected CooltimeHandler $cooltimeHandler;
 
     public function __construct(PlayerJob $job){

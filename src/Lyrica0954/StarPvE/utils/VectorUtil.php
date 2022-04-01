@@ -39,6 +39,40 @@ class VectorUtil {
         }
     }
 
+    public static function reverseAngle(float $yaw = 0, float $pitch = 0): Vector2{
+        #pitch = 45
+        $angle = new Vector2($yaw, $pitch);
+        $angle->y = -$angle->y;
+
+        $angle->x = $angle->x + 180;
+        if ($angle->x > 360){
+            $angle->x -= 360;
+        }
+
+        return $angle;
+    }
+
+    public static function rotatePitch(float $pitch, float $deg): float{
+        $pitch += $deg;
+        if ($pitch > 90){
+			$pitch -= 180;
+		}
+		if ($pitch < -90){
+			$pitch += 180;
+		}
+
+        return $pitch;
+    }
+
+    public static function rotateYaw(float $yaw, float $deg): float{
+		$yaw += $deg;
+		if ($yaw > 360){
+			$yaw -= 360;
+		}
+
+        return $yaw;
+	}
+
     public static function getNearestSpherePosition(Vector3 $vec, Vector3 $center, float $size): Vector3{
         $angle = self::getAngle($center, $vec);
         $dir = self::getDirectionVector($angle->x, $angle->y);
@@ -47,6 +81,7 @@ class VectorUtil {
         $nearest = $center->addVector($dir->multiply($size));
         return $nearest;
     }
+
 
     public static function reAdd(Vector3 $vec, float $add): Vector3{
         $new = clone $vec;
@@ -70,6 +105,14 @@ class VectorUtil {
 		$xz = cos(deg2rad($pitch));
 		$x = -$xz * sin(deg2rad($yaw));
 		$z = $xz * cos(deg2rad($yaw));
+
+        return (new Vector3($x, $y, $z))->normalize();
+    }
+
+    public static function getDirectionVectorStrict(float $yaw, float $pitch){
+        $y = -sin(deg2rad($pitch));
+        $x = sin(deg2rad($yaw));
+        $z = cos(deg2rad($yaw));
 
         return (new Vector3($x, $y, $z))->normalize();
     }

@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\ArmorSet;
 use Lyrica0954\StarPvE\utils\Random;
 use Lyrica0954\StarPvE\utils\RandomUtil;
+use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\entity\Location;
 use pocketmine\item\Armor;
@@ -68,27 +69,30 @@ class WaveMonsters {
                         $this->count ++;
                         $class = $this->monster->name;
                         $loc = new Location($this->pos->x, $this->pos->y, $this->pos->z, $this->pos->getWorld(), 0, 0);
-                        $loc->x += RandomUtil::rand_float(-1.75, 1.75);
-                        $loc->z += RandomUtil::rand_float(-1.75, 1.75);
                         $entity = new $class($loc);
-                        $this->attribute->apply($entity);
-                        $this->equipment->equip($entity);
-                        $defAnimation = new SpawnAnimation(function(){return false;}, 1);
-                        $defAnimation->setInitiator(function(Living $entity){
-                            $pos = $entity->getPosition();
-                            $pos->x += RandomUtil::rand_float(-1.75, 1.75);
-                            $pos->z += RandomUtil::rand_float(-1.75, 1.75);
-                            $entity->teleport($pos);
-                        });
-                        $animation = $this->monster->animation ?? $defAnimation;
-                        $animation->spawn($entity);
-                        if ($this->hook !== null){
-                            $h = $this->hook;
-                            $h($entity);
-                        }
-                        if ($this->count >= $this->monster->count){
-                            $this->getHandler()->cancel();
-                            StarPvE::getInstance()->log("§7[WaveMonsters] Removed Monster Spawner: Successfly Spawned");
+                        if ($entity instanceof Entity){
+                            $size = $entity->size;
+                            $this->attribute->apply($entity);
+                            $this->equipment->setUnbreakable(true);
+                            $this->equipment->equip($entity);
+                            $defAnimation = new SpawnAnimation(function(){return false;}, 1);
+                            $defAnimation->setInitiator(function(Living $entity){
+                                $pos = $entity->getPosition();
+                                $d = (2.0 - ($entity->size->getWidth()));
+                                $pos->x += RandomUtil::rand_float(-$d, $d);
+                                $pos->z += RandomUtil::rand_float(-$d, $d);
+                                $entity->teleport($pos);
+                            });
+                            $animation = $this->monster->animation ?? $defAnimation;
+                            $animation->spawn($entity);
+                            if ($this->hook !== null){
+                                $h = $this->hook;
+                                $h($entity);
+                            }
+                            if ($this->count >= $this->monster->count){
+                                $this->getHandler()->cancel();
+                                StarPvE::getInstance()->log("§7[WaveMonsters] Removed Monster Spawner: Successfly Spawned");
+                            }
                         }
                     } else {
                         $this->getHandler()->cancel();

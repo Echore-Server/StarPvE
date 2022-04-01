@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\form;
 
+use Lyrica0954\StarPvE\event\job\player\PlayerSelectJobEvent;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
 use Lyrica0954\StarPvE\job\Job;

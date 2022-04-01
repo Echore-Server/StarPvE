@@ -10,11 +10,14 @@ use Lyrica0954\StarPvE\job\player\archer\entity\FreezeArrow;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EffectGroup;
+use Lyrica0954\StarPvE\utils\Messanger;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\projectile\Arrow;
 use pocketmine\event\entity\EntityShootBowEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerItemUseEvent;
+use pocketmine\item\Bow;
 use pocketmine\item\VanillaItems;
 use pocketmine\player\Player;
 
@@ -36,7 +39,7 @@ class FreezeArrowSkill extends Skill implements Listener{
 	protected EffectGroup $explodeEffects;
 
 	public function getCooltime(): int{
-		return (215 * 20);
+		return (220 * 20);
 	}
 	
 	public function getName(): string{
@@ -55,7 +58,7 @@ sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作
 地面に当たった場合、§b効果§f を発動させる。
 矢は §d全てのエンティティ§f を貫通する。
 
-§b効果範囲:§f (%1$s + §b効果範囲内にいる敵の数§f)
+§b効果範囲:§f (%1$s + (§b効果範囲内にいる敵の数(最大§c14体§b分)§f * §c0.5§f))
 
 §b効果(1):§f 矢から §b効果範囲§f 内の敵を %2$s §d不活性化§f させる。
 §b効果(2):§f 矢から §b効果範囲§f 内の味方に %3$s を与える。
@@ -65,21 +68,20 @@ sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作
 ステージ上の全ての敵に %5$s を与えて、ノックバックさせる。
 
 §d不活性化§f された敵は §d中立§f 状態となり、§dプレイヤー§f を攻撃しなくなる。
-さらに、 §c0.3秒§f 毎に §c0.125♡§f のダメージを受ける。
 §d不活性化§f が解除された瞬間、§d不活性化§f される前にターゲットしていたエンティティを再度ターゲットにする。', $area, $duration, $playerEffect, $areaEffect, $explodeEffect);
 	}
 
 	protected function init(): void{
-		$this->area = new AbilityStatus(5.5);
-		$this->duration = new AbilityStatus(28 * 20);
+		$this->area = new AbilityStatus(4.0);
+		$this->duration = new AbilityStatus(20 * 20);
 		$this->areaEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::SLOWNESS(), 28 * 20, 5, false),
-			new EffectInstance(VanillaEffects::WEAKNESS(), 28 * 20, 5, false)
+			new EffectInstance(VanillaEffects::SLOWNESS(), 6 * 20, 2, false),
+			new EffectInstance(VanillaEffects::WEAKNESS(), 6 * 20, 0, false)
 		);
 
 		$this->explodeEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::SLOWNESS(), 28 * 20, 3, true),
-			new EffectInstance(VanillaEffects::WEAKNESS(), 28 * 20, 3, true)
+			new EffectInstance(VanillaEffects::SLOWNESS(), 20 * 20, 1, true),
+			new EffectInstance(VanillaEffects::WEAKNESS(), 20 * 20, 1, true)
 		);
 
 		$this->playerEffects = new EffectGroup(
@@ -107,6 +109,19 @@ sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作
 					} else {
 						$event->cancel();
 					}
+				}
+			}
+		}
+	}
+
+	public function onItemUse(PlayerItemUseEvent $event){
+		$item = $event->getItem();
+		$player = $event->getPlayer();
+
+		if ($player === $this->player){
+			if ($item instanceof Bow){
+				if ($player->isSneaking()){
+					Messanger::tooltip($player, "§c§l誤発動に注意: このまま(スニークしながら)最大チャージで発射するとスキルを使用します！");
 				}
 			}
 		}

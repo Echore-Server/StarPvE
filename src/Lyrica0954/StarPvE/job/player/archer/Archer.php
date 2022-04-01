@@ -71,7 +71,8 @@ class Archer extends PlayerJob implements Listener{
 "§7- §l§a防衛[⚔]§r
 
 弓矢を使って遠くから戦闘の支援や、敵の進行を妨害したりすることができる職業。
-至近距離でなくても攻撃できるのが強み。";
+至近距離でなくても攻撃できるのが強み。
+スキルのクールタイムがすごく長いため、使うタイミングに注意しよう。";
     }
 
 	public function __construct(?Player $player){

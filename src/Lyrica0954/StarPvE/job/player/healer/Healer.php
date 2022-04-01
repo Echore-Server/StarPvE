@@ -61,7 +61,7 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
     }
 
     public function getAlAbilityDescription(): string{
-        return "自分から半径 §c6m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c10%%§f 軽減させる。";
+        return "自分から半径 §c7m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c25%%§f 軽減させる。";
     }
 
     public function getSelectableCondition(): ?Condition{
@@ -75,7 +75,10 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
                 if ($entity !== $this->player){
                     $gp = StarPvE::getInstance()->getGamePlayerManager();
                     if ($gp->areSameGame($entity, $this->player)){
-                        EntityUtil::multiplyFinalDamage($event, 0.9);
+                        $dist = $entity->getPosition()->distance($this->player->getPosition());
+                        if ($dist <= 7){
+                            EntityUtil::multiplyFinalDamage($event, 0.75);
+                        }
                     }
                 }
             }

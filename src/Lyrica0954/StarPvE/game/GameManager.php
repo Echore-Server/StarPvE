@@ -19,7 +19,10 @@ class GameManager {
         $this->games = [];
     }
 
-    public function getGames(){
+    /**
+     * @return Game[]
+     */
+    public function getGames(): array{
         return $this->games;
     }
 
@@ -54,11 +57,17 @@ class GameManager {
         }
     }
 
-    public function createNewGame(): ?string{
-        $id = $this->generateId(10);
-        while(in_array($id, array_keys($this->games))){
-            $this->log("§bRegenerating Game ID...");
+    public function createNewGame(string $id = null): ?string{
+        if ($id === null){
             $id = $this->generateId(10);
+            while(in_array($id, array_keys($this->games))){
+                $this->log("§bRegenerating Game ID...");
+                $id = $this->generateId(10);
+            }
+        } else {
+            if (in_array($id, array_keys($this->games))){
+                return null;
+            }
         }
 
         $wm = Server::getInstance()->getWorldManager();
@@ -83,7 +92,7 @@ class GameManager {
         return null;
     }
     
-    protected function generateId(Int $length){
+    public function generateId(Int $length){
         return substr(str_shuffle("qwertyuiopasdfghjklzxcvbnm1234567890"), 0, $length);
     }
 

@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\entity;
 
 use Lyrica0954\MagicParticle\effect\PartDelayedEffect;
 use Lyrica0954\MagicParticle\effect\SaturatedLineworkEffect;
+use Lyrica0954\MagicParticle\effect\SquareEffect;
 use Lyrica0954\StarPvE\form\JobSelectForm;
 use pocketmine\entity\Human;
 use pocketmine\network\mcpe\protocol\EmotePacket;
@@ -17,6 +18,7 @@ use Lyrica0954\StarPvE\utils\EmoteIds;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\player\Player;
 
@@ -24,6 +26,8 @@ class JobShop extends Human implements Ghost{
     
     protected $lookTick = 0;
     protected $emoted = array();
+
+    protected SquareEffect $sq;
 
     public function getName(): String{
         return "JobShop";
@@ -43,6 +47,12 @@ class JobShop extends Human implements Ghost{
         return true;
     }
 
+    protected function initEntity(CompoundTag $nbt): void{
+        parent::initEntity($nbt);
+
+        $this->sq = new SquareEffect(5, 3);
+    }
+
     public function entityBaseTick(int $tickDiff = 1): bool{
         $hasUpdate = parent::entityBaseTick($tickDiff);
 
@@ -52,6 +62,10 @@ class JobShop extends Human implements Ghost{
 
             $ef = new PartDelayedEffect((new SaturatedLineworkEffect(16, 3, 1, 7)), 2, 1, true);
             $ef->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), "minecraft:balloon_gas_particle");
+
+
+            #$this->sq->rotate(4, 0);
+            #$this->sq->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, 10, 0), "starpve:soft_red_gas");
 
             $nearestDist = PHP_INT_MAX;
             $nearestPlayer = null;

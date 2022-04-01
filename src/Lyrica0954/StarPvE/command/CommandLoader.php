@@ -10,5 +10,6 @@ class CommandLoader {
 
     public static function load(StarPvE $p){
         new HubCommand("hub", $p, $p);
+        new GameCommand("game", $p, $p);
     }
 }

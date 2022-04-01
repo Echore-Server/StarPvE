@@ -75,14 +75,16 @@ class WaveController implements CooltimeAttachable, Listener{
 
         $this->monsterAttributes = [
             MonsterData::ZOMBIE => new MonsterAttribute(24, 4.5, 0.35),
-            MonsterData::ATTACKER => new MonsterAttribute(110, 6.0, 0.025),
+            MonsterData::ATTACKER => new MonsterAttribute(130, 6.0, 0.025),
             MonsterData::CREEPER => new MonsterAttribute(15, 1.0, 0.45),
             MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 0.37),
-            MonsterData::HUSK => new MonsterAttribute(60, 8.0, 0.25),
+            MonsterData::HUSK => new MonsterAttribute(55, 8.0, 0.25),
             MonsterData::SKELETON => new MonsterAttribute(50, 2.0, 0.21),
-            MonsterData::DEFENDER => new MonsterAttribute(56, 0.5, 0.3),
-            MonsterData::ZOMBIE_LORD => new MonsterAttribute(200, 1.0, 0.21)
+            MonsterData::DEFENDER => new MonsterAttribute(80, 0.5, 0.3),
+            MonsterData::ZOMBIE_LORD => new MonsterAttribute(360, 10.0, 0.22)
         ];
+
+        #todo: register 形式にする
 
         $nullArmor = new ArmorSet(null, null, null, null);
         $this->monsterEquipments = [
@@ -93,7 +95,7 @@ class WaveController implements CooltimeAttachable, Listener{
             MonsterData::DEFENDER => clone $nullArmor,
             MonsterData::SKELETON => new ArmorSet($f->get(ItemIds::LEATHER_HELMET), $f->get(ItemIds::DIAMOND_CHESTPLATE), $f->get(ItemIds::DIAMOND_LEGGINGS), $f->get(ItemIds::LEATHER_BOOTS)),
             MonsterData::HUSK => new ArmorSet($f->get(ItemIds::DIAMOND_HELMET), $f->get(ItemIds::CHAIN_CHESTPLATE), $f->get(ItemIds::CHAIN_LEGGINGS), $f->get(ItemIds::CHAIN_BOOTS)),
-            MonsterData::ZOMBIE_LORD => clone $nullArmor,
+            MonsterData::ZOMBIE_LORD => ArmorSet::chainmail(),
         ];
 
         $f = ItemFactory::getInstance();
@@ -202,7 +204,6 @@ class WaveController implements CooltimeAttachable, Listener{
 
         if ($entity->getWorld() === $this->game->getWorld()){
             if ($entity instanceof Villager){
-                #todo: 演出
                 $this->game->gameover();
                 return;
             }
@@ -223,7 +224,8 @@ class WaveController implements CooltimeAttachable, Listener{
                                 MonsterData::equal($entity, MonsterData::ATTACKER) => 3,
                                 MonsterData::equal($entity, MonsterData::CREEPER) => 2,
                                 MonsterData::equal($entity, MonsterData::SKELETON) => 4,
-                                MonsterData::equal($entity, MonsterData::DEFENDER) => 2,
+                                MonsterData::equal($entity, MonsterData::DEFENDER) => 6,
+                                MonsterData::equal($entity, MonsterData::ZOMBIE_LORD) => 20,
                                 default => 1
                             };
             
@@ -275,19 +277,21 @@ class WaveController implements CooltimeAttachable, Listener{
                         $dropItemEntity->spawnToAll();
                     }
         
-                    if ($this->monsterRemain <= 0){
-                        $this->game->broadcastMessage("§cUnexpected: monsterRemain が 0以下 です");
-                    }
         
-                    $this->monsterRemain = max(0, $this->monsterRemain - 1);
+                }
+
+                if ($this->monsterRemain <= 0){
+                    $this->game->broadcastMessage("§cUnexpected: monsterRemain が 0以下 です");
+                }
     
-                    $per = max(0.0, ($this->monsterRemain / $this->currentWaveData->getMonsterCount()));
-                    $this->game->getBossBar()->setHealthPercent($per);
-                    $this->game->getBossBar()->update();
-        
-                    if ($this->monsterRemain == 0){
-                        $this->waveClear();
-                    }
+                $this->monsterRemain = max(0, $this->monsterRemain - 1);
+
+                $per = max(0.0, ($this->monsterRemain / $this->currentWaveData->getMonsterCount()));
+                $this->game->getBossBar()->setHealthPercent($per);
+                $this->game->getBossBar()->update();
+    
+                if ($this->monsterRemain == 0){
+                    $this->waveClear();
                 }
             }
         }

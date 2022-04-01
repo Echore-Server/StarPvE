@@ -20,6 +20,7 @@ use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
+use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\player\Player;
 
 class ConcordeSkill extends Skill {
@@ -87,7 +88,8 @@ sprintf('§b発動時(1):§f %1$s 以内の味方(自分以外)の体力を %2$s
         foreach(EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity){
             if ($entity instanceof Player){
                 if ($entity !== $this->player){
-                    EntityUtil::setHealthSynchronously($entity, $entity->getHealth() + ($this->heal->get()));
+                    $regain = new EntityRegainHealthEvent($entity, $this->heal->get(), EntityRegainHealthEvent::CAUSE_CUSTOM);
+                    $entity->heal($regain);
                     $this->normalEffects->apply($entity);
                     $parPos = VectorUtil::keepAdd(
                         $entity->getPosition(),
@@ -129,7 +131,8 @@ sprintf('§b発動時(1):§f %1$s 以内の味方(自分以外)の体力を %2$s
             }
         }
 
-        $this->player->setHealth($this->player->getMaxHealth());
+        $selfRegain = new EntityRegainHealthEvent($this->player, $this->player->getMaxHealth(), EntityRegainHealthEvent::CAUSE_CUSTOM);
+        $this->player->heal($selfRegain);
 
         $circlePar->sendToPlayers(
             $players,

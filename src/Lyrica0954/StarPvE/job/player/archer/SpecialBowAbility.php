@@ -76,8 +76,8 @@ sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダ
 
 	protected function init(): void{
 		$this->area = new AbilityStatus(4.0);
-		$this->duration = new AbilityStatus(8 * 20);
-		$this->damage = new AbilityStatus(7.5);
+		$this->duration = new AbilityStatus(7 * 20);
+		$this->damage = new AbilityStatus(6.5);
 		$this->areaDamage = new AbilityStatus(1.0);
 		$this->bow = ItemFactory::getInstance()->get(ItemIds::BOW);
 		if ($this->bow instanceof Bow){
@@ -86,12 +86,12 @@ sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダ
 			$this->bow->setCustomName("§dToxic Bow");
 		}
 		$this->areaEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::SLOWNESS(), 2 * 20, 2, false),
-			new EffectInstance(VanillaEffects::WEAKNESS(), 2 * 20, 0, false)
+			new EffectInstance(VanillaEffects::SLOWNESS(), 3 * 20, 1, false),
+			new EffectInstance(VanillaEffects::WEAKNESS(), 3 * 20, 0, false)
 		);
 		$this->hitEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::SLOWNESS(), 7 * 20, 4, false),
-			new EffectInstance(VanillaEffects::WEAKNESS(), 5 * 20, 255, false)
+			new EffectInstance(VanillaEffects::SLOWNESS(), 7 * 20, 2, false),
+			new EffectInstance(VanillaEffects::WEAKNESS(), 3 * 20, 1, false)
 		);
 	}
 
@@ -129,7 +129,7 @@ sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダ
 						$new->setOwningEntity($this->player);
 						$event->setProjectile($new);
 					} else {
-						$event->cancel(); #todo: 矢の効果音を付ける
+						$event->cancel();
 					}
 				}
 			}

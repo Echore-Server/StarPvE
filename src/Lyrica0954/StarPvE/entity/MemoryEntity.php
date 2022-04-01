@@ -45,16 +45,16 @@ class MemoryEntity extends Entity implements Ghost{
         $this->closeHook[] = $hook;
     }
 
+    protected function onDispose(): void{
+        foreach($this->closeHook as $hook){
+            ($hook)($this);
+        }
+        $this->closeHook = [];
+        parent::onDispose();
+    }
+
     public function onUpdate(int $currentTick): bool{
         $hasUpdate = parent::onUpdate($currentTick);
-
-        if ($this->closed && !$this->isAlive()){
-            foreach($this->closeHook as $hook){
-                ($hook)($this);
-            }
-
-            $this->closeHook = [];
-        }
 
         foreach($this->tickHook as $hook){
             ($hook)($this);

@@ -51,6 +51,7 @@ class TaskUtil {
 		return self::repeating($task, $period);
 	}
 
+
 	public static function reapeatingClosureCheck(\Closure $closure, int $period, \Closure $checker){
 		$task = new class($closure, $checker) extends Task {
 

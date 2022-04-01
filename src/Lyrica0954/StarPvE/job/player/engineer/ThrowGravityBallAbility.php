@@ -20,7 +20,7 @@ class ThrowGravityBallAbility extends Ability {
     protected EffectInstance $effect;
 
     public function getCooltime(): int{
-        return (22 * 20);
+        return (10 * 20);
     }
 
     public function getName(): string{
