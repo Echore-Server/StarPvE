@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\data\player;
 
+use Lyrica0954\StarPvE\data\adapter\SimpleConfigAdapter;
+use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
+use pocketmine\block\Planks;
+use pocketmine\player\Player;
 use pocketmine\utils\Config;
 
 class PlayerConfig {
 
-    private Config $generic;
-    private Config $job;
+    private GenericConfigAdapter $generic;
+    private SimpleConfigAdapter $job;
 
     public static function getExpToCompleteLevel(int $level){
         $exp = pow($level, 2) * 4 + 10;
@@ -23,16 +27,16 @@ class PlayerConfig {
         return $jobExp;
     }
 
-    public function __construct(Config $generic, Config $job){
-        $this->generic = $generic;
-        $this->job = $job;
+    public function __construct(Config $generic, Config $job, string $xuid){
+        $this->generic = new GenericConfigAdapter($xuid, $generic);
+        $this->job = new SimpleConfigAdapter($job);
     }
 
-    public function getGeneric(): Config{
+    public function getGeneric(): GenericConfigAdapter{
         return $this->generic;
     }
 
-    public function getJob(): Config{
+    public function getJob(): SimpleConfigAdapter{
         return $this->job;
     }
 }

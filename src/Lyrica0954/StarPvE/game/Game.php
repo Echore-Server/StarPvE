@@ -8,6 +8,7 @@ use Closure;
 use Lyrica0954\BossBar\BossBar;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\SphereParticle;
+use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\event\game\GameStartEvent;
@@ -541,8 +542,8 @@ class Game implements CooltimeAttachable{
             PlayerUtil::playSound($player, "random.totem", volume: 0.5);
             PlayerUtil::reset($player);
             $player->sendTitle("§eGame Clear", "§7あなたは英雄です！");
-            PlayerDataCollector::addGenericDigit($player, "GameWon", 1);
-            PlayerDataCollector::addGenericDigit($player, "PlayCount", 1);
+            GenericConfigAdapter::fetch($player)?->addInt(GenericConfigAdapter::GAME_WON, 1);
+            GenericConfigAdapter::fetch($player)?->addInt(GenericConfigAdapter::PLAY_COUNT, 1);
         }
 
         $this->end(11 * 20);
@@ -586,8 +587,8 @@ class Game implements CooltimeAttachable{
             foreach($this->getPlayers() as $player){
                 PlayerUtil::reset($player);
                 PlayerUtil::playSound($player, "mob.evocation_illager.prepare_wololo", 1.0, 1.0);
-                PlayerDataCollector::addGenericDigit($player, "GameLost", 1);
-                PlayerDataCollector::addGenericDigit($player, "PlayCount", 1);
+                GenericConfigAdapter::fetch($player)?->addInt(GenericConfigAdapter::GAME_LOST, 1);
+                GenericConfigAdapter::fetch($player)?->addInt(GenericConfigAdapter::PLAY_COUNT, 1);
             }
     
             $this->end(15 * 20);

@@ -8,6 +8,7 @@ use Lyrica0954\BossBar\BossBar;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
+use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\Villager;
@@ -230,17 +231,20 @@ class WaveController implements CooltimeAttachable, Listener{
                             };
             
                             $gainExp = $waveBase * $monsterMultiplier;
-                            PlayerDataCollector::addGenericDigit($damager, "MonsterKills", 1);
-                            $exp = PlayerDataCollector::addExp($damager, $gainExp);
-                            $nextExp = PlayerDataCollector::getGenericConfig($damager, "NextExp");
-            
-                            $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
-                            $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
-                            
-                            StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
-                                $par->setInvisible(true);
+                            $adapt = GenericConfigAdapter::fetch($damager);
+                            if ($adapt instanceof GenericConfigAdapter){
+                                $adapt->addInt(GenericConfigAdapter::MONSTER_KILLS, 1);
+                                $exp = $adapt->addExp($gainExp);
+                                $nextExp = $adapt->getConfig()->get(GenericConfigAdapter::NEXT_EXP);
+                
+                                $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
                                 $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
-                            }), 20);
+                                
+                                StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
+                                    $par->setInvisible(true);
+                                    $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
+                                }), 20);
+                            }
                             #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
                             #$entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
                         }

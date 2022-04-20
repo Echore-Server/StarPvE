@@ -35,6 +35,7 @@ use Lyrica0954\StarPvE\job\player\swordman\Swordman;
 use Lyrica0954\StarPvE\service\BlockFriendlyFireService;
 use Lyrica0954\StarPvE\service\indicator\InboundDamageService;
 use Lyrica0954\StarPvE\service\indicator\PlayerHealthIndicatorService;
+use Lyrica0954\StarPvE\service\message\LevelupMessageService;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use pocketmine\block\Gravel;
 use pocketmine\data\bedrock\EntityLegacyIds;
@@ -216,6 +217,7 @@ final class StarPvE extends PluginBase {
         $session->add(new InboundDamageService($session));
         $session->add(new PlayerHealthIndicatorService($session));
         $session->add(new BlockFriendlyFireService($session));
+        $session->add(new LevelupMessageService($session));
 
         $this->log("Starting Service Session...");
         $session->start();

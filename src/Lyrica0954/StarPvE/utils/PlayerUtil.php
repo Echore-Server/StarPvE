@@ -101,4 +101,12 @@ class PlayerUtil {
         $player->getInventory()->setItem(4, ItemFactory::getInstance()->get(ItemIds::COMPASS));
         $player->teleport(new Position(0, 51, 0, StarPvE::getInstance()->hub));
     }
+
+    public static function searchByXuid(string $xuid): Player{
+        foreach(Server::getInstance()->getOnlinePlayers() as $player){
+            if ($player->getXuid() == $xuid){
+                return $player;
+            }
+        }
+    }
 }

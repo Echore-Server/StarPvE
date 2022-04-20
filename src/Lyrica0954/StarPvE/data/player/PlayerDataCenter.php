@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\data\player;
 
 use Lyrica0954\StarPvE\data\DataCenter;
+use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
@@ -26,15 +27,15 @@ class PlayerDataCenter extends DataCenter implements Listener{
         $this->data = [];
 
         $this->genericDefault = [
-            "MonsterKills" => 0,
-            "Deaths" => 0,
-            "PlayCount" => 0,
-            "GameWon" => 0,
-            "GameLost" => 0,
-            "Level" => 1,
-            "TotalExp"=> 0,
-            "Exp" => 0,
-            "NextExp" => PlayerConfig::getExpToCompleteLevel(1)
+            GenericConfigAdapter::MONSTER_KILLS => 0,
+            GenericConfigAdapter::DEATHS => 0,
+            GenericConfigAdapter::PLAY_COUNT => 0,
+            GenericConfigAdapter::GAME_WON => 0,
+            GenericConfigAdapter::GAME_LOST => 0,
+            GenericConfigAdapter::LEVEL => 1,
+            GenericConfigAdapter::TOTAL_EXP => 0,
+            GenericConfigAdapter::EXP => 0,
+            GenericConfigAdapter::NEXT_EXP => PlayerConfig::getExpToCompleteLevel(1)
         ];
 
         $this->load($folder);
@@ -60,8 +61,12 @@ class PlayerDataCenter extends DataCenter implements Listener{
             $generic = new Config("{$pdFolder}/generic.yml", Config::YAML, $this->genericDefault);
             $job = new Config($pdFolder . "/job.yml");
             $xuid = basename($pdFolder);
-            $this->data[$xuid] = new PlayerConfig($generic, $job);
-            $count++;
+            if (strlen($xuid) == 16){
+                $this->data[$xuid] = new PlayerConfig($generic, $job, $xuid);
+                $count++;
+            } else {
+                $this->log("§eData Corrupt: {$xuid}");
+            }
         }
 
         $this->log("§6Loaded {$count} Data");
@@ -74,8 +79,8 @@ class PlayerDataCenter extends DataCenter implements Listener{
     public function save(){
         foreach($this->data as $config){
             if ($config instanceof PlayerConfig){
-                $config->getGeneric()->save();
-                $config->getJob()->save();
+                $config->getGeneric()->getConfig()->save();
+                $config->getJob()->getConfig()->save();
             }
         }
     }
@@ -83,8 +88,8 @@ class PlayerDataCenter extends DataCenter implements Listener{
     public function reload(){
         foreach($this->data as $config){
             if ($config instanceof PlayerConfig){
-                $config->getGeneric()->reload();
-                $config->getJob()->reload();
+                $config->getGeneric()->getConfig()->reload();
+                $config->getJob()->getConfig()->reload();
             }
         }
     }
@@ -115,6 +120,6 @@ class PlayerDataCenter extends DataCenter implements Listener{
         $dataFolder = StarPvE::getInstance()->getDataFolder();
         @mkdir($dataFolder . "player_data/{$player->getXuid()}");
 
-        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), $this->createJobConfig($player));
+        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), $this->createJobConfig($player), $player->getXuid());
     }
 }
