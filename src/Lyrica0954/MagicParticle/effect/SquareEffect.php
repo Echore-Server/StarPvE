@@ -59,10 +59,6 @@ class SquareEffect extends ParticleEffect {
 		$r = new Vector2($ryaw, $rpitch);
 		$nr = new Vector2($rthreeYaw, $rnpitch);
 
-		foreach($pos->getWorld()->getPlayers() as $player){
-			$nap = $this->getPoint(Vector3::zero(), $na->x, $na->y);
-			$player->sendMessage("nap: {$nap}");
-		}
 
 
 		$pt = [

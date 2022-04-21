@@ -8,7 +8,7 @@ use pocketmine\utils\Config;
 
 abstract class DataCenter {
 
-    protected $data;
+    protected array $data;
     protected string $folder;
 
     public function __construct(string $folder){

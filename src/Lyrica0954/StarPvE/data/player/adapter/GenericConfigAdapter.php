@@ -15,6 +15,12 @@ use pocketmine\player\Player;
 
 class GenericConfigAdapter extends PlayerConfigAdapter {
 
+    public static function getExpToCompleteLevel(int $level){
+        $exp = pow($level, 2) * 4 + 10;
+
+        return $exp;
+    }
+
     public static function fetch(Player $player): ?GenericConfigAdapter{
         return PlayerDataCenter::getInstance()?->get($player)?->getGeneric();
     }
@@ -43,7 +49,7 @@ class GenericConfigAdapter extends PlayerConfigAdapter {
         $newExp = $exp;
         if ($exp >= $nextExp){
 			$level = $this->addInt(self::LEVEL, 1);
-			$newNextExp = PlayerConfig::getExpToCompleteLevel((integer) $level);
+			$newNextExp = self::getExpToCompleteLevel((integer) $level);
 			$this->getConfig()->set(self::NEXT_EXP, $newNextExp);
             $over = ($exp - $nextExp);
             $this->getConfig()->set(self::EXP, 0);

@@ -22,6 +22,8 @@ class PlayerDataCenter extends DataCenter implements Listener{
 
     private array $genericDefault;
 
+    protected array $data;
+
     public function __construct(string $folder){
         self::$instance = $this;
         $this->data = [];
@@ -35,7 +37,7 @@ class PlayerDataCenter extends DataCenter implements Listener{
             GenericConfigAdapter::LEVEL => 1,
             GenericConfigAdapter::TOTAL_EXP => 0,
             GenericConfigAdapter::EXP => 0,
-            GenericConfigAdapter::NEXT_EXP => PlayerConfig::getExpToCompleteLevel(1)
+            GenericConfigAdapter::NEXT_EXP => GenericConfigAdapter::getExpToCompleteLevel(1)
         ];
 
         $this->load($folder);

@@ -50,7 +50,7 @@ class JobShop extends Human implements Ghost{
     protected function initEntity(CompoundTag $nbt): void{
         parent::initEntity($nbt);
 
-        $this->sq = new SquareEffect(5, 3);
+        $this->sq = new SquareEffect(4, 3);
     }
 
     public function entityBaseTick(int $tickDiff = 1): bool{
@@ -64,8 +64,8 @@ class JobShop extends Human implements Ghost{
             $ef->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), "minecraft:balloon_gas_particle");
 
 
-            #$this->sq->rotate(4, 0);
-            #$this->sq->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, 10, 0), "starpve:soft_red_gas");
+            $this->sq->rotate(4, 0);
+            $this->sq->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, 10, 0), "starpve:soft_red_gas");
 
             $nearestDist = PHP_INT_MAX;
             $nearestPlayer = null;
