@@ -6,6 +6,10 @@ namespace Lyrica0954\StarPvE\data\player\adapter;
 
 use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
+use Lyrica0954\StarPvE\event\global\GlobalAddExpEvent;
+use Lyrica0954\StarPvE\event\global\GlobalLevelupEvent;
+use Lyrica0954\StarPvE\job\JobManager;
+use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\player\Player;
 
 class JobConfigAdapter extends PlayerConfigAdapter{
@@ -28,59 +32,45 @@ class JobConfigAdapter extends PlayerConfigAdapter{
         return $jobExp;
     }
 
-	public static function fetch(Player $player): ?JobConfigAdapter{
-        return PlayerDataCenter::getInstance()?->get($player)?->getJob();
+	public static function fetch(Player $player, string $name): ?JobConfigAdapter{
+        return PlayerDataCenter::getInstance()?->get($player)?->getJob($name);
     }
 
-	public function createEntry(string $name): array{
-		$entry = [
-			self::NAME => $name,
-			self::LEVEL => 1,
-			self::EXP => 0,
-			self::TOTAL_EXP => 0,
-			self::NEXT_EXP => self::getExpToCompleteLevel(1),
-			self::GAME_WON => 0,
-			self::GAME_LOST => 0,
-			self::MONSTER_KILLS => 0,
-			self::DEATHS => 0,
-			self::PLAY_COUNT => 0
-		];
-		$this->getConfig()->setNested($name, $entry);
-		return $entry;
+	public static function fetchCurrent(Player $player): ?JobConfigAdapter{
+		$job = StarPvE::getInstance()->getJobManager()->getJob($player);
+		if ($job !== null){
+			return self::fetch($player, ((new \ReflectionClass($job))->getShortName()));
+		} else {
+			return null;
+		}
 	}
 
-	public function setEntry(string $name, array $entry): array{
-		$old = $this->getEntry($name);
-		if ($old == null){
-			throw new \Exception("entry \"{$name}\" not found");
-		}
+	public function addExp(float $amount): mixed{
+        $eev = new GlobalAddExpEvent($this, $amount);
+        $eev->call();
 
-		$this->getConfig()->setNested($name, $entry);
-		return $old;
-	}
+        if ($eev->isCancelled()){
+            return $this->getConfig()->get(self::EXP);
+        }
 
-	public function changeEntry(string $name, mixed $entryKey, mixed $entryValue): mixed{
-		$entry = $this->getEntry($name);
-		if ($entry == null){
-			throw new \Exception("entry \"{$name}\" not found");
-		}
+        $exp = $this->addFloat(self::EXP, $amount);
+        $this->addFloat(self::TOTAL_EXP, $amount);
+        $nextExp = $this->getConfig()->get(self::NEXT_EXP);
+        $newExp = $exp;
+        if ($exp >= $nextExp){
+			$level = $this->addInt(self::LEVEL, 1);
+			$newNextExp = self::getExpToCompleteLevel((integer) $level);
+			$this->getConfig()->set(self::NEXT_EXP, $newNextExp);
+            $over = ($exp - $nextExp);
+            $this->getConfig()->set(self::EXP, 0);
+            $newExp = 0;
+            if ($over > 0) $newExp = $this->addExp($over);
 
-		if (!isset($entry[$entryKey])){
-			throw new \Exception("entry key \"{$entryKey}\" not found");
-		}
 
-		$new = $entry;
-		$new[$entryKey] = $entryValue;
-		$this->setEntry($name, $new);
-		return $entry[$entryKey];
-	}
+            $ev = new GlobalLevelupEvent($this, $level - 1, $level);
+			$ev->call();
+        }
 
-	public function getEntry(string $name): ?array{
-		$nested = $this->getConfig()->getNested($name, null);
-		if (!is_array($nested)){
-			$nested = null;
-		}
-
-		return $nested;
-	}
+        return $newExp;
+    }
 }

@@ -14,6 +14,9 @@ class GlobalEvent extends Event{
 	 */
 	protected SimpleConfigAdapter $adapter;
 
+	/**
+	 * @return SimpleConfigAdapter
+	 */
 	public function getAdapter(): SimpleConfigAdapter{
 		return $this->adapter;
 	}

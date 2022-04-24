@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job;
 
+use Lyrica0954\StarPvE\data\player\PlayerConfig;
+use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
 use Lyrica0954\StarPvE\event\job\player\PlayerLeftJobEvent;
 use Lyrica0954\StarPvE\event\job\player\PlayerSelectJobEvent;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -16,7 +18,7 @@ use pocketmine\player\Player;
 class JobManager {
 
     /**
-     * @var string[] #class name
+     * @var string[]
      */
     private array $jobs;
     /**
@@ -30,7 +32,8 @@ class JobManager {
     }
 
     public function register(PlayerJob $job){
-        $this->jobs[] = $job::class;
+        $name = (new \ReflectionClass($job))->getShortName();
+        $this->jobs[$name] = $job::class;
     }
 
     public function getRegisteredJobs(){
@@ -53,6 +56,10 @@ class JobManager {
         return $selectable;
     }
 
+    public function get(string $name): ?string{
+        return $this->jobs[$name];
+    }
+
     public function setJob(Player $player, ?string $job){
         $currentJob = $this->players[spl_object_hash($player)] ?? null;
         if ($currentJob !== null){
@@ -61,6 +68,15 @@ class JobManager {
             $lev->call();
         }
         if ($job !== null){
+            $ref = new \ReflectionClass($job);
+            $name = $ref->getShortName();
+            $playerConfig = PlayerDataCenter::getInstance()->get($player);
+            if ($playerConfig instanceof PlayerConfig){
+                if ($playerConfig->getJob($name) == null){
+                    $jobConfig = PlayerDataCenter::getInstance()->createJobConfig($player, $name);
+                    $playerConfig->addJob($name, $jobConfig);
+                }
+            }
             $jobInstance = new $job($player);
             $ev = new PlayerSelectJobEvent($player, $jobInstance);
             $ev->call();

@@ -334,6 +334,14 @@ class EntityUtil implements Listener{
         );
     }
 
+    public static function addFinalDamage(EntityDamageEvent $source, float $add): void{
+        $before = $source->getModifier(self::DAMAGE_MODIFIER_ADJUST);
+        $source->setModifier(
+            $before + $add,
+            self::DAMAGE_MODIFIER_ADJUST
+        );
+    }
+
     public static function multiplyDamageFor(Entity $entity, float $multiplier, int $duration){
         $duration = max(0, $duration);
         if ($duration > 0){

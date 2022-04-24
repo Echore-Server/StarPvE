@@ -8,6 +8,7 @@ use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\Packet;
 use pocketmine\network\mcpe\protocol\SpawnParticleEffectPacket;
+use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\player\Player;
 use pocketmine\world\particle\Particle;
 use pocketmine\world\Position;
@@ -44,9 +45,7 @@ class PartDelayedParticle extends CoveredParticle {
         $generator = $this->draw($this->pos);
         foreach($generator as $particlePos){
             if (is_string($particle)){
-                $pkt = new SpawnParticleEffectPacket;
-                $pkt->particleName = $particle;
-                $pkt->position = $particlePos;
+                $pkt = SpawnParticleEffectPacket::create(DimensionIds::OVERWORLD, -1, $particlePos, $particle, "");
                 $pk = [$pkt];
             } elseif ($particle instanceof Particle) {
                 $pk = $particle->encode($particlePos);

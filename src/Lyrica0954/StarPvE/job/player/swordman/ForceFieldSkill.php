@@ -26,7 +26,7 @@ use pocketmine\world\particle\ExplodeParticle;
 class ForceFieldSkill extends Skill{
 
     public function getCooltime(): int{
-        return (25 * 20);
+        return (20 * 20);
     }
 
     public function getName(): String{

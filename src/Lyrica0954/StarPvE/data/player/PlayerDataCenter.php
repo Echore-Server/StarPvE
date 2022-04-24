@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\data\player;
 
 use Lyrica0954\StarPvE\data\DataCenter;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
+use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
@@ -21,6 +22,7 @@ class PlayerDataCenter extends DataCenter implements Listener{
     }
 
     private array $genericDefault;
+    private array $jobDefault;
 
     protected array $data;
 
@@ -38,6 +40,18 @@ class PlayerDataCenter extends DataCenter implements Listener{
             GenericConfigAdapter::TOTAL_EXP => 0,
             GenericConfigAdapter::EXP => 0,
             GenericConfigAdapter::NEXT_EXP => GenericConfigAdapter::getExpToCompleteLevel(1)
+        ];
+
+        $this->jobDefault = [
+            JobConfigAdapter::MONSTER_KILLS => 0,
+            JobConfigAdapter::DEATHS => 0,
+            JobConfigAdapter::PLAY_COUNT => 0,
+            JobConfigAdapter::GAME_WON => 0,
+            JobConfigAdapter::GAME_LOST => 0,
+            JobConfigAdapter::LEVEL => 1,
+            JobConfigAdapter::TOTAL_EXP => 0,
+            JobConfigAdapter::EXP => 0,
+            JobConfigAdapter::NEXT_EXP => JobConfigAdapter::getExpToCompleteLevel(1)
         ];
 
         $this->load($folder);
@@ -61,10 +75,13 @@ class PlayerDataCenter extends DataCenter implements Listener{
         $count = 0;
         foreach(glob($folder . "/*", GLOB_ONLYDIR) as $pdFolder){
             $generic = new Config("{$pdFolder}/generic.yml", Config::YAML, $this->genericDefault);
-            $job = new Config($pdFolder . "/job.yml");
+            $jobs = [];
+            foreach(glob($pdFolder . ' /job/*.yml') as $jobFile){
+                $jobs[basename($jobFile)] = new Config($jobFile, Config::YAML);
+            }
             $xuid = basename($pdFolder);
             if (strlen($xuid) == 16){
-                $this->data[$xuid] = new PlayerConfig($generic, $job, $xuid);
+                $this->data[$xuid] = new PlayerConfig($generic, $jobs, $xuid);
                 $count++;
             } else {
                 $this->log("§eData Corrupt: {$xuid}");
@@ -82,7 +99,9 @@ class PlayerDataCenter extends DataCenter implements Listener{
         foreach($this->data as $config){
             if ($config instanceof PlayerConfig){
                 $config->getGeneric()->getConfig()->save();
-                $config->getJob()->getConfig()->save();
+                foreach($config->getJobs() as $job){
+                    $job->getConfig()->save();
+                }
             }
         }
     }
@@ -91,14 +110,16 @@ class PlayerDataCenter extends DataCenter implements Listener{
         foreach($this->data as $config){
             if ($config instanceof PlayerConfig){
                 $config->getGeneric()->getConfig()->reload();
-                $config->getJob()->getConfig()->reload();
+                foreach($config->getJobs() as $job){
+                    $job->getConfig()->reload();
+                }
             }
         }
     }
 
     public function createGenericConfig(Player $player){
         $info = [
-            "Username"=> $player->getName(),
+            "Username" => $player->getName(),
             "FirstPlayed" => $player->getFirstPlayed(),
             "LastPlayed" => $player->getLastPlayed(),
         ];
@@ -109,19 +130,23 @@ class PlayerDataCenter extends DataCenter implements Listener{
         return $generic;
     }
 
-    public function createJobConfig(Player $player){
-        $default = [
+    public function createJobConfig(Player $player, string $name){
+        $info = [
+            JobConfigAdapter::NAME => $name
         ];
+        $default = array_merge($info, $this->jobDefault);
         $dataFolder = StarPvE::getInstance()->getDataFolder();
-        $file = $dataFolder . "player_data/{$player->getXuid()}/job.yml";
+        $file = $dataFolder . "player_data/{$player->getXuid()}/job/{$name}.yml";
         $job = new Config($file, Config::YAML, $default);
         return $job;
     }
 
+
     public function createFor(Player $player): void{
         $dataFolder = StarPvE::getInstance()->getDataFolder();
-        @mkdir($dataFolder . "player_data/{$player->getXuid()}");
+        @mkdir($dataFolder . "player_data/{$player->getXuid()}/job", 0777, true);
 
-        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), $this->createJobConfig($player), $player->getXuid());
+        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), [], $player->getXuid());
     }
+
 }

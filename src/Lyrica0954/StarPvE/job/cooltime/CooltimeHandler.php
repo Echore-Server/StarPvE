@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\cooltime;
 
+use Lyrica0954\StarPvE\event\cooltime\CooltimeFinishEvent;
+use Lyrica0954\StarPvE\event\cooltime\CooltimeStartEvent;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
@@ -64,15 +66,16 @@ class CooltimeHandler {
         $this->time = $cooltime;
     }
 
-    public function reset(){
+    public function reset(): void{
         $this->remain = $this->time;
+    }
+    
+    public function calculate(int $cooltime): int{
+        return (integer) $cooltime / $this->baseTick;
     }
 
     public function add(int $cooltime){
         $this->remain += $cooltime;
-        if ($this->remain > $this->time){
-            $this->remain = $this->time;
-        }
     }
 
     public function subtract(int $cooltime){
@@ -108,23 +111,28 @@ class CooltimeHandler {
 
     public function start(int $cooltime){
         $this->log("Started the Task");
-        $this->remain = $cooltime;
-        $this->time = $cooltime;
-        $this->active = true;
-        $this->task = new class($this) extends Task{
-
-            private CooltimeHandler $cooltimeHandler;
-
-            public function __construct(CooltimeHandler $cooltimeHandler){
-                $this->cooltimeHandler = $cooltimeHandler;
-            }
-
-            public function onRun(): void{
-                $this->cooltimeHandler->tick();
-            }
-
-        };
-        StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, $this->getPeriod());
+        $ev = new CooltimeStartEvent($this, $cooltime);
+        $ev->call();
+        if (!$ev->isCancelled()){
+            $cooltime = $ev->getCooltime();
+            $this->remain = $cooltime;
+            $this->time = $cooltime;
+            $this->active = true;
+            $this->task = new class($this) extends Task{
+    
+                private CooltimeHandler $cooltimeHandler;
+    
+                public function __construct(CooltimeHandler $cooltimeHandler){
+                    $this->cooltimeHandler = $cooltimeHandler;
+                }
+    
+                public function onRun(): void{
+                    $this->cooltimeHandler->tick();
+                }
+    
+            };
+            StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, $this->getPeriod());
+        }
     }
 
     public function __destruct(){
@@ -133,7 +141,7 @@ class CooltimeHandler {
 
     public function pause(){
         if ($this->active){
-            $this->task?->getHandler()->setNextRun(PHP_INT_MAX);
+            $this->task?->getHandler()->setNextRun(PHP_INT_MAX-1);
         }
     }
 
@@ -162,6 +170,8 @@ class CooltimeHandler {
 
     protected function finished(): void{
         if ($this->task instanceof Task){
+            $ev = new CooltimeFinishEvent($this);
+            $ev->call();
             $this->time = 0;
             $this->remain = 0;
             $this->attached?->cooltimeFinished($this);

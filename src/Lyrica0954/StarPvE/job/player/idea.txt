@@ -18,3 +18,4 @@ Shaman - 突っ込み&戦闘をサポート
 Magician - 後衛で遠距離攻撃
 Engineer - 戦闘をサポート
 Healer - 味方をサポート
+Archer - 後衛で遠距離攻撃

@@ -14,7 +14,7 @@ use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\player\Player;
 
-class LevelupMessageService extends ListenerService {
+class GenericLevelupMessageService extends ListenerService {
 
 	protected array $previous;
 
@@ -53,12 +53,12 @@ class LevelupMessageService extends ListenerService {
 			if ($player instanceof Player){
 				$currentSelectableJobs = StarPvE::getInstance()->getJobManager()->getSelectableJobs($player);
 				$newSelectableJobs = array_diff($currentSelectableJobs, $this->previous[spl_object_hash($player)] ?? []);
-				$exp = $adapter->getConfig()->get("Exp", 0);
-				$nextExp = $adapter->getConfig()->get("NextExp", 0);
-				$player->sendMessage("§a------ §lレベルアップ！！§r §a------");
+				$exp = $adapter->getConfig()->get(GenericConfigAdapter::EXP, 0);
+				$nextExp = $adapter->getConfig()->get(GenericConfigAdapter::NEXT_EXP, 0);
+				$player->sendMessage("§a------ §lLevel Up!§r §a------");
 				$player->sendMessage("§6> レベル: §a{$event->getOld()} >> {$event->getNew()}");
 				$player->sendMessage("§6> 次のExp: §a{$exp}§f/§a{$nextExp}");
-				$player->sendMessage("§a----------------------");
+				$player->sendMessage("§a-----------------------");
 	
 				foreach($newSelectableJobs as $class){
 					$job = new $class(null);

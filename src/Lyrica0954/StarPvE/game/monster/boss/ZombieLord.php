@@ -100,7 +100,7 @@ class ZombieLord extends SmartZombie implements Listener {
 
 
 		$this->callTick += $tickDiff;
-		if ($this->callTick >= 160 && !$this->isFriend()){
+		if ($this->callTick >= 320 && !$this->isFriend()){
 			$this->callTick = 0;
 			$this->callZombie();
 		}

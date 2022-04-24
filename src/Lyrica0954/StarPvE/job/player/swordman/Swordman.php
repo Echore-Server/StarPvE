@@ -17,7 +17,10 @@ use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\PlayerUtil;
 use ParentIterator;
+use pocketmine\entity\effect\EffectInstance;
+use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -64,7 +67,8 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
 
     public function getAlAbilityDescription(): string{
         return 
-"自分が受けるダメージを (§c6m§f 以内にいる敵の数 x §c3§f)%% 軽減する(最大§c12体§f分)";
+"自分が受けるダメージを (§c6m§f 以内にいる敵の数 x §c3§f)%% 軽減する(最大§c12体§f分)
+もし受けるダメージが自身の体力の半分以上の場合自身に回復効果を付与する";
     }
 
     public function getSelectableCondition(): ?Condition{
@@ -86,6 +90,12 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
                 $reduce = ($count) * 0.03;
 
                 EntityUtil::multiplyFinalDamage($event, (1.0 - $reduce));
+
+                if ($event->getFinalDamage() >= ($entity->getMaxHealth() / 2)){
+                    $entity->getEffects()->add(new EffectInstance(VanillaEffects::REGENERATION(), (5 * 20), 3));
+                    PlayerUtil::playSound($entity, "random.totem", 1.0, 0.6);
+                }
+                
             }
         }
     }

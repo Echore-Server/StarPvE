@@ -83,7 +83,7 @@ sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダ
 		if ($this->bow instanceof Bow){
 			$this->bow->setUnbreakable(true);
 			$this->bow->addEnchantment(new EnchantmentInstance(VanillaEnchantments::INFINITY()));
-			$this->bow->setCustomName("§dToxic Bow");
+			$this->bow->setCustomName("§r§dToxic Bow");
 		}
 		$this->areaEffects = new EffectGroup(
 			new EffectInstance(VanillaEffects::SLOWNESS(), 3 * 20, 1, false),

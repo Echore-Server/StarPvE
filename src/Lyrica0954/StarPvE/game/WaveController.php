@@ -8,7 +8,9 @@ use Lyrica0954\BossBar\BossBar;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
+use Lyrica0954\StarPvE\constant\Formats;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
+use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\Villager;
@@ -232,12 +234,21 @@ class WaveController implements CooltimeAttachable, Listener{
             
                             $gainExp = $waveBase * $monsterMultiplier;
                             $adapt = GenericConfigAdapter::fetch($damager);
+                            $jobAdapt = JobConfigAdapter::fetchCurrent($damager);
                             if ($adapt instanceof GenericConfigAdapter){
                                 $adapt->addInt(GenericConfigAdapter::MONSTER_KILLS, 1);
+
+                                $jobAdapt?->addInt(JobConfigAdapter::MONSTER_KILLS, 1);
+
                                 $exp = $adapt->addExp($gainExp);
+                                $jobExp = $jobAdapt?->addExp($gainExp);
+                                
                                 $nextExp = $adapt->getConfig()->get(GenericConfigAdapter::NEXT_EXP);
+                                $jobNextExp = $jobAdapt?->getConfig()->get(JobConfigAdapter::NEXT_EXP);
                 
-                                $par = new FloatingTextParticle("§a+§l{$gainExp}§r§f §7(§a{$exp}§f/§a{$nextExp}§7)", "§c>>> §6{$damager->getName()}");
+                                $genericGet = sprintf(Formats::GET_EXP, $gainExp, $exp, $nextExp);
+                                $jobGet = sprintf(Formats::GET_EXP, $gainExp, $jobExp, $jobNextExp);
+                                $par = new FloatingTextParticle("§9[Player] §r{$genericGet}\n§9[Job] §r{$jobGet}", "§c>>> §6{$damager->getName()}");
                                 $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
                                 
                                 StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($par, $entity){
