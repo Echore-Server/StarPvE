@@ -35,7 +35,7 @@ class ThrowGravityBallAbility extends Ability {
         return 
 sprintf('§b発動時:§f 視線の先にグラビティボールを射出する。地面について少しすると、効果が発動される。
 §b効果:§f グラビティボールから %1$s 以内の敵を §c1秒§f に %2$s 引き寄せる。引き寄せる際に %3$s のエフェクトを与える。
-§dハスク§fに対しては引き寄せが無効化される。
+一部のモンスターに対しては引き寄せが無効化される。
 効果を発動してから %4$s 経過すると、効果が消失する。', $area, $amount, $effect, $duration);
     }
 

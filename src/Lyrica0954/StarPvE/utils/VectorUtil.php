@@ -76,8 +76,6 @@ class VectorUtil {
     public static function getNearestSpherePosition(Vector3 $vec, Vector3 $center, float $size): Vector3{
         $angle = self::getAngle($center, $vec);
         $dir = self::getDirectionVector($angle->x, $angle->y);
-        $dir->x = -$dir->x;
-        $dir->z = -$dir->z;
         $nearest = $center->addVector($dir->multiply($size));
         return $nearest;
     }
@@ -148,8 +146,8 @@ class VectorUtil {
 		$vertical = $to->y - ($from->y + $eyeHeight);
 		$pitch = -atan2($vertical, $horizontal) / M_PI * 180; //negative is up, positive is down
 
-		$xDist = $from->x - $to->x;
-		$zDist = $from->z - $to->z;
+		$xDist = $to->x - $from->x;
+		$zDist = $to->z - $from->z;
 
 		$yaw = atan2($zDist, $xDist) / M_PI * 180 - 90;
 		if($yaw < 0){

@@ -10,7 +10,7 @@ use pocketmine\entity\Location;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 
-class MemoryEntity extends Entity implements Ghost{
+class MemoryEntity extends Entity{
 
     /**
      * @var \Closure[]
@@ -21,6 +21,8 @@ class MemoryEntity extends Entity implements Ghost{
      * @var \Closure[]
      */
     private array $closeHook = [];
+
+    protected int $age = 0;
 
     public static function getNetworkTypeId(): string{
         return EntityIds::SNOWBALL;
@@ -35,6 +37,14 @@ class MemoryEntity extends Entity implements Ghost{
 
         $this->gravity = $gravity;
         $this->drag = $drag;
+    }
+
+    public function canBeCollidedWith(): bool{
+        return false;
+    }
+
+    public function getAge(): int{
+        return $this->age;
     }
 
     public function addTickHook(\Closure $hook){
@@ -53,12 +63,17 @@ class MemoryEntity extends Entity implements Ghost{
         parent::onDispose();
     }
 
-    public function onUpdate(int $currentTick): bool{
-        $hasUpdate = parent::onUpdate($currentTick);
+    protected function entityBaseTick(int $tickDiff = 1): bool{
+        $update = parent::entityBaseTick($tickDiff);
+        $this->age += $tickDiff;
+        return $update;
+    }
 
+    public function onUpdate(int $currentTick): bool{
         foreach($this->tickHook as $hook){
             ($hook)($this);
         }
+        $hasUpdate = parent::onUpdate($currentTick);
 
         return $hasUpdate;
     }

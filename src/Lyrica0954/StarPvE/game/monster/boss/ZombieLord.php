@@ -37,7 +37,7 @@ class ZombieLord extends SmartZombie implements Listener {
 
 	protected int $lastParticle = 0;
 	
-	public float $defendArea = 6.5;
+	public float $defendArea = 6.0;
 
 	protected int $callTick = 0;
 
@@ -76,8 +76,10 @@ class ZombieLord extends SmartZombie implements Listener {
 				}
 
 				$dist = $target->getPosition()->distance($this->getPosition());
-				$motion = EntityUtil::modifyKnockback($target, $this, $dist / 2, 1.0);
+				$motion = EntityUtil::modifyKnockback($target, $this, $dist / 3, 1.0);
 				$entity->setMotion($motion);
+
+				$entity->setMaxHealth(10);
 			} else {
 				$entity->setMotion(new Vector3(RandomUtil::rand_float(-1.0, 1.0), 0.4, RandomUtil::rand_float(-1.0, 1.0)));
 			}

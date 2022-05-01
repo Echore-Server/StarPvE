@@ -13,6 +13,7 @@ use Lyrica0954\StarPvE\entity\MemoryEntity;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\GameManager;
 use Lyrica0954\StarPvE\game\monster\Attacker;
+use Lyrica0954\StarPvE\game\monster\boss\Stray;
 use Lyrica0954\StarPvE\game\monster\boss\ZombieLord;
 use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\monster\Defender;
@@ -136,7 +137,11 @@ final class StarPvE extends PluginBase {
 
         $f->register(ZombieLord::class, function (World $world, CompoundTag $nbt): ZombieLord{
             return new ZombieLord(EntityDataHelper::parseLocation($nbt, $world), $nbt);
-        }, ["starpve:zombie_lord"], EntityLegacyIds::ZOMBIE);
+        }, ["starpve:zombie_lord_boss"], EntityLegacyIds::ZOMBIE);
+
+        $f->register(Stray::class, function (World $world, CompoundTag $nbt): Stray{
+            return new Stray(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:stray_boss"], EntityLegacyIds::STRAY);
 
 
         $f->register(MonsterDropItem::class, function(World $world, CompoundTag $nbt) : MonsterDropItem{

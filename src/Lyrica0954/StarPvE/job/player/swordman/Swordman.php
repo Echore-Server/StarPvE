@@ -12,6 +12,7 @@ use Lyrica0954\StarPvE\job\Identity;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseDamageIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
 use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
@@ -40,12 +41,10 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
 
     protected function getInitialIdentityGroup(): IdentityGroup{
         $g = new IdentityGroup($this);
-        $lists = [
+        $list = [
+            Identity::setCondition(new IncreaseDamageIdentity($this, AttachAbilityIdentityBase::ATTACH_SKILL, 0.5), null)
         ];
-
-        foreach($lists as $identity){
-            $g->add($identity);
-        }
+        $g->addAll($list);
         return $g;
     }
 
@@ -79,6 +78,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
         $entity = $event->getEntity();
         if ($entity === $this->player){
             if ($entity instanceof Player){
+
                 $entities = array_filter(
                     EntityUtil::getWithinRange($entity->getPosition(), 6.0),
                     function(Entity $entity){

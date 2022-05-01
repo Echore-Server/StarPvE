@@ -7,7 +7,7 @@ namespace Lyrica0954\StarPvE\job\identity\ability;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 
-class AddBaseAreaIdentity extends AttachAbilityIdentityBase {
+class IncreaseDamageIdentity extends AttachAbilityIdentityBase {
 
 	protected float $add;
 
@@ -19,20 +19,20 @@ class AddBaseAreaIdentity extends AttachAbilityIdentityBase {
 	public function getName(): string{
 		$attaching = $this->getAttaching();
 		$name = $attaching->getCooltimeHandler()->getId();
-		return "{$name}範囲増加";
+		return "量/回数が{$name}増加";
 	}
 
 	public function getDescription(): string{
 		$attaching = $this->getAttaching();
 		$name = $attaching->getCooltimeHandler()->getId();
-		return "{$name}の範囲が {$this->add} 増加";
+		return "{$name}の量/回数が {$this->add} 増加";
 	}
 
 	public function applyAbility(Ability $ability): void{
-		$ability->getArea()->add($this->add);
+		$ability->getAmount()->add($this->add);
 	}
 
 	public function resetAbility(Ability $ability): void{
-		$ability->getArea()->subtract($this->add);
+		$ability->getAmount()->subtract($this->add);
 	}
 }

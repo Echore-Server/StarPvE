@@ -8,10 +8,10 @@ use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
 use Lyrica0954\StarPvE\job\Identity;
-use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\IncreaseAreaIdentity;
 use Lyrica0954\StarPvE\job\identity\AddMaxHealthIdentity;
 use Lyrica0954\StarPvE\job\IdentityGroup;
-use Lyrica0954\StarPvE\job\player\healer\ident\HealerIdent1;
 use Lyrica0954\StarPvE\job\player\healer\identity\FastFeedIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
@@ -25,15 +25,12 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
 
     protected function getInitialIdentityGroup(): IdentityGroup{
         $g = new IdentityGroup($this);
-        $lists = [
+        $list = [
             Identity::setCondition(new AddMaxHealthIdentity($this, 2), null),
-            Identity::setCondition(new AddBaseAreaIdentity($this, AddBaseAreaIdentity::ATTACH_ABILITY, 0.5), null),
+            Identity::setCondition(new IncreaseAreaIdentity($this, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.5), null),
             Identity::setCondition(new FastFeedIdentity($this, 30), null)
         ];
-
-        foreach($lists as $identity){
-            $g->add($identity);
-        }
+        $g->addAll($list);
         return $g;
     }
 

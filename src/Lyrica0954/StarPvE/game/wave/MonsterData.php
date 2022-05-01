@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\game\wave;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\StarPvE\game\monster\Attacker;
+use Lyrica0954\StarPvE\game\monster\boss\Stray;
 use Lyrica0954\StarPvE\game\monster\boss\ZombieLord;
 use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\monster\Defender;
@@ -25,8 +26,9 @@ class MonsterData {
     const HUSK = Husk::class;
     const SKELETON = Skeleton::class;
     const DEFENDER = Defender::class;
-
+    
     const ZOMBIE_LORD = ZombieLord::class;
+    const STRAY = Stray::class;
 
     public string $name;
     public int $count;

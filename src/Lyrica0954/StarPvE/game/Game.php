@@ -115,6 +115,7 @@ class Game implements CooltimeAttachable{
                 null,
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 2),
+                    new MonsterData(MonsterData::STRAY, 1)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 1),
@@ -568,8 +569,6 @@ class Game implements CooltimeAttachable{
                 } else {
                     $angle = VectorUtil::getAngle($pos, $entity->getPosition());
                     $dir = VectorUtil::getDirectionHorizontal($angle->x);
-                    $dir->x = -$dir->x;
-                    $dir->z = -$dir->z;
 
                     $entity->setMotion($dir->add(0, 0.4, 0));
                 }

@@ -21,8 +21,19 @@ class IdentityGroup {
         $this->identities = [];
     }
 
-    public function add(Identity $identity){
+    public function add(Identity $identity): void{
         $this->identities[] = $identity;
+    }
+
+    /**
+     * @param Identity[] $list
+     * 
+     * @return void
+     */
+    public function addAll(array $list): void{
+        foreach($list as $identity){
+            $this->add($identity);
+        }
     }
 
     public function reset(): void{

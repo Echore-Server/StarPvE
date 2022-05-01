@@ -7,7 +7,7 @@ namespace Lyrica0954\StarPvE\job\identity\ability;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 
-class AddBaseSpeedIdentity extends AttachAbilityIdentityBase {
+class IncreaseSpeedIdentity extends AttachAbilityIdentityBase {
 
 	protected float $add;
 

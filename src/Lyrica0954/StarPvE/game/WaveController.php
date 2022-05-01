@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\Villager;
+use Lyrica0954\StarPvE\event\PlayerDeathOnGameEvent;
 use Lyrica0954\StarPvE\game\monster\Attacker;
 use Lyrica0954\StarPvE\game\wave\CustomWaveStart;
 use Lyrica0954\StarPvE\game\wave\MonsterAttribute;
@@ -32,6 +33,7 @@ use pocketmine\block\BlockFactory;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Living;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDeathEvent;
@@ -78,13 +80,14 @@ class WaveController implements CooltimeAttachable, Listener{
 
         $this->monsterAttributes = [
             MonsterData::ZOMBIE => new MonsterAttribute(24, 4.5, 0.35),
-            MonsterData::ATTACKER => new MonsterAttribute(130, 6.0, 0.025),
+            MonsterData::ATTACKER => new MonsterAttribute(116, 6.0, 0.025),
             MonsterData::CREEPER => new MonsterAttribute(15, 1.0, 0.45),
             MonsterData::SPIDER => new MonsterAttribute(50, 3.0, 0.37),
             MonsterData::HUSK => new MonsterAttribute(55, 8.0, 0.25),
             MonsterData::SKELETON => new MonsterAttribute(50, 2.0, 0.21),
             MonsterData::DEFENDER => new MonsterAttribute(80, 0.5, 0.3),
-            MonsterData::ZOMBIE_LORD => new MonsterAttribute(360, 10.0, 0.22)
+            MonsterData::ZOMBIE_LORD => new MonsterAttribute(360, 10.0, 0.22),
+            MonsterData::STRAY => new MonsterAttribute(270, 0.0, 0.24)
         ];
 
         #todo: register 形式にする
@@ -99,6 +102,7 @@ class WaveController implements CooltimeAttachable, Listener{
             MonsterData::SKELETON => new ArmorSet($f->get(ItemIds::LEATHER_HELMET), $f->get(ItemIds::DIAMOND_CHESTPLATE), $f->get(ItemIds::DIAMOND_LEGGINGS), $f->get(ItemIds::LEATHER_BOOTS)),
             MonsterData::HUSK => new ArmorSet($f->get(ItemIds::DIAMOND_HELMET), $f->get(ItemIds::CHAIN_CHESTPLATE), $f->get(ItemIds::CHAIN_LEGGINGS), $f->get(ItemIds::CHAIN_BOOTS)),
             MonsterData::ZOMBIE_LORD => ArmorSet::chainmail(),
+            MonsterData::STRAY => ArmorSet::iron()
         ];
 
         $f = ItemFactory::getInstance();
@@ -146,6 +150,14 @@ class WaveController implements CooltimeAttachable, Listener{
                 $f->get(ItemIds::EMERALD),
                 $f->get(ItemIds::EMERALD),
 
+            ],
+            MonsterData::STRAY => [
+                $f->get(ItemIds::BREAD),
+                $f->get(ItemIds::BREAD),
+                $f->get(ItemIds::BREAD),
+                $f->get(ItemIds::BREAD),
+                $f->get(ItemIds::BREAD),
+                $f->get(ItemIds::BREAD)
             ]
         ];
 
@@ -161,7 +173,7 @@ class WaveController implements CooltimeAttachable, Listener{
         $damager = $event->getDamager();
 
         if ($entity->getWorld() === $this->game->getWorld()){
-            if ($damager instanceof Player && $entity === $this->game->getVillager()){
+            if (!$damager instanceof Attacker && $entity === $this->game->getVillager()){
                 $event->cancel();
             }
 
@@ -175,6 +187,10 @@ class WaveController implements CooltimeAttachable, Listener{
         }
     }
 
+    public function onEntityDamageByChild(EntityDamageByChildEntityEvent $event){
+
+    }
+
     public function onEntityDamage(EntityDamageEvent $event){
         $entity = $event->getEntity();
 
@@ -183,17 +199,22 @@ class WaveController implements CooltimeAttachable, Listener{
                 if ($this->game->getStatus() === Game::STATUS_PLAYING){
                     if ($entity->getHealth() <= $event->getFinalDamage()){
                         $event->setModifier(PHP_INT_MIN, EntityDamageEvent::MODIFIER_PREVIOUS_DAMAGE_COOLDOWN);
-                        $entity->setGamemode(GameMode::fromString("3"));
-                        $entity->sendTitle("死んでしまった...", "10秒後にリスポーンします");
-                        PlayerUtil::flee($entity);
-                        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($entity){
-                            if (!$this->game->isClosed()){
-                                $entity->teleport($this->game->getCenterPosition());
-                                $entity->setGamemode(GameMode::fromString("2"));
-                                $entity->sendTitle("復活しました！");
-                                $entity->getEffects()->add(new EffectInstance(VanillaEffects::RESISTANCE(), (6 * 20), 255, false, true));
-                            }
-                        }), (10 * 20));
+                        $ev = new PlayerDeathOnGameEvent($entity);
+                        $ev->call();
+                        if (!$ev->isCancelled()){
+                            $this->getGame()->broadcastMessage("§7{$entity->getName()} §fは モンスターに やられてしまった");
+                            $entity->setGamemode(GameMode::fromString("3"));
+                            $entity->sendTitle("死んでしまった...", "10秒後にリスポーンします");
+                            PlayerUtil::flee($entity);
+                            StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($entity){
+                                if (!$this->game->isClosed()){
+                                    $entity->teleport($this->game->getCenterPosition());
+                                    $entity->setGamemode(GameMode::fromString("2"));
+                                    $entity->sendTitle("復活しました！");
+                                    $entity->getEffects()->add(new EffectInstance(VanillaEffects::RESISTANCE(), (6 * 20), 255, false, true));
+                                }
+                            }), (10 * 20));
+                        }
                     }
                 } else {
                     $event->cancel();
@@ -229,6 +250,7 @@ class WaveController implements CooltimeAttachable, Listener{
                                 MonsterData::equal($entity, MonsterData::SKELETON) => 4,
                                 MonsterData::equal($entity, MonsterData::DEFENDER) => 6,
                                 MonsterData::equal($entity, MonsterData::ZOMBIE_LORD) => 20,
+                                MonsterData::equal($entity, MonsterData::STRAY) => 50,
                                 default => 1
                             };
             
