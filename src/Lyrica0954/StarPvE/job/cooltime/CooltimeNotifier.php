@@ -53,7 +53,7 @@ class CooltimeNotifier{
             }
 
         };
-        StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, 20); #todo: to class method
+        StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, 20);
     }
 
     public function stop(){
