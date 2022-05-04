@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\healer;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\identity\Identity;
+use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\AddMaxHealthIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
-use Lyrica0954\StarPvE\job\Identity;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseAreaIdentity;
-use Lyrica0954\StarPvE\job\identity\AddMaxHealthIdentity;
-use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\healer\identity\FastFeedIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
@@ -24,11 +24,11 @@ use pocketmine\player\Player;
 class Healer extends PlayerJob implements AlwaysAbility, Listener{
 
     protected function getInitialIdentityGroup(): IdentityGroup{
-        $g = new IdentityGroup($this);
+        $g = new IdentityGroup();
         $list = [
-            Identity::setCondition(new AddMaxHealthIdentity($this, 2), null),
+            Identity::setCondition(new AddMaxHealthIdentity(2), null),
             Identity::setCondition(new IncreaseAreaIdentity($this, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.5), null),
-            Identity::setCondition(new FastFeedIdentity($this, 30), null)
+            Identity::setCondition(new FastFeedIdentity(30), null)
         ];
         $g->addAll($list);
         return $g;
@@ -58,7 +58,7 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
     }
 
     public function getAlAbilityDescription(): string{
-        return "自分から半径 §c7m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c25%%§f 軽減させる。";
+        return "自分から半径 §c7m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c30%%§f 軽減させる。";
     }
 
     public function getSelectableCondition(): ?Condition{
@@ -74,7 +74,7 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
                     if ($gp->areSameGame($entity, $this->player)){
                         $dist = $entity->getPosition()->distance($this->player->getPosition());
                         if ($dist <= 7){
-                            EntityUtil::multiplyFinalDamage($event, 0.75);
+                            EntityUtil::multiplyFinalDamage($event, 0.7);
                         }
                     }
                 }

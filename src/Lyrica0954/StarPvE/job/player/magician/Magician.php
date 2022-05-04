@@ -6,8 +6,8 @@ namespace Lyrica0954\StarPvE\job\player\magician;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\data\condition\LevelCondition;
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
-use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
@@ -23,7 +23,7 @@ class Magician extends PlayerJob{
     }
 
     protected function getInitialIdentityGroup(): IdentityGroup{
-        return new IdentityGroup($this);
+        return new IdentityGroup();
     }
 
     public function getName(): string{

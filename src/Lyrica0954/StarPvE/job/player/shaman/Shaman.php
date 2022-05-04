@@ -8,9 +8,9 @@ use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
-use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\player\swordman\ForceFieldSkill;
 use Lyrica0954\StarPvE\job\Skill;
@@ -57,7 +57,7 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup{
-		return new IdentityGroup($this);
+		return new IdentityGroup();
 	}
 
 	public function getSelectableCondition(): ?Condition{

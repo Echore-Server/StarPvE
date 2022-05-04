@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lyrica0954\StarPvE\job;
+namespace Lyrica0954\StarPvE\identity;
 
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use pocketmine\player\Player;
@@ -14,10 +14,7 @@ class IdentityGroup {
      */
     protected array $identities;
 
-    protected PlayerJob $playerJob;
-
-    public function __construct(PlayerJob $playerJob){
-        $this->playerJob = $playerJob;
+    public function __construct(){
         $this->identities = [];
     }
 
@@ -36,18 +33,18 @@ class IdentityGroup {
         }
     }
 
-    public function reset(): void{
+    public function reset(Player $player): void{
         foreach($this->identities as $identity){
-            if ($identity->isActivateable()){
-                $identity->reset();
+            if ($identity->isActivateableFor($player)){
+                $identity->reset($player);
             }
         }
     }
 
-    public function apply(): void{
+    public function apply(Player $player): void{
         foreach($this->identities as $identity){
-            if ($identity->isActivateable()){
-                $identity->apply();
+            if ($identity->isActivateableFor($player)){
+                $identity->apply($player);
             }
         }
     }
@@ -82,7 +79,7 @@ class IdentityGroup {
     public function getActive(Player $player): array{
         $active = [];
         foreach($this->identities as $identity){
-            if ($identity->isActivateable($player)){
+            if ($identity->isActivateableFor($player)){
                 $active[] = $identity;
             }
         }

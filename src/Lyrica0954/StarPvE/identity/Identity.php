@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lyrica0954\StarPvE\job;
+namespace Lyrica0954\StarPvE\identity;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -14,7 +14,6 @@ use pocketmine\Server;
 
 abstract class Identity {
     
-    protected PlayerJob $playerJob;
     protected ?Condition $activateCondition;
 
     public function close(): void{
@@ -25,17 +24,12 @@ abstract class Identity {
         if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
     }
 
-    private function init(PlayerJob $playerJob){
-        $this->playerJob = $playerJob;
-    }
-
     public static function setCondition(Identity $identity, ?Condition $condition): Identity{
         $identity->setActivateCondition($condition);
         return $identity;
     }
 
-    public function __construct(PlayerJob $playerJob){
-        $this->init($playerJob);
+    public function __construct(){
         $this->activateCondition = null;
     }
 
@@ -47,9 +41,9 @@ abstract class Identity {
         return $this->activateCondition;
     }
 
-    abstract public function apply(): void;
+    abstract public function apply(Player $player): void;
 
-    abstract public function reset(): void;
+    abstract public function reset(Player $player): void;
 
     public function isActivateableFor(Player $player): bool{
         $condition = $this->getActivateCondition();
@@ -61,12 +55,6 @@ abstract class Identity {
         }
     }
 
-    public function isActivateable(): bool{
-        if (!$this->playerJob->getPlayer() instanceof Player){
-            return true;
-        }
-        return $this->isActivateableFor($this->playerJob->getPlayer());
-    }
 
     abstract public function getName(): string;
 

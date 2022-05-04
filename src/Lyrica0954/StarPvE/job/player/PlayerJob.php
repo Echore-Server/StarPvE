@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player;
 
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeNotifier;
-use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\entity\Skin;
@@ -46,9 +46,10 @@ abstract class PlayerJob extends Job{
         $this->ability = $this->getInitialAbility();
         $this->skill = $this->getInitialSkill();
         $this->identityGroup = $this->getInitialIdentityGroup();
-        $this->identityGroup->apply($this);
 
         if ($player instanceof Player){
+            $this->identityGroup->apply($this->getPlayer());
+
             $this->cooltimeNotifier = new CooltimeNotifier($player);
             $this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
             $this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
@@ -60,7 +61,11 @@ abstract class PlayerJob extends Job{
         $this->ability->close();
         $this->skill->close();
         $this->cooltimeNotifier->stop();
-        $this->identityGroup->reset($this);
+        
+        if ($this->player instanceof Player){
+            $this->identityGroup->reset($this->player);
+        }
+
         $this->identityGroup->close();
 
         $this->player = null;

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player\healer\identity;
 
-use Lyrica0954\StarPvE\job\Identity;
+use Lyrica0954\StarPvE\identity\Identity;
+use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\event\entity\EntityRegainHealthEvent;
@@ -17,8 +18,8 @@ class FastFeedIdentity extends Identity{
 	protected int $period;
 	protected ?TaskHandler $taskHandler;
 
-	public function __construct(PlayerJob $playerJob, int $period){
-		parent::__construct($playerJob);
+	public function __construct(int $period){
+		parent::__construct();
 		$this->period = max(1, $period);
 		$this->taskHandler = null;
 	}
@@ -32,17 +33,10 @@ class FastFeedIdentity extends Identity{
 		return "おなか一杯の時、体力が {$sec}秒 に一回回復する";
 	}
 
-	public function isActivateable(): bool{
-		if (!$this->playerJob->getPlayer() instanceof Player){
-            return false;
-        }
-
-		return parent::isActivateable();
-	}
-
-	public function apply(): void{
-		$this->taskHandler = TaskUtil::repeatingClosure(function(){
-			$player = $this->playerJob->getPlayer();
+	public function apply(Player $player): void{
+		$this->reset($player);
+		
+		$this->taskHandler = TaskUtil::repeatingClosure(function() use($player){
 			$hunger = $player->getHungerManager();
 			$food = $hunger->getFood();
 			if ($food >= $hunger->getMaxFood()){
@@ -52,7 +46,7 @@ class FastFeedIdentity extends Identity{
 		}, $this->period);
 	}
 
-	public function reset(): void{
+	public function reset(Player $player): void{
 		$this->taskHandler?->cancel();
 	}
 }

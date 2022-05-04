@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\engineer;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
-use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -23,7 +23,7 @@ use pocketmine\world\World;
 class Engineer extends PlayerJob {
 
     protected function getInitialIdentityGroup(): IdentityGroup{
-        return new IdentityGroup($this);
+        return new IdentityGroup();
     }
 
     protected function getInitialAbility(): Ability{

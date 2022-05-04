@@ -6,14 +6,14 @@ namespace Lyrica0954\StarPvE\job\player\swordman;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
+use Lyrica0954\StarPvE\identity\Identity;
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
-use Lyrica0954\StarPvE\job\Identity;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseDamageIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
-use Lyrica0954\StarPvE\job\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
@@ -40,7 +40,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
     }
 
     protected function getInitialIdentityGroup(): IdentityGroup{
-        $g = new IdentityGroup($this);
+        $g = new IdentityGroup();
         $list = [
             Identity::setCondition(new IncreaseDamageIdentity($this, AttachAbilityIdentityBase::ATTACH_SKILL, 0.5), null)
         ];

@@ -6,9 +6,12 @@ namespace Lyrica0954\StarPvE\job\identity\ability;
 
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\Identity;
+use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use pocketmine\block\Planks;
+use pocketmine\player\Player;
 
-abstract class AttachAbilityIdentityBase extends Identity {
+abstract class AttachAbilityIdentityBase extends JobIdentity {
 
 	const ATTACH_ABILITY = 0;
 	const ATTACH_SKILL = 1;
@@ -31,13 +34,13 @@ abstract class AttachAbilityIdentityBase extends Identity {
 		}
 	}
 
-    public function apply(): void{
+    public function apply(Player $player): void{
 		$this->applyAbility($this->getAttaching());
     }
 
 	abstract public function applyAbility(Ability $ability): void;
 
-    public function reset(): void{
+    public function reset(Player $player): void{
 		$this->resetAbility($this->getAttaching());
     }
 

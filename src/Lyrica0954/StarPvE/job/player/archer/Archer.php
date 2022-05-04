@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player\archer;
 
-use alvin0319\CustomItemLoader\CustomItemManager;
-use alvin0319\CustomItemLoader\item\CustomItem;
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
-use Lyrica0954\StarPvE\job\IdentityGroup;
+
 use Lyrica0954\StarPvE\job\player\archer\entity\FreezeArrow;
 use Lyrica0954\StarPvE\job\player\archer\entity\SpecialArrow;
 use Lyrica0954\StarPvE\job\player\archer\item\SpecialBow;
@@ -48,7 +47,7 @@ class Archer extends PlayerJob implements Listener{
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup{
-		return new IdentityGroup($this);
+		return new IdentityGroup();
 	}
 
 	public function getSelectableCondition(): ?Condition{
