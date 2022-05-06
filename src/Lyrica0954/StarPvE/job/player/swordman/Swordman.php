@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseDamageIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
+use Lyrica0954\StarPvE\job\JobIdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
@@ -39,8 +40,8 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
         return new ForceFieldSkill($this);
     }
 
-    protected function getInitialIdentityGroup(): IdentityGroup{
-        $g = new IdentityGroup();
+    protected function getInitialIdentityGroup(): JobIdentityGroup{
+        $g = new JobIdentityGroup();
         $list = [
             Identity::setCondition(new IncreaseDamageIdentity($this, AttachAbilityIdentityBase::ATTACH_SKILL, 0.5), null)
         ];

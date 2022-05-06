@@ -34,13 +34,13 @@ abstract class AttachAbilityIdentityBase extends JobIdentity {
 		}
 	}
 
-    public function apply(Player $player): void{
+    public function apply(?Player $player = null): void{
 		$this->applyAbility($this->getAttaching());
     }
 
 	abstract public function applyAbility(Ability $ability): void;
 
-    public function reset(Player $player): void{
+    public function reset(?Player $player = null): void{
 		$this->resetAbility($this->getAttaching());
     }
 

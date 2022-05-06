@@ -11,6 +11,7 @@ use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeNotifier;
 use Lyrica0954\StarPvE\job\Job;
+use Lyrica0954\StarPvE\job\JobIdentityGroup;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\entity\Skin;
 use pocketmine\event\Listener;
@@ -30,7 +31,7 @@ abstract class PlayerJob extends Job{
 
     protected CooltimeNotifier $cooltimeNotifier;
 
-    public function __construct(?Player $player){
+    public function __construct(?Player $player = null){
 
         if ($player instanceof Player){ #JobManager への登録を簡単にするため
             $this->player = $player;
@@ -46,9 +47,8 @@ abstract class PlayerJob extends Job{
         $this->ability = $this->getInitialAbility();
         $this->skill = $this->getInitialSkill();
         $this->identityGroup = $this->getInitialIdentityGroup();
-
+        $this->identityGroup->apply($player);
         if ($player instanceof Player){
-            $this->identityGroup->apply($this->getPlayer());
 
             $this->cooltimeNotifier = new CooltimeNotifier($player);
             $this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
@@ -62,9 +62,7 @@ abstract class PlayerJob extends Job{
         $this->skill->close();
         $this->cooltimeNotifier->stop();
         
-        if ($this->player instanceof Player){
-            $this->identityGroup->reset($this->player);
-        }
+        $this->identityGroup->reset($this->player);
 
         $this->identityGroup->close();
 

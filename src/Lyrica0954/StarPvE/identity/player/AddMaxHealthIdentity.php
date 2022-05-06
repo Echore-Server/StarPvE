@@ -26,11 +26,11 @@ class AddMaxHealthIdentity extends Identity{
 		return "最大HPが {$this->add} 増加";
 	}
 
-    public function apply(Player $player): void{
+    public function apply(?Player $player = null): void{
         EntityUtil::addMaxHealthSynchronously($player, $this->add);
     }
 
-    public function reset(Player $player): void{
+    public function reset(?Player $player = null): void{
         EntityUtil::addMaxHealthSynchronously($player, -$this->add);
     }
 }

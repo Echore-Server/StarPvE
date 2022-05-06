@@ -41,9 +41,9 @@ abstract class Identity {
         return $this->activateCondition;
     }
 
-    abstract public function apply(Player $player): void;
+    abstract public function apply(?Player $player): void;
 
-    abstract public function reset(Player $player): void;
+    abstract public function reset(?Player $player): void;
 
     public function isActivateableFor(Player $player): bool{
         $condition = $this->getActivateCondition();

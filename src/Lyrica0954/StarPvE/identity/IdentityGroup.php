@@ -33,17 +33,17 @@ class IdentityGroup {
         }
     }
 
-    public function reset(Player $player): void{
+    public function reset(?Player $player = null): void{
         foreach($this->identities as $identity){
-            if ($identity->isActivateableFor($player)){
+            if ($player instanceof Player ? $identity->isActivateableFor($player) : true){
                 $identity->reset($player);
             }
         }
     }
 
-    public function apply(Player $player): void{
+    public function apply(?Player $player = null): void{
         foreach($this->identities as $identity){
-            if ($identity->isActivateableFor($player)){
+            if ($player instanceof Player ? $identity->isActivateableFor($player) : true){
                 $identity->apply($player);
             }
         }
