@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player\healer;
 
+use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
@@ -17,9 +18,11 @@ use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\player\Player;
+use pocketmine\Server;
 
 class Healer extends PlayerJob implements AlwaysAbility, Listener{
 
@@ -50,7 +53,8 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener{
         return 
 "§7- §l§a支援[♡]§r
 
-味方を回復できるヒーラー。";
+味方を回復できるヒーラー。
+味方を支援したり、回復させたりすることができる。";
     }
 
     public function getAlAbilityName(): string{

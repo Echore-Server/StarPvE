@@ -40,8 +40,8 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
         return new ForceFieldSkill($this);
     }
 
-    protected function getInitialIdentityGroup(): JobIdentityGroup{
-        $g = new JobIdentityGroup();
+    protected function getInitialIdentityGroup(): IdentityGroup{
+        $g = new IdentityGroup();
         $list = [
             Identity::setCondition(new IncreaseDamageIdentity($this, AttachAbilityIdentityBase::ATTACH_SKILL, 0.5), null)
         ];
@@ -93,7 +93,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener{
                 EntityUtil::multiplyFinalDamage($event, (1.0 - $reduce));
 
                 if ($event->getFinalDamage() >= ($entity->getMaxHealth() / 2)){
-                    $entity->getEffects()->add(new EffectInstance(VanillaEffects::REGENERATION(), (5 * 20), 3));
+                    $entity->getEffects()->add(new EffectInstance(VanillaEffects::REGENERATION(), (8 * 20), 3));
                     PlayerUtil::playSound($entity, "random.totem", 1.0, 0.6);
                 }
                 

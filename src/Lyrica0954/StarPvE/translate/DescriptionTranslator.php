@@ -30,6 +30,7 @@ class DescriptionTranslator {
 		$diff = $stat->getDiff();
 		if ($heart){
 			$health /= 2;
+			$diff /= 2;
 		}
 		return TextFormat::RED . round($health, 2) . ($heart ? "♡" : "") . self::diff($diff) . $resetter;
 	}

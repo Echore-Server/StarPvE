@@ -33,20 +33,22 @@ class FastFeedIdentity extends Identity{
 		return "おなか一杯の時、体力が {$sec}秒 に一回回復する";
 	}
 
-	public function apply(Player $player): void{
+	public function apply(?Player $player = null): void{
 		$this->reset($player);
-		
-		$this->taskHandler = TaskUtil::repeatingClosure(function() use($player){
-			$hunger = $player->getHungerManager();
-			$food = $hunger->getFood();
-			if ($food >= $hunger->getMaxFood()){
-				$regain = new EntityRegainHealthEvent($player, 1, EntityRegainHealthEvent::CAUSE_CUSTOM);
-				$player->heal($regain);
-			}
-		}, $this->period);
+
+		if ($player !== null){
+			$this->taskHandler = TaskUtil::repeatingClosure(function() use($player){
+				$hunger = $player->getHungerManager();
+				$food = $hunger->getFood();
+				if ($food >= $hunger->getMaxFood()){
+					$regain = new EntityRegainHealthEvent($player, 1, EntityRegainHealthEvent::CAUSE_CUSTOM);
+					$player->heal($regain);
+				}
+			}, $this->period);
+		}
 	}
 
-	public function reset(Player $player): void{
+	public function reset(?Player $player = null): void{
 		$this->taskHandler?->cancel();
 	}
 }

@@ -11,6 +11,9 @@ class AbilityStatus {
 	const MODIFIER_CUSTOM = 2;
 
 	private float $original;
+	/**
+	 * @var int[]
+	 */
 	private array $modifiers;
 
 	public function __construct(float $original){

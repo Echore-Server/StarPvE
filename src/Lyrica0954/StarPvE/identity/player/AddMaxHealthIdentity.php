@@ -27,10 +27,14 @@ class AddMaxHealthIdentity extends Identity{
 	}
 
     public function apply(?Player $player = null): void{
-        EntityUtil::addMaxHealthSynchronously($player, $this->add);
+        if ($player !== null){
+            EntityUtil::addMaxHealthSynchronously($player, $this->add);
+        }
     }
 
     public function reset(?Player $player = null): void{
-        EntityUtil::addMaxHealthSynchronously($player, -$this->add);
+        if ($player !== null){
+            EntityUtil::addMaxHealthSynchronously($player, -$this->add);
+        }
     }
 }
