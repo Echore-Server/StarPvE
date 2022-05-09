@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lyrica0954\StarPvE\data\inventory;
+namespace Lyrica0954\StarPvE\data\inventory\item;
 
 final class InvItemIds {
 
