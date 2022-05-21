@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\engineer\entity;
 
 use Lyrica0954\MagicParticle\LineParticle;
+use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\StarPvE\entity\item\GhostItemEntity;
@@ -32,15 +33,15 @@ class ShieldBall extends GhostItemEntity {
     protected int $particleTick = 0;
     public int $lossPeriod = 1 * 20;
 
-    protected function initEntity(CompoundTag $nbt): void{
+    protected function initEntity(CompoundTag $nbt): void {
         parent::initEntity($nbt);
 
         $this->setNameTagAlwaysVisible(true);
         $this->setNameTagVisible(true);
     }
 
-    protected function updateNameTag(): void{
-        $color = match(true){
+    protected function updateNameTag(): void {
+        $color = match (true) {
             $this->power <= 10 => "§4",
             $this->power <= 25 => "§c",
             $this->power <= 50 => "§6",
@@ -49,27 +50,38 @@ class ShieldBall extends GhostItemEntity {
             default => "§f"
         };
 
-        $nameTag = "§7Power: ". $color . round($this->power) . "%";
+        $nameTag = "§7Power: " . $color . round($this->power) . "%";
         $this->setNameTag($nameTag);
     }
 
-    public function getShieldRadius(): float{
+    public function getShieldRadius(): float {
         return 3 + $this->power * 0.07;
     }
 
-    public function entityBaseTick(int $tickDiff = 1): bool{
+    public function getPower(): float {
+        return $this->power;
+    }
+
+    public function setPower(float $power): void {
+        $this->power = min(100, $power);
+    }
+
+    public function addPower(float $power): void {
+        $this->setPower($this->getPower() + $power);
+    }
+
+    public function entityBaseTick(int $tickDiff = 1): bool {
         $hasUpdate = parent::entityBaseTick($tickDiff);
 
 
 
-        if ($this->isOnGround() && (!$this->preparing && !$this->active)){
+        if ($this->isOnGround() && (!$this->preparing && !$this->active)) {
             $this->preparing = true;
             $this->setMotion(new Vector3(0, 0, 0));
             $this->gravity = 0.0;
             $this->drag = 0.0;
 
             # 広がってから引き寄せるパーティクル
-            (new SingleParticle())->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), "starpve:gravity_ball_prepare");
         }
 
         if ($this->preparing || $this->active) {
@@ -84,24 +96,24 @@ class ShieldBall extends GhostItemEntity {
                     ),
                     $this->getWorld()
                 ),
-                "minecraft:balloon_gas_particle"
+                ParticleOption::spawnPacket("minecraft:balloon_gas_particle", "")
             );
         }
 
-        if ($this->preparing){
-            if ($this->power < 100){
+        if ($this->preparing) {
+            if ($this->power < 100) {
                 $this->power = min(100, ($this->power + $tickDiff));
                 PlayerUtil::broadcastSound($this, "block.blastfurnace.fire_crackle", 1.5, 1.0);
-            } elseif ($this->power >= 100 && !$this->active){
+            } elseif ($this->power >= 100 && !$this->active) {
                 $this->power = 100.0;
                 $this->active = true;
                 $this->preparing = false;
             }
         }
 
-        if ($this->active){
-            if ($this->power <= 0){
-                (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), "minecraft:knockback_roar_particle");
+        if ($this->active) {
+            if ($this->power <= 0) {
+                (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:knockback_roar_particle", ""));
                 PlayerUtil::broadcastSound($this, "block.lantern.break", 0.8);
 
                 $this->kill();
@@ -111,43 +123,42 @@ class ShieldBall extends GhostItemEntity {
                 $this->attackTick += $tickDiff;
                 $this->particleTick += $tickDiff;
 
-                if ($this->attackTick >= 3){
+                if ($this->attackTick >= 3) {
                     $this->attackTick = 0;
                     $radius = $this->getShieldRadius();
-                    foreach(EntityUtil::getWithinRange($this->getPosition(), $radius) as $entity){
-                        if (MonsterData::isMonster($entity)){
+                    foreach (EntityUtil::getWithinRange($this->getPosition(), $radius) as $entity) {
+                        if (MonsterData::isMonster($entity)) {
                             $kb = new Vector2(3.5, 0.0);
-                            if ($entity instanceof Attacker){
+                            if ($entity instanceof Attacker) {
                                 $kb->x = 1.25;
                                 $this->power -= 0.09;
-                            } elseif ($entity instanceof Creeper){
+                            } elseif ($entity instanceof Creeper) {
                                 $entity->explode();
                                 $this->power -= 2.0;
                             }
 
-                            if (!$entity->isOnGround()){
+                            if (!$entity->isOnGround()) {
                                 $kb = $kb->multiply(0.4);
                             }
                             $motion = EntityUtil::modifyKnockback($entity, $this, $kb->x, $kb->y);
                             $entity->setMotion($motion);
-                        } elseif ($entity instanceof MemoryEntity){
+                        } elseif ($entity instanceof MemoryEntity) {
                             $entity->close();
                         }
                     }
                 }
 
-                if ($this->particleTick >= 15){
+                if ($this->particleTick >= 15) {
                     $this->particleTick = 0;
                     PlayerUtil::broadcastSound($this, "beacon.ambient", 1.0, 0.75);
-                    
+
                     $radius = $this->getShieldRadius();
-                    for ($h = 0.75; $h < $radius; $h += 0.75){
-                        (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $h, 0), "minecraft:shulker_bullet");
+                    for ($h = 0.75; $h < $radius; $h += 0.75) {
+                        (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $h, 0), ParticleOption::spawnPacket("minecraft:shulker_bullet", ""));
                     }
                     $par = new SphereParticle($radius, 6, 6, 360, -90, 0);
-                    $par->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), "minecraft:obsidian_glow_dust_particle");
+                    $par->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
                 }
-                
             }
         }
 

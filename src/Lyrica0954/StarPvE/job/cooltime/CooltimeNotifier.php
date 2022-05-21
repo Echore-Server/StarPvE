@@ -8,7 +8,7 @@ use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
 
-class CooltimeNotifier{
+class CooltimeNotifier {
 
     protected array $cooltimes;
     protected Player $player;
@@ -17,65 +17,68 @@ class CooltimeNotifier{
 
     protected string $prefix;
 
-    public function __construct(Player $player){
+    public function __construct(Player $player) {
         $this->player = $player;
         $this->cooltimes = [];
         $this->task = null;
         $this->prefix = "";
-        
     }
 
-    public function getPrefix(): string{
+    public function getPrefix(): string {
         return $this->prefix;
     }
 
-    public function setPrefix(string $prefix): void{
+    public function setPrefix(string $prefix): void {
         $this->prefix = $prefix;
     }
 
-    public function log(string $message){
+    public function log(string $message) {
         StarPvE::getInstance()->log("§7[CooltimeNotifier] {$message}");
     }
 
-    public function start(){
+    public function start() {
         $this->log("Started the Task");
 
-        $this->task = new class($this) extends Task{
+        $this->task = new class($this) extends Task {
 
             private CooltimeNotifier $cooltimeNotifier;
 
-            public function __construct(CooltimeNotifier $cooltimeNotifier){
+            public function __construct(CooltimeNotifier $cooltimeNotifier) {
                 $this->cooltimeNotifier = $cooltimeNotifier;
             }
 
-            public function onRun(): void{
+            public function onRun(): void {
                 $this->cooltimeNotifier->tick();
             }
-
         };
         StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, 20);
     }
 
-    public function stop(){
-        if ($this->task instanceof Task){
+    public function stop() {
+        if ($this->task instanceof Task) {
             $this->task->getHandler()->cancel();
             $this->log("Stopped the Task");
         }
     }
 
-    public function tick(){
+    public function tick() {
         $text = $this->prefix;
-        foreach($this->cooltimes as $cooltimeHandler){
+        foreach ($this->cooltimes as $cooltimeHandler) {
             $seconds = round($cooltimeHandler->getRemain() / 20);
-            $status = (!$cooltimeHandler->isActive() ? "§a使用可能": "§c残り {$seconds}秒");
+            $status = (!$cooltimeHandler->isActive() ? "§a使用可能" : "§c残り {$seconds}秒");
             $text .= "§7{$cooltimeHandler->getId()}: {$status}\n";
         }
 
         $this->player->sendPopup($text);
     }
 
-    public function addCooltimeHandler(CooltimeHandler $cooltimeHandler){
-        $this->cooltimes[] = $cooltimeHandler;
+    public function addCooltimeHandler(CooltimeHandler $cooltimeHandler) {
+        $this->cooltimes[spl_object_hash($cooltimeHandler)] = $cooltimeHandler;
         $this->log("Added cooltime handler: {$cooltimeHandler->getId()}");
+    }
+
+    public function removeCooltimeHandler(CooltimeHandler $cooltimeHandler) {
+        unset($this->cooltimes[spl_object_hash($cooltimeHandler)]);
+        $this->log("Removed cooltime handler: {$cooltimeHandler->getId()}");
     }
 }

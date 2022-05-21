@@ -34,7 +34,7 @@ use pocketmine\player\Player;
 use pocketmine\world\sound\BowShootSound;
 use Ramsey\Uuid\Type\Integer;
 
-class SpecialBowAbility extends Ability implements Listener{
+class SpecialBowAbility extends Ability implements Listener {
 
 	/**
 	 * @var AbilityStatus
@@ -53,34 +53,34 @@ class SpecialBowAbility extends Ability implements Listener{
 
 	protected Item $bow;
 
-	public function getCooltime(): int{
+	public function getCooltime(): int {
 		return (1 * 20);
 	}
 
-	public function getName(): string{
+	public function getName(): string {
 		return "トキシックアロー";
 	}
 
-	public function getDescription(): string{
+	public function getDescription(): string {
 		$damage = DescriptionTranslator::health($this->damage);
 		$hitEffect = DescriptionTranslator::effectGroup($this->hitEffects);
 		$area = DescriptionTranslator::number($this->area, "m");
 		$areaDamage = DescriptionTranslator::health($this->areaDamage);
 		$areaEffect = DescriptionTranslator::effectGroup($this->areaEffects);
 		$duration = DescriptionTranslator::second($this->duration);
-		return 
-sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダメージと %2$s を与える。地面に当たった場合は、§b効果§f を発動させる。
+		return
+			sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダメージと %2$s を与える。地面に当たった場合は、§b効果§f を発動させる。
 矢は §dプレイヤー§f と §d村人§f を貫通する。
 §b効果:§f 矢から %3$s 以内の敵に %4$s のダメージと %5$s を与える有毒ガスを %6$s 間放出する。', $damage, $hitEffect, $area, $areaDamage, $areaEffect, $duration);
 	}
 
-	protected function init(): void{
+	protected function init(): void {
 		$this->area = new AbilityStatus(4.0);
 		$this->duration = new AbilityStatus(7 * 20);
-		$this->damage = new AbilityStatus(6.5);
+		$this->damage = new AbilityStatus(6.0);
 		$this->areaDamage = new AbilityStatus(1.0);
 		$this->bow = ItemFactory::getInstance()->get(ItemIds::BOW);
-		if ($this->bow instanceof Bow){
+		if ($this->bow instanceof Bow) {
 			$this->bow->setUnbreakable(true);
 			$this->bow->addEnchantment(new EnchantmentInstance(VanillaEnchantments::INFINITY()));
 			$this->bow->setCustomName("§r§dToxic Bow");
@@ -97,11 +97,11 @@ sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダ
 
 
 
-	public function onGameStart(GameStartEvent $event){
+	public function onGameStart(GameStartEvent $event) {
 		$game = $event->getGame();
-		if ($this->player instanceof Player){
+		if ($this->player instanceof Player) {
 			$gp = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($this->player);
-			if ($gp?->getGame() === $game){
+			if ($gp?->getGame() === $game) {
 				$arrow = ItemFactory::getInstance()->get(ItemIds::ARROW);
 
 				$this->player->getInventory()->addItem($this->bow, $arrow);
@@ -109,19 +109,19 @@ sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダ
 		}
 	}
 
-	public function onShoot(EntityShootBowEvent $event){
+	public function onShoot(EntityShootBowEvent $event) {
 		$projectile = $event->getProjectile();
 		$entity = $event->getEntity();
-		if ($projectile instanceof Arrow){
-			if ($entity === $this->player && $entity instanceof Player){
-				if ($event->getForce() == 3.0 && $entity->isSneaking()){
+		if ($projectile instanceof Arrow) {
+			if ($entity === $this->player && $entity instanceof Player) {
+				if ($event->getForce() == 3.0 && $entity->isSneaking()) {
 				} else {
 					$result = $this->activate();
-					if ($result->isSucceeded()){
+					if ($result->isSucceeded()) {
 						$new = new SpecialArrow($projectile->getLocation(), $projectile->getOwningEntity(), $projectile->isCritical(), $projectile->saveNBT());
 						$new->areaDamage = $this->areaDamage->get();
 						$new->setBaseDamage($this->damage->get());
-						$new->duration = (integer) $this->duration->get();
+						$new->duration = (int) $this->duration->get();
 						$new->area = $this->area->get();
 						$new->period = 10;
 						$new->areaEffects = clone $this->areaEffects;
@@ -136,7 +136,7 @@ sprintf('§b発動時:§f 有毒な矢を放ち、敵に当たると %1$s のダ
 		}
 	}
 
-	protected function onActivate(): ActionResult{
+	protected function onActivate(): ActionResult {
 		return ActionResult::SUCCEEDED_SILENT();
 	}
 }

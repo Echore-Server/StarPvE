@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\monster;
 
+use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\fightstyle\FollowStyle;
 use Lyrica0954\SmartEntity\entity\fightstyle\MeleeStyle;
@@ -31,12 +32,12 @@ class Skeleton extends SmartSkeleton {
 
     protected ?MemoryEntity $spark = null;
 
-    protected function getInitialFightStyle(): Style{
+    protected function getInitialFightStyle(): Style {
         return new MeleeStyle($this);
     }
 
-    public function attackEntity(Entity $entity, float $range): bool{
-        if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0){
+    public function attackEntity(Entity $entity, float $range): bool {
+        if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
             $this->broadcastAnimation(new ArmSwingAnimation($this));
             $this->fireElectricSpark($entity, 25, 0.32);
             $this->attackCooldown = 10 + $this->getAddtionalAttackCooldown();
@@ -48,8 +49,8 @@ class Skeleton extends SmartSkeleton {
         }
     }
 
-    protected function fireElectricSpark(Entity $entity, float $maxRange, float $speed){
-        if ($this->spark === null){
+    protected function fireElectricSpark(Entity $entity, float $maxRange, float $speed) {
+        if ($this->spark === null) {
             $loc = $this->getLocation();
             $eloc = $entity->getLocation();
             $loc->y += $this->getEyeHeight();
@@ -60,20 +61,20 @@ class Skeleton extends SmartSkeleton {
             $this->spark->setMotion($v->multiply($speed));
 
             $startTick = Server::getInstance()->getTick();
-            $this->spark->addCloseHook(function(MemoryEntity $entity){
+            $this->spark->addCloseHook(function (MemoryEntity $entity) {
                 $this->spark = null;
                 $this->attackCooldown = 20;
             });
-            
-            $this->spark->addTickHook(function(MemoryEntity $entity) use ($loc, $maxRange, $startTick){
+
+            $this->spark->addTickHook(function (MemoryEntity $entity) use ($loc, $maxRange, $startTick) {
                 $ct = Server::getInstance()->getTick();
-                if ($entity->getPosition()->distance($loc) >= $maxRange || ($ct - $startTick) >= 30){
+                if ($entity->getPosition()->distance($loc) >= $maxRange || ($ct - $startTick) >= 30) {
                     $entity->close();
                     return;
                 }
 
-                foreach(EntityUtil::getPlayersInsideVector($entity->getPosition(), new Vector3(0.5, 0.5, 0.5)) as $player){
-                    if (!$player->isImmobile()){
+                foreach (EntityUtil::getPlayersInsideVector($entity->getPosition(), new Vector3(0.5, 0.5, 0.5)) as $player) {
+                    if (!$player->isImmobile()) {
                         PlayerUtil::playSound($player, "fireworks.blast", 2.4, 1.0);
                         $source = new EntityDamageByEntityEvent($entity, $player, EntityDamageByEntityEvent::CAUSE_MAGIC, $this->getAttackDamage(), [], 0);
                         $source->setAttackCooldown(0);
@@ -82,19 +83,18 @@ class Skeleton extends SmartSkeleton {
                         $player->getNetworkSession()->sendDataPacket($pk);
                         $player->attack($source);
                     }
-                    
                 }
 
-                if ($ct % 2 == 0){
+                if ($ct % 2 == 0) {
                     $par = new SingleParticle();
-                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $entity->getPosition(), "minecraft:balloon_gas_particle");
+                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $entity->getPosition(), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
                     PlayerUtil::broadcastSound($entity, "firework.twinkle", 1.75, 0.3);
                 }
             });
         }
     }
 
-    public function getFollowRange(): float{
+    public function getFollowRange(): float {
         return 50;
     }
 }

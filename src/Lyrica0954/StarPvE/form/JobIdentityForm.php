@@ -5,28 +5,27 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\form;
 
-use Lyrica0954\StarPvE\job\Identity;
+use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\utils\Messanger;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
 class JobIdentityForm implements Form {
-	
+
 	private array $identities;
 
-	public function __construct(private Player $player, private PlayerJob $job){
-		
+	public function __construct(private Player $player, private PlayerJob $job) {
 	}
 
-	public function jsonSerialize(): mixed{
+	public function jsonSerialize(): mixed {
 		$identityGroup = $this->job->getIdentityGroup();
 
 		$buttons = [];
 
 		$activateableIdentity = [];
 		$identityCount = count($identityGroup->getAll());
-		foreach($identityGroup->getAll() as $identity){
+		foreach ($identityGroup->getAll() as $identity) {
 			$activateable = $identity->isActivateableFor($this->player);
 			$activateableIdentity[] = $identity;
 			$desc = $activateable ? "§a有効" : "§c無効";
@@ -45,10 +44,10 @@ class JobIdentityForm implements Form {
 		];
 	}
 
-	public function handleResponse(Player $player, $data): void{
-		if ($data !== null){
+	public function handleResponse(Player $player, $data): void {
+		if ($data !== null) {
 			$identity = $this->identities[$data] ?? null;
-			if ($identity instanceof Identity){
+			if ($identity instanceof Identity) {
 				Messanger::talk($player, "職業", "§cこの特性を有効するには以下の条件を満たす必要があります");
 				Messanger::condition($player, $identity->getActivateCondition());
 			}

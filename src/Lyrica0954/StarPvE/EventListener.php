@@ -9,11 +9,14 @@ use Lyrica0954\StarPvE\entity\Ghost;
 use Lyrica0954\StarPvE\entity\JobShop;
 use Lyrica0954\StarPvE\form\GameSelectForm;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\Location;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityMotionEvent;
+use pocketmine\event\HandlerList;
+use pocketmine\event\HandlerListManager;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDropItemEvent;
@@ -44,44 +47,44 @@ class EventListener implements Listener {
 
     private StarPvE $plugin;
 
-    public function __construct(StarPvE $plugin){
+    public function __construct(StarPvE $plugin) {
         $this->plugin = $plugin;
         $this->plugin->getServer()->getPluginManager()->registerEvents($this, $plugin);
     }
 
-    public function onItemUse(PlayerItemUseEvent $event){
+    public function onItemUse(PlayerItemUseEvent $event) {
         $item = $event->getItem();
         $player = $event->getPlayer();
 
         $this->plugin->getJobManager()->onItemUse($event);
 
-        if ($item->getId() === ItemIds::COMPASS){
+        if ($item->getId() === ItemIds::COMPASS) {
             $form = new GameSelectForm();
             $player->sendForm($form);
         }
     }
 
-    public function onInteract(PlayerInteractEvent $event){
-        if ($event->getAction() === PlayerInteractEvent::RIGHT_CLICK_BLOCK){
+    public function onInteract(PlayerInteractEvent $event) {
+        if ($event->getAction() === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
             $this->plugin->getJobManager()->onItemUse($event);
         }
     }
 
-    public function onDamage(EntityDamageEvent $event){
+    public function onDamage(EntityDamageEvent $event) {
         $entity = $event->getEntity();
 
-        if ($entity instanceof Ghost){
+        if ($entity instanceof Ghost) {
             $event->cancel();
         }
 
-        if ($entity instanceof Player){
+        if ($entity instanceof Player) {
 
-            if ($event->getCause() == EntityDamageEvent::CAUSE_FALL){
+            if ($event->getCause() == EntityDamageEvent::CAUSE_FALL) {
                 $event->cancel();
             }
-            
-            if ($entity->getWorld() === StarPvE::getInstance()->hub){
-                if ($entity->getLocation()->getY() < 0){
+
+            if ($entity->getWorld() === StarPvE::getInstance()->hub) {
+                if ($entity->getLocation()->getY() < 0) {
                     $event->cancel();
 
                     PlayerUtil::teleportToLobby($entity);
@@ -104,49 +107,49 @@ class EventListener implements Listener {
     #    }
     #}
 
-    public function onExhaust(PlayerExhaustEvent $event){
+    public function onExhaust(PlayerExhaustEvent $event) {
         $player = $event->getPlayer();
 
-        if ($player->getWorld() === $this->plugin->hub){
+        if ($player->getWorld() === $this->plugin->hub) {
             $event->cancel();
         }
     }
 
-    public function onMotion(EntityMotionEvent $event){
+    public function onMotion(EntityMotionEvent $event) {
         $entity = $event->getEntity();
 
-        if ($entity instanceof Ghost){
+        if ($entity instanceof Ghost) {
             $event->cancel();
         }
     }
-    
 
-    public function onItemDrop(PlayerDropItemEvent $event){
+
+    public function onItemDrop(PlayerDropItemEvent $event) {
         $player = $event->getPlayer();
         $item = $event->getItem();
 
-        if (!$player->isCreative()){
-            if ($item->getId() !== ItemIds::EMERALD){
+        if (!$player->isCreative()) {
+            if ($item->getId() !== ItemIds::EMERALD) {
                 $event->cancel();
             }
         }
     }
 
-    public function onInventoryTransaction(InventoryTransactionEvent $event){
+    public function onInventoryTransaction(InventoryTransactionEvent $event) {
         $trans = $event->getTransaction();
         $player = $trans->getSource();
         $inventories = $trans->getInventories();
 
-        if (!$player->isCreative()){
-            foreach($inventories as $inventory){
-                if ($inventory instanceof ArmorInventory){
+        if (!$player->isCreative()) {
+            foreach ($inventories as $inventory) {
+                if ($inventory instanceof ArmorInventory) {
                     $event->cancel();
                 }
             }
         }
     }
 
-    public function onJoin(PlayerJoinEvent $event){
+    public function onJoin(PlayerJoinEvent $event) {
         $player = $event->getPlayer();
 
         $event->setJoinMessage("§a> §7{$player->getName()}");
@@ -160,14 +163,14 @@ class EventListener implements Listener {
         $player->setGamemode(GameMode::fromString("2"));
         $this->plugin->getGamePlayerManager()->addGamePlayer($player);
 
-        if (StarPvE::getInstance()->hub === $player->getWorld()){
-            foreach($player->getWorld()->getEntities() as $entity){
-                if ($entity instanceof JobShop){
+        if (StarPvE::getInstance()->hub === $player->getWorld()) {
+            foreach ($player->getWorld()->getEntities() as $entity) {
+                if ($entity instanceof JobShop) {
                     $entity->close();
                 }
             }
 
-            $skinData = file_get_contents($this->plugin->getDataFolder()."JobShopSkin.txt");
+            $skinData = file_get_contents($this->plugin->getDataFolder() . "JobShopSkin.txt");
             $jobShop = new JobShop(new Location(2.5, 51, 6.5, $player->getWorld(), 0, 0), new Skin("Standard_Custom", $skinData));
             $jobShop->setNameTagVisible(true);
             $jobShop->setNameTagAlwaysVisible(true);
@@ -176,17 +179,17 @@ class EventListener implements Listener {
         }
     }
 
-    public function onMove(\pocketmine\event\player\PlayerMoveEvent $event){
+    public function onMove(\pocketmine\event\player\PlayerMoveEvent $event) {
         $player = $event->getPlayer();
-        
+
         $pos = $player->getPosition()->floor();
         $block = $player->getWorld()->getBlockAt($pos->x, $pos->y, $pos->z);
-        if ($block->getId() === 147){
+        if ($block->getId() === 147) {
             $player->setMotion($player->getDirectionVector()->multiply(1.75));
         }
     }
 
-    public function onPlayerQuit(\pocketmine\event\player\PlayerQuitEvent $event){
+    public function onPlayerQuit(\pocketmine\event\player\PlayerQuitEvent $event) {
         $player = $event->getPlayer();
         $gamePlayerManager = $this->plugin->getGamePlayerManager();
         $gamePlayerManager->getGamePlayer($player)?->leaveGame();
@@ -195,7 +198,7 @@ class EventListener implements Listener {
         $jobManager = $this->plugin->getJobManager();
         $jobManager->setJob($player, null);
 
-        
+
         $event->setQuitMessage("§c< §7{$player->getName()}");
     }
 }

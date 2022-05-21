@@ -13,9 +13,10 @@ use pocketmine\event\HandlerListManager;
 use pocketmine\event\Listener;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\player\Player;
+use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 
-abstract class Ability{
+abstract class Ability {
 
     /**
      * @var AbilityStatus
@@ -28,7 +29,7 @@ abstract class Ability{
     /**
      * @var AbilityStatus
      */
-    protected AbilityStatus $speed; 
+    protected AbilityStatus $speed;
     /**
      * @var AbilityStatus
      */
@@ -50,7 +51,7 @@ abstract class Ability{
      * @var PlayerJob
      */
     protected PlayerJob $job;
-    
+
     /**
      * @var Player|null
      */
@@ -61,14 +62,19 @@ abstract class Ability{
      */
     protected CooltimeHandler $cooltimeHandler;
 
-    public function __construct(PlayerJob $job){
+    /**
+     * @var TaskHandler[]
+     */
+    protected array $tasks;
+
+    public function __construct(PlayerJob $job) {
         $this->job = $job;
         $this->player = $job->getPlayer();
         $this->closed = false;
         $this->active = false;
         $this->cooltimeHandler = new CooltimeHandler("アビリティ", CooltimeHandler::BASE_TICK, 1);
 
-        if ($this->player instanceof Player){
+        if ($this->player instanceof Player) {
             if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
         }
 
@@ -78,7 +84,9 @@ abstract class Ability{
         $this->duration = new AbilityStatus(0.0);
         $this->amount = new AbilityStatus(0.0);
         $this->percentage = new AbilityStatus(0.0);
-        
+
+        $this->tasks = [];
+
         $this->init();
     }
 
@@ -87,69 +95,81 @@ abstract class Ability{
     abstract public function getDescription(): string;
 
     abstract protected function init(): void;
-    
-    public function close(): void{
+
+    public function registerTask(TaskHandler $handler): void {
+        $this->tasks[] = $handler;
+    }
+
+    public function close(): void {
         $this->cooltimeHandler->forceStop();
+        foreach ($this->tasks as $handler) {
+            $handler->cancel();
+        }
         if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
     }
 
-    public function isActive(): bool{
+    public function isActive(): bool {
         return $this->active;
     }
 
-    public function getCooltimeHandler(): CooltimeHandler{
+    public function getCooltimeHandler(): CooltimeHandler {
         return $this->cooltimeHandler;
     }
 
-    public function getPlayer(): ?Player{
+    public function getPlayer(): ?Player {
         return $this->player;
     }
 
-    public function getJob(): PlayerJob{
+    public function getJob(): PlayerJob {
         return $this->job;
     }
 
-    public function getDamage(): AbilityStatus{
+    public function getDamage(): AbilityStatus {
         return $this->damage;
     }
 
-    public function getArea(): AbilityStatus{
+    public function getArea(): AbilityStatus {
         return $this->area;
     }
 
-    public function getSpeed(): AbilityStatus{
+    public function getSpeed(): AbilityStatus {
         return $this->speed;
     }
 
-    public function getDuration(): AbilityStatus{
+    public function getDuration(): AbilityStatus {
         return $this->duration;
     }
 
-    public function getAmount(): AbilityStatus{
+    public function getAmount(): AbilityStatus {
         return $this->amount;
     }
 
-    public function getPercentage(): AbilityStatus{
+    public function getPercentage(): AbilityStatus {
         return $this->percentage;
     }
 
     abstract public function getCooltime(): int;
 
-    public function activate(): ActionResult{
-        if (!$this->closed){
-            if (!$this->cooltimeHandler->isActive()){
-                if (!$this->active){
-                    if ($this->getCooltime() > 0){
+    public function activate(): ActionResult {
+        if (!$this->closed) {
+            if (!$this->cooltimeHandler->isActive()) {
+                if (!$this->active) {
+                    if ($this->getCooltime() > 0) {
                         $this->cooltimeHandler->start($this->getCooltime());
                     }
-    
-                    return $this->onActivate();
+                    $result = $this->onActivate();
+
+                    if ($result->isMiss()) {
+                        $this->cooltimeHandler->stop();
+                    }
+
+                    return $result;
                 } else {
                     return ActionResult::FAILED_ALREADY_ACTIVE();
                 }
             } else {
                 return ActionResult::FAILED_BY_COOLTIME();
-            }   
+            }
         } else {
             throw new \Exception("cannot activate closed ability");
         }

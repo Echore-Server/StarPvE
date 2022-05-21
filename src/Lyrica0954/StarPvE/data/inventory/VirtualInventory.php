@@ -14,8 +14,10 @@ use pocketmine\event\HandlerListManager;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\inventory\Inventory;
 use pocketmine\inventory\SimpleInventory;
 use pocketmine\inventory\transaction\action\DropItemAction;
+use pocketmine\inventory\transaction\action\InventoryAction;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
@@ -65,6 +67,8 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 	 */
 	private bool $prepareOpen;
 
+	const TRANSFER_FLAG = 0;
+
 	public function __construct(Player $player, int $size = self::CHEST_SIZE, string $title = "Virtual Inventory") {
 		assert(
 			$size == self::CHEST_SIZE || $size == self::CHEST_LARGE_SIZE,
@@ -79,8 +83,6 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 		$this->size = $size;
 		$this->prepareOpen = false;
 		$this->opened = false;
-
-		Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
 	}
 
 	public function __destruct() {
@@ -91,32 +93,63 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 		return $this->opened;
 	}
 
+	public function getPlayer(): Player {
+		return $this->player;
+	}
+
 	public function onInventoryTransaction(InventoryTransactionEvent $event): void {
 		$trans = $event->getTransaction();
 		$player = $trans->getSource();
-		foreach ($trans->getInventories() as $inventory) {
-			if ($inventory instanceof VirtualInventory) {
-				foreach ($trans->getActions() as $action) {
-					if ($action instanceof SlotChangeAction) {
-						$result = $this->onSlotChangeAction($action->getSlot());
-						if (!$result) {
-							$event->cancel();
-						}
-					}
 
-					if ($action instanceof DropItemAction) {
-						$item = $action->getTargetItem();
-						$result = $this->onDropAction($item);
-						if (!$result) {
-							$event->cancel();
-						}
-					}
+		/**
+		 * @var (SlotChangeAction|null)[]
+		 */
+		$slotChangeContent = [
+			"from" => null,
+			"to" => null
+		];
+		$dropAction = null;
+		$actions = $trans->getActions();
+
+		foreach ($actions as $action) {
+			if (!$this->onRawAction($action)) {
+				$event->cancel();
+			}
+			if ($action instanceof SlotChangeAction) {
+				if (!$action->getTargetItem()->isNull()) {
+					$slotChangeContent["to"] = $action;
+				} else {
+					$slotChangeContent["from"] = $action;
 				}
+			}
+
+			if ($action instanceof DropItemAction) {
+				$dropAction = $action;
+			}
+		}
+
+		$slotChange = ($slotChangeContent["to"] !== null) && ($slotChangeContent["from"] !== null);
+		$drop = $dropAction !== null;
+		if ($slotChange) {
+			/**
+			 * @var SlotChangeAction[] $slotChangeContent
+			 */
+
+			$from = $slotChangeContent["from"];
+			$to = $slotChangeContent["to"];
+			if (!$this->onTransfer($from->getSlot(), $to->getSlot(), $from->getTargetItem(), $to->getTargetItem(), $from->getInventory(), $to->getInventory())) {
+				$event->cancel();
+			}
+		} elseif ($drop) {
+			if (!$this->onDropAction($dropAction->getTargetItem())) {
+				$event->cancel();
 			}
 		}
 	}
 
-	abstract protected function onSlotChangeAction(int $slot): bool;
+	abstract protected function onRawAction(InventoryAction $action): bool;
+
+	abstract protected function onTransfer(int $fromSlot, int $toSlot, Item $fromItem, Item $toItem, Inventory $from, Inventory $to): bool;
 
 	abstract protected function onDropAction(Item $item): bool;
 
@@ -156,6 +189,8 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 				$this->player->setCurrentWindow($this);
 				$this->opened = true;
 				$this->prepareOpen = false;
+
+				Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
 			} else {
 				$this->onClose($this->player);
 			}
@@ -177,6 +212,7 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 			$who->getNetworkSession()->sendDataPacket($pk, true);
 		}
 
+		HandlerListManager::global()->unregisterAll($this);
 
 		$this->virtualBlock = [];
 

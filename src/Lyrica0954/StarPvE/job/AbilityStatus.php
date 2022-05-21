@@ -16,17 +16,16 @@ class AbilityStatus {
 	 */
 	private array $modifiers;
 
-	public function __construct(float $original){
+	public function __construct(float $original) {
 		$this->original = $original;
-		$this->modifiers = [
-		];
+		$this->modifiers = [];
 	}
 
-	public function get(): float{
+	public function get(): float {
 		return ($this->original + array_sum($this->modifiers));
 	}
 
-	public function getDiff(): float{
+	public function getDiff(): float {
 		return array_sum($this->modifiers);
 	}
 
@@ -34,31 +33,35 @@ class AbilityStatus {
 		return $this->modifiers[$modifier] ?? 0.0;
 	}
 
+	public function setModifier(int $modifier, float $modify): void {
+		$this->modifiers[$modifier] = $modify;
+	}
+
 	public function getOriginal(): float {
 		return $this->original;
 	}
-	
-	public function add(float $add): void{
-		if (!isset($this->modifiers[self::MODIFIER_ADD])){
+
+	public function add(float $add): void {
+		if (!isset($this->modifiers[self::MODIFIER_ADD])) {
 			$this->modifiers[self::MODIFIER_ADD] = 0.0;
 		}
 		$this->modifiers[self::MODIFIER_ADD] += $add;
 	}
 
-	public function subtract(float $sub): void{
+	public function subtract(float $sub): void {
 		$this->add(-$sub);
 	}
 
-	public function multiply(float $m): void{
+	public function multiply(float $m): void {
 		$add = ($this->original * ($m - 1.0));
-		
-		if (!isset($this->modifiers[self::MODIFIER_MULTIPLY])){
+
+		if (!isset($this->modifiers[self::MODIFIER_MULTIPLY])) {
 			$this->modifiers[self::MODIFIER_MULTIPLY] = 0.0;
 		}
 		$this->modifiers[self::MODIFIER_MULTIPLY] += $add;
 	}
 
-	public function divide(float $d): void{
+	public function divide(float $d): void {
 		$m = (1 / $d);
 		$this->multiply($m);
 	}

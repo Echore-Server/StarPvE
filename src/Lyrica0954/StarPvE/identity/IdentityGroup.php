@@ -14,11 +14,11 @@ class IdentityGroup {
      */
     protected array $identities;
 
-    public function __construct(){
+    public function __construct() {
         $this->identities = [];
     }
 
-    public function add(Identity $identity): void{
+    public function add(Identity $identity): void {
         $this->identities[] = $identity;
     }
 
@@ -27,30 +27,30 @@ class IdentityGroup {
      * 
      * @return void
      */
-    public function addAll(array $list): void{
-        foreach($list as $identity){
+    public function addAll(array $list): void {
+        foreach ($list as $identity) {
             $this->add($identity);
         }
     }
 
-    public function reset(?Player $player = null): void{
-        foreach($this->identities as $identity){
-            if ($player instanceof Player ? $identity->isActivateableFor($player) : true){
+    public function reset(?Player $player = null): void {
+        foreach ($this->identities as $identity) {
+            if ($player instanceof Player ? $identity->isActivateableFor($player) : true) {
                 $identity->reset($player);
             }
         }
     }
 
-    public function apply(?Player $player = null): void{
-        foreach($this->identities as $identity){
-            if ($player instanceof Player ? $identity->isActivateableFor($player) : true){
+    public function apply(?Player $player = null): void {
+        foreach ($this->identities as $identity) {
+            if ($player instanceof Player ? $identity->isActivateableFor($player) : true) {
                 $identity->apply($player);
             }
         }
     }
 
-    public function close(): void{
-        foreach($this->identities as $identity){
+    public function close(): void {
+        foreach ($this->identities as $identity) {
             $identity->close();
         }
     }
@@ -60,39 +60,39 @@ class IdentityGroup {
      * 
      * @return void
      */
-    protected function setIdentities(array $identities): void{
+    protected function setIdentities(array $identities): void {
         $this->identities = $identities;
     }
 
     /**
      * @return Identity[]
      */
-    public function getAll(): array{
+    public function getAll(): array {
         return $this->identities;
     }
-    
+
     /**
      * @param Player $player
      * 
      * @return Identity[]
      */
-    public function getActive(Player $player): array{
+    public function getActive(Player $player): array {
         $active = [];
-        foreach($this->identities as $identity){
-            if ($identity->isActivateableFor($player)){
+        foreach ($this->identities as $identity) {
+            if ($identity->isActivateableFor($player)) {
                 $active[] = $identity;
             }
         }
         return $active;
     }
 
-    public function get(int $key): ?Identity{
+    public function get(int $key): ?Identity {
         return $this->identities[$key] ?? null;
     }
 
-    public function search(string $name): ?Identity{
-        foreach($this->identities as $identity){
-            if ($identity->getName() == $name){
+    public function search(string $name): ?Identity {
+        foreach ($this->identities as $identity) {
+            if ($identity->getName() == $name) {
                 return $identity;
             }
         }

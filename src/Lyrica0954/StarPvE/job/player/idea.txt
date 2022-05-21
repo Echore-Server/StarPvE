@@ -10,7 +10,7 @@ Magician(アビリティ、常時アビリティ) - Engineer(アビリティ、�
 
 
 
-想定している戦闘スタイル
+戦闘スタイル
 
 Fighter - 突っ込み
 Swordman - 突っ込み
@@ -19,3 +19,38 @@ Magician - 後衛で遠距離攻撃
 Engineer - 戦闘をサポート
 Healer - 味方をサポート
 Archer - 後衛で遠距離攻撃
+Tank - 前衛で耐久
+
+
+強み
+
+Fighter - 近接戦闘
+Swordman - 戦闘から離脱、中範囲の吹き飛ばし、ダメージ軽減
+Shaman - 高火力のダメージ、体力が多い敵でも対処できる
+Magician - 中距離攻撃
+Engineer - 長時間のエリアコントロール、敵を集めて攻撃しやすくする
+Healer - 回復
+Archer - 遠距離攻撃、短時間の強力なエリアコントロール
+Tank - 高い耐久力
+
+弱み
+
+Fighter - 戦闘からの離脱
+Swordman - スキルダメージが低い
+Shaman - スキルの扱いが難しい
+Magician - 戦闘からの離脱、低い耐久力
+Engineer - 低い火力
+Healer - 低い火力
+Archer - 近距離攻撃ができない、遠距離攻撃を当てるのが難しい
+Tank - 低い火力
+
+役割
+
+Fighter - 戦闘
+Swordman - 戦闘
+Shaman - 戦闘
+Magician - 戦闘
+Engineer - 防衛
+Healer - 支援[回復]
+Archer - 防衛/戦闘
+Tank - 支援[戦闘]

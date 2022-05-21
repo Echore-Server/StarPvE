@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player\swordman;
 
+use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
@@ -23,39 +24,39 @@ use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\network\mcpe\protocol\types\ParticleIds;
 use pocketmine\world\particle\ExplodeParticle;
 
-class ForceFieldSkill extends Skill{
+class ForceFieldSkill extends Skill {
 
-    public function getCooltime(): int{
+    public function getCooltime(): int {
         return (20 * 20);
     }
 
-    public function getName(): String{
+    public function getName(): String {
         return "フォースフィールド";
     }
 
-    public function getDescription(): String{
+    public function getDescription(): String {
         $area = DescriptionTranslator::number($this->area, "m");
         $damage = DescriptionTranslator::health($this->damage);
         return
-sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。', $area, $damage);
+            sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。', $area, $damage);
     }
 
-    protected function init(): void{
+    protected function init(): void {
         $this->damage = new AbilityStatus(6.0);
         $this->area = new AbilityStatus(9.0);
     }
 
-    protected function onActivate(): ActionResult{
+    protected function onActivate(): ActionResult {
         $particle = new SphereParticle($this->area->get(), 8.5, 8.5);
-        $particle->sendToPlayers($this->player->getWorld()->getPlayers(), $this->player->getPosition(), "minecraft:basic_flame_particle");
+        $particle->sendToPlayers($this->player->getWorld()->getPlayers(), $this->player->getPosition(), ParticleOption::spawnPacket("minecraft:basic_flame_particle", ""));
 
         PlayerUtil::broadcastSound($this->player->getPosition(), "block.false_permissions", 0.5);
 
-        foreach(EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity){
-            if (MonsterData::isMonster($entity)){
+        foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
+            if (MonsterData::isMonster($entity)) {
                 $xz = 6.0;
                 $y = 2.0;
-                if (MonsterData::equal($entity, MonsterData::ATTACKER)){
+                if (MonsterData::equal($entity, MonsterData::ATTACKER)) {
                     $xz = 2.0;
                     $y = 1.0;
                 }

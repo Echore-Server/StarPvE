@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 declare(strict_types=1);
 
@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\game;
 
 use Closure;
 use Lyrica0954\BossBar\BossBar;
+use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
@@ -46,7 +47,7 @@ use pocketmine\world\World;
 
 
 
-class Game implements CooltimeAttachable{
+class Game implements CooltimeAttachable {
     use CooltimeHolder;
 
     const STATUS_STARTING = 0;
@@ -71,8 +72,8 @@ class Game implements CooltimeAttachable{
 
     protected bool $closed;
 
-    public static function statusAsText(int $status){
-        $text = match($status) {
+    public static function statusAsText(int $status) {
+        $text = match ($status) {
             self::STATUS_STARTING => "§6[Starting]",
             self::STATUS_IDLE => "§a[Waiting]",
             self::STATUS_PLAYING => "§c[Playing]",
@@ -83,7 +84,7 @@ class Game implements CooltimeAttachable{
         return $text;
     }
 
-    public function __construct(World $world){
+    public function __construct(World $world) {
         $this->world = $world;
         $this->status = self::STATUS_PREPARE;
         $this->centerPos = new Position(-49.5, 48.6, -49.5, $world);
@@ -115,7 +116,6 @@ class Game implements CooltimeAttachable{
                 null,
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 2),
-                    new MonsterData(MonsterData::STRAY, 1)
                 ),
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 1),
@@ -147,7 +147,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ATTACKER, 1),
                     new MonsterData(MonsterData::ZOMBIE, 3)
                 )
-            ), 
+            ),
             3 => new WaveData(
                 $defaultTitleFormat,
                 null,
@@ -167,7 +167,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ATTACKER, 1),
                     new MonsterData(MonsterData::ZOMBIE, 2)
                 )
-            ), 
+            ),
             4 => new WaveData(
                 $defaultTitleFormat,
                 null,
@@ -186,10 +186,10 @@ class Game implements CooltimeAttachable{
                 new WaveMonsters(
                     new MonsterData(MonsterData::ZOMBIE, 3)
                 )
-            ), 
+            ),
             5 => new WaveData(
                 $defaultTitleFormat,
-                new CustomWaveStart(function (WaveController $wc){
+                new CustomWaveStart(function (WaveController $wc) {
                     $wc->getGame()->broadcastMessage("§l§cクリーパーの群れがレーン §e3 §cに接近中です！！");
                     $wc->getGame()->broadcastMessage("§l§cボスがレーン §e3 §cに出現しました！");
                 }),
@@ -217,7 +217,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ZOMBIE, 4),
                     new MonsterData(MonsterData::CREEPER, 1)
                 )
-            ), 
+            ),
             6 => new WaveData(
                 $defaultTitleFormat,
                 null,
@@ -242,7 +242,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::HUSK, 1),
                     new MonsterData(MonsterData::ATTACKER, 2),
                 )
-            ), 
+            ),
             7 => new WaveData(
                 $defaultTitleFormat,
                 null,
@@ -264,7 +264,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ZOMBIE, 5),
                     new MonsterData(MonsterData::HUSK, 1)
                 )
-            ), 
+            ),
             8 => new WaveData(
                 $defaultTitleFormat,
                 null,
@@ -288,7 +288,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ZOMBIE, 5),
                     new MonsterData(MonsterData::ATTACKER, 1)
                 )
-            ),  
+            ),
             9 => new WaveData(
                 $defaultTitleFormat,
                 null,
@@ -316,7 +316,7 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ATTACKER, 2),
                     new MonsterData(MonsterData::CREEPER, 7)
                 )
-            ),  
+            ),
             10 => new WaveData( #todo: boss
                 $defaultTitleFormat,
                 null,
@@ -345,12 +345,13 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::ZOMBIE, 3),
                     new MonsterData(MonsterData::ATTACKER, 2),
                     new MonsterData(MonsterData::CREEPER, 7),
-                    new MonsterData(MonsterData::SKELETON, 1)
+                    new MonsterData(MonsterData::SKELETON, 1),
+                    new MonsterData(MonsterData::STRAY, 1)
                 )
             ),
             11 => new WaveData(
                 $defaultTitleFormat,
-                new CustomWaveStart(function (WaveController $wc){
+                new CustomWaveStart(function (WaveController $wc) {
                     $wc->getGame()->broadcastMessage("§l§cハスクとクモの群れがレーン §e1 §cに接近中です！！");
                 }),
                 new WaveMonsters(
@@ -377,10 +378,10 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::CREEPER, 3),
                     new MonsterData(MonsterData::SKELETON, 3)
                 )
-            ), 
+            ),
             12 => new WaveData(
                 $defaultTitleFormat,
-                new CustomWaveStart(function (WaveController $wc){
+                new CustomWaveStart(function (WaveController $wc) {
                     $wc->getGame()->broadcastMessage("§l§cアタッカーとクリーパーの群れがレーン §e2 §cに接近中です！");
                     $wc->getGame()->broadcastMessage("§l§cゾンビの群れがレーン §e4 §cに接近中です！");
                 }),
@@ -409,117 +410,117 @@ class Game implements CooltimeAttachable{
                     new MonsterData(MonsterData::DEFENDER, 1),
                     new MonsterData(MonsterData::CREEPER, 3)
                 )
-            ), 
+            ),
         ]);
     }
 
-    public function getBossBar(): BossBar{
+    public function getBossBar(): BossBar {
         return $this->bossBar;
     }
 
-    public function getShop(): Shop{
+    public function getShop(): Shop {
         return $this->shop;
     }
 
-    public function getVillagerHealth(){
+    public function getVillagerHealth() {
         return $this->villager->getHealth();
     }
 
-    public function getVillager(): ?Villager{
+    public function getVillager(): ?Villager {
         return $this->villager;
     }
 
-    public function setVillagerHealth(float $health){
-        if ($health > $this->villager->getMaxHealth()){
-            $this->villager->setMaxHealth((integer) ceil($health));
+    public function setVillagerHealth(float $health) {
+        if ($health > $this->villager->getMaxHealth()) {
+            $this->villager->setMaxHealth((int) ceil($health));
         }
         $this->villager->setHealth($health);
     }
 
-    public function getStatus(){
+    public function getStatus() {
         return $this->status;
     }
 
-    public function isClosed(){
+    public function isClosed() {
         return $this->closed;
     }
 
-    public function getPlayers(){
+    public function getPlayers() {
         return $this->world->getPlayers();
     }
 
-    public function getWaveController(): WaveController{
+    public function getWaveController(): WaveController {
         return $this->waveController;
     }
 
-    public function hasMinPlayer(){
+    public function hasMinPlayer() {
         return count($this->getPlayers()) >= 1;
     }
 
-    public function getCenterPosition(){
+    public function getCenterPosition() {
         return $this->centerPos;
     }
 
-    public function getMaxPlayers(){
+    public function getMaxPlayers() {
         return $this->maxPlayers;
     }
 
-    public function setMaxPlayers(int $maxPlayers){
+    public function setMaxPlayers(int $maxPlayers) {
         $this->maxPlayers = $maxPlayers;
     }
 
-    public function canJoin(?Player $player){ #player引数を設定しているのはpartyゲームや追放機能追加のため
+    public function canJoin(?Player $player) { #player引数を設定しているのはpartyゲームや追放機能追加のため
         return !$this->closed && $this->status === self::STATUS_IDLE && count($this->getPlayers()) < $this->getMaxPlayers();
     }
 
-    public function broadcastMessage(string|Translatable $message){
-        foreach($this->getWorld()->getPlayers() as $player){
+    public function broadcastMessage(string|Translatable $message) {
+        foreach ($this->getWorld()->getPlayers() as $player) {
             $player->sendMessage($message);
         }
     }
 
-    public function broadcastActionBarMessage(string $message){
-        foreach($this->getWorld()->getPlayers() as $player){
+    public function broadcastActionBarMessage(string $message) {
+        foreach ($this->getWorld()->getPlayers() as $player) {
             $player->sendActionBarMessage($message);
         }
     }
 
-    public function broadcastTitle(string $title, string $subtitle = ""){
-        foreach($this->getWorld()->getPlayers() as $player){
+    public function broadcastTitle(string $title, string $subtitle = "") {
+        foreach ($this->getWorld()->getPlayers() as $player) {
             $player->sendTitle($title, $subtitle);
         }
     }
 
-    public function broadcastTip(string $message){
-        foreach($this->getWorld()->getPlayers() as $player){
+    public function broadcastTip(string $message) {
+        foreach ($this->getWorld()->getPlayers() as $player) {
             $player->sendTip($message);
         }
     }
 
-    public function onPlayerJoin(Player $player){
-        if ($player->getWorld() === $this->world){
+    public function onPlayerJoin(Player $player) {
+        if ($player->getWorld() === $this->world) {
             $this->log("§a{$player->getName()} has joined the game!");
             $this->broadcastMessage("§a{$player->getName()} がゲームに参加しました！");
         }
     }
 
-    public function onPlayerLeave(Player $player){
-        if ($player->getWorld() !== $this->world){
+    public function onPlayerLeave(Player $player) {
+        if ($player->getWorld() !== $this->world) {
             $this->log("§c{$player->getName()} has left the game");
             $this->broadcastMessage("§c{$player->getName()} がゲームから去りました");
 
-            if ($this->bossBar->isShowed($player)){
+            if ($this->bossBar->isShowed($player)) {
                 $this->bossBar->hideFromPlayer($player);
             }
         }
 
-        if (count($this->getPlayers()) <= 0 && !$this->canJoin(null) && !$this->closed){
-            $this->end(1*20);
+        if (count($this->getPlayers()) <= 0 && !$this->canJoin(null) && !$this->closed) {
+            $this->end(1 * 20);
         }
     }
-    
-    public function finishedPrepare(): void{
-        if ($this->status === self::STATUS_PREPARE){
+
+    public function finishedPrepare(): void {
+        if ($this->status === self::STATUS_PREPARE) {
             $this->log("§dGame Created!");
 
             $this->cooltimeHandler->start(20 * 20);
@@ -527,20 +528,20 @@ class Game implements CooltimeAttachable{
         }
     }
 
-    public function getWorld(): World{
+    public function getWorld(): World {
         return $this->world;
     }
 
-    public function closeEntities(){
-        foreach($this->world->getEntities() as $entity){
-            if (!($entity instanceof Player)){
+    public function closeEntities() {
+        foreach ($this->world->getEntities() as $entity) {
+            if (!($entity instanceof Player)) {
                 $entity->close();
             }
         }
     }
 
-    public function gameclear(): void{
-        foreach($this->getPlayers() as $player){
+    public function gameclear(): void {
+        foreach ($this->getPlayers() as $player) {
             PlayerUtil::playSound($player, "random.totem", volume: 0.5);
             PlayerUtil::reset($player);
             $player->sendTitle("§eGame Clear", "§7あなたは英雄です！");
@@ -553,17 +554,17 @@ class Game implements CooltimeAttachable{
         $this->end(11 * 20);
     }
 
-    public function gameover(): void{
+    public function gameover(): void {
         $step = 1.2;
         $pos = $this->getCenterPosition();
         $std = new \stdClass;
         $std->size = $step;
-        TaskUtil::repeatingClosureLimit(function() use($step, $std, $pos){
+        TaskUtil::repeatingClosureLimit(function () use ($step, $std, $pos) {
             $std->size += $step;
             $min = ($std->size - $step);
             $max = ($std->size + $step);
-            foreach(EntityUtil::getWithin($pos, $min, $max) as $entity){
-                if (!$entity instanceof Player){
+            foreach (EntityUtil::getWithin($pos, $min, $max) as $entity) {
+                if (!$entity instanceof Player) {
                     $source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_SUICIDE, 100000);
                     $entity->attack($source);
                 } else {
@@ -573,10 +574,10 @@ class Game implements CooltimeAttachable{
                     $entity->setMotion($dir->add(0, 0.4, 0));
                 }
             }
-            
-            (new SphereParticle($std->size, 8, 8, 360, -90, 0))->sendToPlayers($this->getWorld()->getPlayers(), $pos, "starpve:freeze_gas");
 
-            foreach($this->getWorld()->getPlayers() as $player){
+            (new SphereParticle($std->size, 8, 8, 360, -90, 0))->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:freeze_gas", ""));
+
+            foreach ($this->getWorld()->getPlayers() as $player) {
                 $anchor = VectorUtil::getNearestSpherePosition($player->getPosition(), $pos, $std->size);
                 $dist = $anchor->distance($player->getPosition());
                 #(new SingleParticle())->sendToPlayer($player, VectorUtil::insertWorld($anchor, $player->getWorld()), "minecraft:balloon_gas_particle");
@@ -585,8 +586,8 @@ class Game implements CooltimeAttachable{
                 PlayerUtil::playSound($player, "block.false_permissions", 0.2, $volume);
             }
         }, 2, 25);
-        TaskUtil::delayed(new ClosureTask(function(){
-            foreach($this->getPlayers() as $player){
+        TaskUtil::delayed(new ClosureTask(function () {
+            foreach ($this->getPlayers() as $player) {
                 PlayerUtil::reset($player);
                 PlayerUtil::playSound($player, "mob.evocation_illager.prepare_wololo", 1.0, 1.0);
                 GenericConfigAdapter::fetch($player)?->addInt(GenericConfigAdapter::GAME_LOST, 1);
@@ -594,16 +595,16 @@ class Game implements CooltimeAttachable{
                 JobConfigAdapter::fetchCurrent($player)?->addInt(JobConfigAdapter::GAME_LOST, 1);
                 JobConfigAdapter::fetchCurrent($player)?->addInt(JobConfigAdapter::PLAY_COUNT, 1);
             }
-    
+
             $this->end(15 * 20);
         }), 10 + (2 * 25));
 
         $this->log("§6Game Over...");
     }
 
-    public function end(int $closeDelay){
+    public function end(int $closeDelay) {
         $this->status = self::STATUS_ENDING;
-        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (){
+        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
             $this->closeEntities();
         }), 5);
 
@@ -612,19 +613,19 @@ class Game implements CooltimeAttachable{
 
         $this->breakCooltimeHandler();
 
-        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (){
+        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
             $this->close();
         }), max(6, $closeDelay));
     }
 
-    protected function close(){
+    protected function close() {
         $this->status = self::STATUS_IDLE;
         $this->closed = true;
 
         $this->bossBar->hide();
 
         $gameManager = StarPvE::getInstance()->getGameManager();
-        foreach($this->getPlayers() as $player){
+        foreach ($this->getPlayers() as $player) {
             $gamePlayer = $this->getGamePlayer($player);
             $gamePlayer?->leaveGame();
         }
@@ -632,11 +633,11 @@ class Game implements CooltimeAttachable{
         $this->log("§dSuccessfly Closed");
     }
 
-    protected function getGamePlayer(Player $player){
+    protected function getGamePlayer(Player $player) {
         return StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
     }
 
-    public function start(): void{
+    public function start(): void {
         $this->status = self::STATUS_STARTING;
         $this->log("Starting Game...");
 
@@ -648,7 +649,7 @@ class Game implements CooltimeAttachable{
 
         $this->closeEntities();
 
-        foreach($this->getPlayers() as $player){
+        foreach ($this->getPlayers() as $player) {
             $player->sendTitle("ゲームが開始されます");
             $this->getGamePlayer($player)?->refreshEquipment();
             PlayerUtil::give($player, ItemFactory::getInstance()->get(ItemIds::BOOK, 0, 1));
@@ -674,40 +675,40 @@ class Game implements CooltimeAttachable{
         $ev->call();
     }
 
-    protected function onStarted(): void{
+    protected function onStarted(): void {
         $this->status = self::STATUS_PLAYING;
 
         $this->log("§6Game Started!");
         $this->waveController->waveStart();
     }
 
-    public function log(string $message){
+    public function log(string $message) {
         $id = $this->world->getFolderName();
         StarPvE::getInstance()->log("§7[Game - {$id}] §7{$message}");
     }
 
-    public function cooltimeTick(CooltimeHandler $cooltimeHandler, int $remain): bool{
-        if ($cooltimeHandler->getId() === "Game Tick"){
-            if ($this->hasMinPlayer()){
-                if ($cooltimeHandler->getRemain() === $cooltimeHandler->getTime()){
+    public function cooltimeTick(CooltimeHandler $cooltimeHandler, int $remain): bool {
+        if ($cooltimeHandler->getId() === "Game Tick") {
+            if ($this->hasMinPlayer()) {
+                if ($cooltimeHandler->getRemain() === $cooltimeHandler->getTime()) {
                     $this->log("§7Players Ready!");
                 }
 
-                foreach($this->getPlayers() as $player){
-                    if ($cooltimeHandler->getRemain() === $cooltimeHandler->getTime()){
+                foreach ($this->getPlayers() as $player) {
+                    if ($cooltimeHandler->getRemain() === $cooltimeHandler->getTime()) {
                         PlayerUtil::playSound($player, "random.click", 0.75, 1.0);
                     }
                     $player->sendActionBarMessage("人数が揃いました！ 準備しています... (残り {$remain}秒 で開始)");
                 }
                 return true;
             } else {
-                if ($cooltimeHandler->getRemain() < $cooltimeHandler->getTime()){
+                if ($cooltimeHandler->getRemain() < $cooltimeHandler->getTime()) {
                     $this->broadcastActionBarMessage("キャンセルされました");
                 }
                 $cooltimeHandler->reset();
             }
-        } elseif ($cooltimeHandler->getId() === "Game Start Tick"){
-            foreach($this->getPlayers() as $player){
+        } elseif ($cooltimeHandler->getId() === "Game Start Tick") {
+            foreach ($this->getPlayers() as $player) {
                 $player->sendTitle("§r ", "§c- {$remain} -");
                 PlayerUtil::playSound($player, "note.bd", volume: 0.5); #名前指定引数！！いひーｗｗ
             }
@@ -718,11 +719,11 @@ class Game implements CooltimeAttachable{
     }
 
 
-    public function cooltimeFinished(CooltimeHandler $cooltimeHandler): void{
+    public function cooltimeFinished(CooltimeHandler $cooltimeHandler): void {
         $this->breakCooltimeHandler();
-        if ($cooltimeHandler->getId() === "Game Tick"){
+        if ($cooltimeHandler->getId() === "Game Tick") {
             $this->start();
-        } elseif ($cooltimeHandler->getId() === "Game Start Tick"){
+        } elseif ($cooltimeHandler->getId() === "Game Start Tick") {
             $this->onStarted();
         }
     }

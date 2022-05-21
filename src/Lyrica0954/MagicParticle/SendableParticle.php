@@ -13,21 +13,21 @@ use pocketmine\player\Player;
 use pocketmine\world\particle\Particle;
 use pocketmine\world\Position;
 
-abstract class SendableParticle implements DrawableParticle{
+abstract class SendableParticle implements DrawableParticle {
 
-    public function drawAsDelayed(Position $pos): array{
+    public function drawAsDelayed(Position $pos): array {
         return $this->draw($pos);
     }
-    
-    public function getPackets(Position $pos, string|Particle $particle): array{
+
+    public function getPackets(Position $pos, ParticleOption $option): array {
         $packets = [];
         $generator = $this->draw($pos);
-        foreach($generator as $particlePos){
-            if (is_string($particle)){
-                $pkt = SpawnParticleEffectPacket::create(DimensionIds::OVERWORLD, -1, $particlePos, $particle, "");
+        foreach ($generator as $particlePos) {
+            if (is_string($option->getParticle())) {
+                $pkt = SpawnParticleEffectPacket::create(DimensionIds::OVERWORLD, -1, $particlePos, $option->getParticle(), $option->getMolang());
                 $pk = [$pkt];
-            } elseif ($particle instanceof Particle) {
-                $pk = $particle->encode($particlePos);
+            } else {
+                $pk = $option->getParticle()->encode($particlePos);
             }
             $packets[] = $pk;
         }
@@ -35,10 +35,10 @@ abstract class SendableParticle implements DrawableParticle{
         return $packets;
     }
 
-    public function sendToPlayer(Player $player, Position $pos, string|Particle $particle){
-        foreach($this->getPackets($pos, $particle) as $packed){
-            foreach($packed as $pk){
-                if ($this->filter($player, $pk->position)){
+    public function sendToPlayer(Player $player, Position $pos, ParticleOption $option) {
+        foreach ($this->getPackets($pos, $option) as $packed) {
+            foreach ($packed as $pk) {
+                if ($this->filter($player, $pk->position)) {
                     $player->getNetworkSession()->addToSendBuffer($pk);
                 }
             }
@@ -52,12 +52,12 @@ abstract class SendableParticle implements DrawableParticle{
      * 
      * @return void
      */
-    public function sendToPlayers(array $players, Position $pos, string|Particle $particle): void{
-        foreach($this->getPackets($pos, $particle) as $packed){
-            foreach ($packed as $pk){
-                foreach($players as $player){
-                    if ($player instanceof Player){
-                        if ($this->filter($player, $pk->position)){
+    public function sendToPlayers(array $players, Position $pos, ParticleOption $option): void {
+        foreach ($this->getPackets($pos, $option) as $packed) {
+            foreach ($packed as $pk) {
+                foreach ($players as $player) {
+                    if ($player instanceof Player) {
+                        if ($this->filter($player, $pk->position)) {
                             $player->getNetworkSession()->addToSendBuffer($pk);
                         }
                     }
@@ -66,7 +66,7 @@ abstract class SendableParticle implements DrawableParticle{
         }
     }
 
-    protected function filter(Player $player, Vector3 $pos, float $maxRange = 20): ?Vector3{
-        return ($player->canInteract($pos, $maxRange, M_SQRT3/3)) ? $pos : null;
+    protected function filter(Player $player, Vector3 $pos, float $maxRange = 20): ?Vector3 {
+        return ($player->canInteract($pos, $maxRange, M_SQRT3 / 3)) ? $pos : null;
     }
-} 
+}

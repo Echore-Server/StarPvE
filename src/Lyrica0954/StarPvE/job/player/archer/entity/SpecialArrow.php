@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\job\player\archer\entity;
 
 use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\EmitterParticle;
+use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EffectGroup;
@@ -46,17 +47,17 @@ class SpecialArrow extends Arrow {
 	public int $duration = (8 * 20);
 	public int $period = 10;
 
-	public function getResultDamage(): int{
+	public function getResultDamage(): int {
 		$base = parent::getResultDamage();
 
-		if ($this->isCritical()){
+		if ($this->isCritical()) {
 			return ($base * 1.5);
 		} else {
 			return $base;
 		}
 	}
 
-	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult): void{
+	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult): void {
 		parent::onHitBlock($blockHit, $hitResult);
 		$this->pickupMode = self::PICKUP_NONE;
 		$face = $hitResult->getHitFace();
@@ -70,15 +71,24 @@ class SpecialArrow extends Arrow {
 		$this->activateFace = $face;
 		$this->activatePosition = $pos;
 		$this->activated = true;
+
+		if (($owning = $this->getOwningEntity()) instanceof Player) {
+			PlayerUtil::playSound($owning, "hit.nylium", 1.5, 1.0);
+			PlayerUtil::playSound($owning, "item.trident.riptide_1", 1.0, 0.5);
+		}
 	}
 
-	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult): void{
+	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult): void {
 		parent::onHitEntity($entityHit, $hitResult);
 		$effects = ($this->areaEffects ?? (new EffectGroup()));
 		$effects->apply($entityHit);
+
+		if (($owning = $this->getOwningEntity()) instanceof Player) {
+			PlayerUtil::playSound($owning, "hit.nylium", 1.5, 1.0);
+		}
 	}
 
-	protected function move(float $dx, float $dy, float $dz) : void{
+	protected function move(float $dx, float $dy, float $dz): void {
 		$this->blocksAround = null;
 
 		Timings::$entityMove->startTiming();
@@ -90,11 +100,11 @@ class SpecialArrow extends Arrow {
 		$entityHit = null;
 		$hitResult = null;
 
-		foreach(VoxelRayTrace::betweenPoints($start, $end) as $vector3){
+		foreach (VoxelRayTrace::betweenPoints($start, $end) as $vector3) {
 			$block = $this->getWorld()->getBlockAt($vector3->x, $vector3->y, $vector3->z);
 
 			$blockHitResult = $this->calculateInterceptWithBlock($block, $start, $end);
-			if($blockHitResult !== null){
+			if ($blockHitResult !== null) {
 				$end = $blockHitResult->hitVector;
 				$blockHit = $block;
 				$hitResult = $blockHitResult;
@@ -105,25 +115,25 @@ class SpecialArrow extends Arrow {
 		$entityDistance = PHP_INT_MAX;
 
 		$newDiff = $end->subtractVector($start);
-		foreach($this->getWorld()->getCollidingEntities($this->boundingBox->addCoord($newDiff->x, $newDiff->y, $newDiff->z)->expand(1, 1, 1), $this) as $entity){
-			if($entity->getId() === $this->getOwningEntityId() && $this->ticksLived < 5){
+		foreach ($this->getWorld()->getCollidingEntities($this->boundingBox->addCoord($newDiff->x, $newDiff->y, $newDiff->z)->expand(1, 1, 1), $this) as $entity) {
+			if ($entity->getId() === $this->getOwningEntityId() && $this->ticksLived < 5) {
 				continue;
 			}
 
-			if (!$this->canCollideWith($entity)){
+			if (!$this->canCollideWith($entity)) {
 				continue;
 			}
 
 			$entityBB = $entity->boundingBox->expandedCopy(0.3, 0.3, 0.3);
 			$entityHitResult = $entityBB->calculateIntercept($start, $end);
 
-			if($entityHitResult === null){
+			if ($entityHitResult === null) {
 				continue;
 			}
 
 			$distance = $this->location->distanceSquared($entityHitResult->hitVector);
 
-			if($distance < $entityDistance){
+			if ($distance < $entityDistance) {
 				$entityDistance = $distance;
 				$entityHit = $entity;
 				$hitResult = $entityHitResult;
@@ -139,31 +149,31 @@ class SpecialArrow extends Arrow {
 		);
 		$this->recalculateBoundingBox();
 
-		if($hitResult !== null){
+		if ($hitResult !== null) {
 			/** @var ProjectileHitEvent|null $ev */
 			$ev = null;
-			if($entityHit !== null){
+			if ($entityHit !== null) {
 				$ev = new ProjectileHitEntityEvent($this, $hitResult, $entityHit);
-			}elseif($blockHit !== null){
+			} elseif ($blockHit !== null) {
 				$ev = new ProjectileHitBlockEvent($this, $hitResult, $blockHit);
-			}else{
+			} else {
 				assert(false, "unknown hit type");
 			}
 
-			if($ev !== null){
+			if ($ev !== null) {
 				$ev->call();
 				$this->onHit($ev);
 
-				if($ev instanceof ProjectileHitEntityEvent){
+				if ($ev instanceof ProjectileHitEntityEvent) {
 					$this->onHitEntity($ev->getEntityHit(), $ev->getRayTraceResult());
-				}elseif($ev instanceof ProjectileHitBlockEvent){
+				} elseif ($ev instanceof ProjectileHitBlockEvent) {
 					$this->onHitBlock($ev->getBlockHit(), $ev->getRayTraceResult());
 				}
 			}
 
 			$this->isCollided = $this->onGround = true;
 			$this->motion = new Vector3(0, 0, 0);
-		}else{
+		} else {
 			$this->isCollided = $this->onGround = false;
 			$this->blockHit = null;
 
@@ -181,34 +191,34 @@ class SpecialArrow extends Arrow {
 		Timings::$entityMove->stopTiming();
 	}
 
-	protected function entityBaseTick(int $tickDiff = 1): bool{
+	protected function entityBaseTick(int $tickDiff = 1): bool {
 		$update = parent::entityBaseTick($tickDiff);
 
 		$min = EntityUtil::getCollisionMin($this);
 		$emitter = EmitterParticle::createEmitterForEntity($this, 0.1, 1);
 		$players = $this->getWorld()->getPlayers();
 		$pos = VectorUtil::insertWorld($min, $this->getWorld());
-		$emitter->sendToPlayers($players, $pos, "minecraft:falling_dust_red_sand_particle");
-		$emitter->sendToPlayers($players, $pos, "minecraft:falling_dust_sand_particle");
-		$emitter->sendToPlayers($players, $pos, "minecraft:falling_dust_top_snow_particle");
+		$emitter->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_red_sand_particle", ""));
+		$emitter->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_sand_particle", ""));
+		$emitter->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
 
-		if ($this->activated){
+		if ($this->activated) {
 			$vec = $this->activatePosition;
-			if ($vec instanceof Vector3){
+			if ($vec instanceof Vector3) {
 				$this->activeTick += $tickDiff;
 				$this->age += $tickDiff;
 				$this->particleTick += $tickDiff;
 
-				if ($this->age >= $this->duration){
+				if ($this->age >= $this->duration) {
 					$this->kill();
 				}
 
-				if ($this->activeTick >= $this->period){
+				if ($this->activeTick >= $this->period) {
 					$this->activeTick = 0;
 					PlayerUtil::broadcastSound($this, "damage.fallbig", 1.0, 0.3);
 
-					foreach(EntityUtil::getWithinRange($pos, $this->area) as $entity){
-						if (MonsterData::isMonster($entity) && $entity instanceof Living){
+					foreach (EntityUtil::getWithinRange($pos, $this->area) as $entity) {
+						if (MonsterData::isMonster($entity) && $entity instanceof Living) {
 							$effects = ($this->areaEffects ?? (new EffectGroup()));
 							$effects->apply($entity);
 							$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_PROJECTILE, $this->areaDamage, [], 0);
@@ -217,23 +227,21 @@ class SpecialArrow extends Arrow {
 					}
 				}
 
-				if ($this->particleTick >= 35){
+				if ($this->particleTick >= 35) {
 					$this->particleTick = 0;
 
 					$par = (new CircleParticle($this->area, 10, 0));
 					$pos = VectorUtil::insertWorld($vec, $this->getWorld());
-					$par->sendToPlayers($this->getWorld()->getPlayers(), $pos, "starpve:border_limit");
-					$par->sendToPlayers($this->getWorld()->getPlayers(), $pos, "minecraft:villager_happy");
-
+					$par->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:border_limit", ""));
+					$par->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:villager_happy", ""));
 				}
-
 			}
 		}
 
 		return $update;
 	}
 
-	public function canCollideWith(Entity $entity): bool{
+	public function canCollideWith(Entity $entity): bool {
 		return ($entity instanceof Living && (!$entity instanceof Player && !$entity instanceof Villager)) && !$this->onGround;
 	}
 }
