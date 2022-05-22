@@ -15,21 +15,25 @@ use Ramsey\Uuid\Type\Integer;
 
 final class GameCommand extends PluginCommandNoAuth {
 
-    public function canRunBy(): int{
-        return self::PLAYER;
-    }
+	public function canRunBy(): int {
+		return self::PLAYER | self::CONSOLE;
+	}
 
 
-    protected function run(CommandSender $sender, array $args): void{
-		if ($sender instanceof Player){
-			if (count($args) > 0){
+	protected function run(CommandSender $sender, array $args): void {
+		if (true) {
+			if (count($args) > 0) {
 				$sub = strtolower($args[0]);
-				
+
 				$manager = StarPvE::getInstance()->getGameManager();
-				$currentGame = $manager->getGameFromWorld($sender->getWorld());
-				switch($sub){
+				if ($sender instanceof Player) {
+					$currentGame = $manager->getGameFromWorld($sender->getWorld());
+				} else {
+					$currentGame = null;
+				}
+				switch ($sub) {
 					case "list":
-						foreach($manager->getGames() as $game){
+						foreach ($manager->getGames() as $game) {
 							$stat = Game::statusAsText($game->getStatus());
 							$players = count($game->getPlayers());
 							$max = $game->getMaxPlayers();
@@ -37,19 +41,23 @@ final class GameCommand extends PluginCommandNoAuth {
 						}
 						break;
 					case 'close':
-						if (count($args) > 1){
+						if (count($args) > 1) {
 							$gameSelector = strtolower($args[1]);
-							if ($gameSelector == "current"){
-								$currentGame->end(6);
-								$sender->sendMessage("§aゲームサービス {$currentGame->getWorld()->getFolderName()} をクローズしました");
-							} elseif ($gameSelector == "all"){
-								foreach($manager->getGames() as $game){
+							if ($gameSelector == "current") {
+								if ($currentGame instanceof Game) {
+									$currentGame->end(6);
+									$sender->sendMessage("§aゲームサービス {$currentGame->getWorld()->getFolderName()} をクローズしました");
+								} else {
+									$sender->sendMessage("§aあなたは現在ゲームにいません");
+								}
+							} elseif ($gameSelector == "all") {
+								foreach ($manager->getGames() as $game) {
 									$game->end(6);
 									$sender->sendMessage("§aゲームサービス {$game->getWorld()->getFolderName()} をクローズしました");
 								}
 							} else {
 								$game = $manager->getGame($gameSelector);
-								if ($game instanceof Game){
+								if ($game instanceof Game) {
 									$game->end(6);
 									$sender->sendMessage("§aゲームサービス {$game->getWorld()->getFolderName()} をクローズしました");
 								} else {
@@ -60,12 +68,12 @@ final class GameCommand extends PluginCommandNoAuth {
 						break;
 					case 'create':
 						$id = null;
-						if (count($args) > 1){
+						if (count($args) > 1) {
 							$id = $args[1];
-							if (strlen($id) !== mb_strlen($id, "utf-8")){
+							if (strlen($id) !== mb_strlen($id, "utf-8")) {
 								Messanger::error($sender, "ゲームIDに特殊文字は指定できません", "user");
 							} else {
-								if (strlen($id) <= 16){
+								if (strlen($id) <= 16) {
 									$manager->createNewGame($id);
 									$sender->sendMessage("§aゲーム {$id} を開始しました");
 								} else {
@@ -78,25 +86,24 @@ final class GameCommand extends PluginCommandNoAuth {
 						}
 						break;
 					case 'createcount':
-						if (count($args) > 1){
-							$count = (integer) $args[1];
+						if (count($args) > 1) {
+							$count = (int) $args[1];
 
-							for($i = 0; $i <= $count; $i++){
+							for ($i = 0; $i <= $count; $i++) {
 								$id = $manager->createNewGame(null);
 								$sender->sendMessage("§aゲーム {$id} を開始しました");
 							}
-
 						}
 						break;
 					case 'forcekick':
-						if (count($args) > 1){
+						if (count($args) > 1) {
 							$playerName = $args[1];
 							$player = $sender->getServer()->getPlayerExact($playerName);
-							if ($player instanceof Player){
+							if ($player instanceof Player) {
 								$gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
-								if ($gamePlayer instanceof GamePlayer){
+								if ($gamePlayer instanceof GamePlayer) {
 									$game = $gamePlayer->getGame();
-									if ($game instanceof Game){
+									if ($game instanceof Game) {
 										$id = $game->getWorld()->getFolderName();
 										$gamePlayer->leaveGame();
 										$sender->sendMessage("§aゲームプレイヤー {$player->getName()} を参加中のゲームサービス {$id} から強制退出させました");
@@ -111,5 +118,5 @@ final class GameCommand extends PluginCommandNoAuth {
 				}
 			}
 		}
-    }
+	}
 }

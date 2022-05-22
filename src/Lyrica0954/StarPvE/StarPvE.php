@@ -182,7 +182,6 @@ final class StarPvE extends PluginBase {
         $this->log("Registering Entities...");
         $this->registerEntities();
 
-        $this->log("Deleting Unused World...");
         $this->gameManager->deleteUnusedWorld();
 
         $this->log("Loading Commands...");

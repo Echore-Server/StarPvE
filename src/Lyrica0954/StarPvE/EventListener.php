@@ -187,6 +187,11 @@ class EventListener implements Listener {
         if ($block->getId() === 147) {
             $player->setMotion($player->getDirectionVector()->multiply(1.75));
         }
+
+        if ($player->isCreative()) {
+            $center = $player->getWorld()->getBlock($player->getPosition())->getPosition()->add(0.5, 0.0, 0.5);
+            $player->sendActionBarMessage("§bあなたがいるブロックの中心\n§fx: §c{$center->x} §fy: §a{$center->y} §fz: §9{$center->z}");
+        }
     }
 
     public function onPlayerQuit(\pocketmine\event\player\PlayerQuitEvent $event) {

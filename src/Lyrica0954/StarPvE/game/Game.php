@@ -19,6 +19,7 @@ use Lyrica0954\StarPvE\game\shop\content\ItemContent;
 use Lyrica0954\StarPvE\game\shop\content\SwordUpgradeContent;
 use Lyrica0954\StarPvE\game\shop\Shop;
 use Lyrica0954\StarPvE\game\stage\Lane;
+use Lyrica0954\StarPvE\game\stage\StageInfo;
 use Lyrica0954\StarPvE\game\wave\CustomWaveStart;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\game\wave\WaveData;
@@ -70,6 +71,8 @@ class Game implements CooltimeAttachable {
     public Lane $lane3;
     public Lane $lane4;
 
+    protected StageInfo $stageInfo;
+
     protected bool $closed;
 
     public static function statusAsText(int $status) {
@@ -77,17 +80,18 @@ class Game implements CooltimeAttachable {
             self::STATUS_STARTING => "§6[Starting]",
             self::STATUS_IDLE => "§a[Waiting]",
             self::STATUS_PLAYING => "§c[Playing]",
-            self::STATUS_ENDING => "§6[Ended]",
+            self::STATUS_ENDING => "§6[End]",
             self::STATUS_PREPARE => "§d[Prepare]",
             default => "Unknown"
         };
         return $text;
     }
 
-    public function __construct(World $world) {
+    public function __construct(World $world, StageInfo $stageInfo) {
         $this->world = $world;
+        $this->stageInfo = $stageInfo;
         $this->status = self::STATUS_PREPARE;
-        $this->centerPos = new Position(-49.5, 48.6, -49.5, $world);
+        $this->centerPos = Position::fromObject($stageInfo->getCenter(), $world);
         $this->villager = null;
 
         $this->bossBar = new BossBar("Monster Remain");
@@ -101,10 +105,10 @@ class Game implements CooltimeAttachable {
 
         $this->createCooltimeHandler("Game Tick", CooltimeHandler::BASE_SECOND, 1);
 
-        $this->lane1 = new Lane(new Position(-49.5, 48, -21.5, $world), $this->centerPos);
-        $this->lane2 = new Lane(new Position(-77.5, 48, -49.5, $world), $this->centerPos);
-        $this->lane3 = new Lane(new Position(-49.5, 48, -77.5, $world), $this->centerPos);
-        $this->lane4 = new Lane(new Position(-21.5, 48, -49.5, $world), $this->centerPos);
+        $this->lane1 = new Lane(Position::fromObject($stageInfo->getLane1(), $world), $this->centerPos);
+        $this->lane2 = new Lane(Position::fromObject($stageInfo->getLane2(), $world), $this->centerPos);
+        $this->lane3 = new Lane(Position::fromObject($stageInfo->getLane3(), $world), $this->centerPos);
+        $this->lane4 = new Lane(Position::fromObject($stageInfo->getLane4(), $world), $this->centerPos);
         $this->maxPlayers = 5;
 
         $this->closed = false;
@@ -522,10 +526,15 @@ class Game implements CooltimeAttachable {
     public function finishedPrepare(): void {
         if ($this->status === self::STATUS_PREPARE) {
             $this->log("§dGame Created!");
+            $this->log("§dStage: {$this->stageInfo->getName()}");
 
             $this->cooltimeHandler->start(20 * 20);
             $this->status = self::STATUS_IDLE;
         }
+    }
+
+    public function getStageInfo(): StageInfo {
+        return $this->stageInfo;
     }
 
     public function getWorld(): World {

@@ -24,30 +24,30 @@ class WaveMonsters {
      */
     private array $monsters;
 
-    public function __construct(MonsterData ...$monsters){
+    public function __construct(MonsterData ...$monsters) {
         $this->monsters = $monsters;
     }
 
     /**
      * @return MonsterData[]
      */
-    public function getAll(): array{
+    public function getAll(): array {
         return $this->monsters;
     }
 
-    public function log(string $message){
+    public function log(string $message) {
         StarPvE::getInstance()->log("§7[WaveMonsters] {$message}");
     }
 
-    public function spawnToAll(Position $pos, array $attributeMap, array $equipmentMap, \Closure $hook = null){
-        foreach($this->monsters as $monster){
+    public function spawnToAll(Position $pos, array $attributeMap, array $equipmentMap, \Closure $hook = null) {
+        foreach ($this->monsters as $monster) {
             $class = $monster->name;
             $time = 90 * 20;
-            $period = (integer) floor($time / $monster->count);
+            $period = (int) floor($time / $monster->count);
             $attribute = $attributeMap[$class];
             $equipment = $equipmentMap[$class];
-            StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask(new class($monster, $pos, $attribute, $equipment, $hook) extends Task{
-                
+            StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask(new class($monster, $pos, $attribute, $equipment, $hook) extends Task {
+
                 private MonsterData $monster;
                 private MonsterAttribute $attribute;
                 private ArmorSet $equipment;
@@ -55,7 +55,7 @@ class WaveMonsters {
                 private ?\Closure $hook;
                 private int $count;
 
-                public function __construct(MonsterData $monster, Position $pos, MonsterAttribute $attribute, ArmorSet $equipment, ?\Closure $hook){
+                public function __construct(MonsterData $monster, Position $pos, MonsterAttribute $attribute, ArmorSet $equipment, ?\Closure $hook) {
                     $this->monster = $monster;
                     $this->attribute = $attribute;
                     $this->equipment = $equipment;
@@ -64,32 +64,37 @@ class WaveMonsters {
                     $this->count = 0;
                 }
 
-                public function onRun(): void{
-                    if ($this->pos->world !== null && $this->pos->world?->isLoaded()){
-                        $this->count ++;
+                public function onRun(): void {
+                    if ($this->pos->world !== null && $this->pos->world?->isLoaded()) {
+                        $this->count++;
                         $class = $this->monster->name;
                         $loc = new Location($this->pos->x, $this->pos->y, $this->pos->z, $this->pos->getWorld(), 0, 0);
                         $entity = new $class($loc);
-                        if ($entity instanceof Entity){
+                        if ($entity instanceof Entity) {
                             $size = $entity->size;
                             $this->attribute->apply($entity);
                             $this->equipment->setUnbreakable(true);
                             $this->equipment->equip($entity);
-                            $defAnimation = new SpawnAnimation(function(){return false;}, 1);
-                            $defAnimation->setInitiator(function(Living $entity){
+                            $defAnimation = new SpawnAnimation(function () {
+                                return false;
+                            }, 1);
+                            $defAnimation->setInitiator(function (Living $entity) {
                                 $pos = $entity->getPosition();
-                                $d = (2.0 - ($entity->size->getWidth()));
+                                $d = (1.5 - ($entity->size->getWidth()));
+                                if ($d < 0) {
+                                    $d = 0;
+                                }
                                 $pos->x += RandomUtil::rand_float(-$d, $d);
                                 $pos->z += RandomUtil::rand_float(-$d, $d);
                                 $entity->teleport($pos);
                             });
                             $animation = $this->monster->animation ?? $defAnimation;
                             $animation->spawn($entity);
-                            if ($this->hook !== null){
+                            if ($this->hook !== null) {
                                 $h = $this->hook;
                                 $h($entity);
                             }
-                            if ($this->count >= $this->monster->count){
+                            if ($this->count >= $this->monster->count) {
                                 $this->getHandler()->cancel();
                                 StarPvE::getInstance()->log("§7[WaveMonsters] Removed Monster Spawner: Successfly Spawned");
                             }
