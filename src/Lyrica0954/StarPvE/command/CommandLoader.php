@@ -12,5 +12,8 @@ class CommandLoader {
         new HubCommand("hub", $p, $p);
         new GameCommand("game", $p, $p);
         new TestCommand("test", $p, $p);
+        new PlayerStatusCommand("stats", $p, $p);
+
+        new TaskInfoCommand("taskinfo", $p, $p);
     }
 }

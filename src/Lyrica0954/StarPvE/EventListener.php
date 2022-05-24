@@ -188,7 +188,7 @@ class EventListener implements Listener {
             $player->setMotion($player->getDirectionVector()->multiply(1.75));
         }
 
-        if ($player->isCreative()) {
+        if ($player->isCreative(true)) {
             $center = $player->getWorld()->getBlock($player->getPosition())->getPosition()->add(0.5, 0.0, 0.5);
             $player->sendActionBarMessage("§bあなたがいるブロックの中心\n§fx: §c{$center->x} §fy: §a{$center->y} §fz: §9{$center->z}");
         }

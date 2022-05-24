@@ -564,7 +564,7 @@ class Game implements CooltimeAttachable {
     }
 
     public function gameover(): void {
-        $step = 1.2;
+        $step = 0.8;
         $pos = $this->getCenterPosition();
         $std = new \stdClass;
         $std->size = $step;
@@ -594,7 +594,7 @@ class Game implements CooltimeAttachable {
                 $volume = max(0, 1.0 - ($dist / 12));
                 PlayerUtil::playSound($player, "block.false_permissions", 0.2, $volume);
             }
-        }, 2, 25);
+        }, 2, 38);
         TaskUtil::delayed(new ClosureTask(function () {
             foreach ($this->getPlayers() as $player) {
                 PlayerUtil::reset($player);
@@ -606,7 +606,7 @@ class Game implements CooltimeAttachable {
             }
 
             $this->end(15 * 20);
-        }), 10 + (2 * 25));
+        }), 10 + (2 * 38));
 
         $this->log("§6Game Over...");
     }

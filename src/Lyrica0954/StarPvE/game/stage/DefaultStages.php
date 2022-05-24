@@ -6,7 +6,9 @@ namespace Lyrica0954\StarPvE\game\stage;
 
 class DefaultStages {
 
-	const CASTLE = "castle";
+	const CASTLE = "Castle";
 
-	const LABORATORY = "laboratory";
+	const LABORATORY = "Laboratory";
+
+	const STAIR = "Stair";
 }

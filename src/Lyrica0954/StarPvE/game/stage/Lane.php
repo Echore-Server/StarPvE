@@ -39,9 +39,6 @@ class Lane {
         $this->lastBlocks = [];
         $this->start = $start;
         $this->end = $end;
-
-        $this->start->y = $this->end->y;
-
         #$this->addRepeatingTask(new ClosureTask(function (){
         #    $this->updateLaneState();
         #}), 1);

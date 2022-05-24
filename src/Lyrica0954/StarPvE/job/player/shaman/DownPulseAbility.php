@@ -51,12 +51,6 @@ class DownPulseAbility extends Ability implements Listener {
 		return $this->effected;
 	}
 
-	public function __construct(PlayerJob $playerJob) {
-		parent::__construct($playerJob);
-
-		Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
-	}
-
 	protected function init(): void {
 		$this->damage = new AbilityStatus(1.25);
 		$this->area = new AbilityStatus(4.0);

@@ -61,25 +61,26 @@ abstract class PlayerJob extends Job {
         $this->identityGroup->apply($player);
         $this->action = new ActionListManager();
         $this->lastActionUpdate = 0;
-        $this->actionTask = TaskUtil::repeatingClosure(function () use ($player) {
-            if ($player instanceof Player) {
-                $changed = $this->action->hasChanged();
-                $this->action->update(1);
-                #print_r($this->action->getSorted());
-                if ($changed || Server::getInstance()->getTick() - $this->lastActionUpdate >= 40) {
-                    $this->lastActionUpdate = Server::getInstance()->getTick();
-
-                    $player->sendTip($this->action->getText());
-                }
-
-                #$player->sendMessage($this->action->hasChanged() ? "true" : "false");
-            }
-        }, 1);
         if ($player instanceof Player) {
             $this->cooltimeNotifier = new CooltimeNotifier($player);
             $this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
             $this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
             $this->cooltimeNotifier->start();
+
+            $this->actionTask = TaskUtil::repeatingClosure(function () use ($player) {
+                if ($player instanceof Player) {
+                    $changed = $this->action->hasChanged();
+                    $this->action->update(1);
+                    #print_r($this->action->getSorted());
+                    if ($changed || Server::getInstance()->getTick() - $this->lastActionUpdate >= 40) {
+                        $this->lastActionUpdate = Server::getInstance()->getTick();
+
+                        $player->sendTip($this->action->getText());
+                    }
+
+                    #$player->sendMessage($this->action->hasChanged() ? "true" : "false");
+                }
+            }, 1);
         }
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\stage;
 
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use pocketmine\math\Vector3;
 use pocketmine\utils\SingletonTrait;
 
@@ -27,7 +28,8 @@ class StageFactory {
 				new Vector3(-49.5, 48, -77.5),
 				new Vector3(-21.5, 48, -49.5),
 				"map",
-				"Lyrica0954"
+				"Lyrica0954",
+				new IdentityGroup
 			)
 		);
 
@@ -40,7 +42,22 @@ class StageFactory {
 				new Vector3(23.5, 55, 1.5),
 				new Vector3(1.5, 55, 23.5),
 				"map_1",
-				"Lyrica0954"
+				"Lyrica0954",
+				new IdentityGroup
+			)
+		);
+
+		$this->register(
+			new StageInfo(
+				DefaultStages::STAIR,
+				new Vector3(0.5, 101.6, 0.5),
+				new Vector3(37.5, 81, 1.5),
+				new Vector3(37.5, 81, -0.5),
+				new Vector3(39.5, 81, -0.5),
+				new Vector3(39.5, 81, 1.5),
+				"map_2",
+				"Lyrica0954",
+				new IdentityGroup
 			)
 		);
 	}

@@ -10,6 +10,7 @@ use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\command\CommandSender;
+use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
 use Ramsey\Uuid\Type\Integer;
 
@@ -19,6 +20,10 @@ final class GameCommand extends PluginCommandNoAuth {
 		return self::PLAYER | self::CONSOLE;
 	}
 
+	protected function init(): void {
+		$this->setDescription("ゲームサービスの管理");
+		$this->setPermission(DefaultPermissions::ROOT_OPERATOR);
+	}
 
 	protected function run(CommandSender $sender, array $args): void {
 		if (true) {

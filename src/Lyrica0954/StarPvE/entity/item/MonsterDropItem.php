@@ -21,10 +21,24 @@ class MonsterDropItem extends ItemEntity {
     private float $soundPitch = 1.0;
     private float $soundVolume = 1.0;
 
+    protected bool $pickup = false;
+
     public function setSound(string $soundName, float $soundPitch, float $soundVolume) {
         $this->soundName = $soundName;
         $this->soundPitch = $soundPitch;
         $this->soundVolume = $soundVolume;
+    }
+
+    protected function onDispose(): void {
+        $owning = $this->getOwningEntity();
+        if ($owning instanceof Player) {
+            if ($this->getWorld() === $owning->getWorld()) {
+                if (!$this->pickup) {
+                    PlayerUtil::give($owning, $this->getItem());
+                }
+            }
+        }
+        parent::onDispose();
     }
 
     public function onCollideWithPlayer(Player $player): void {
@@ -38,6 +52,8 @@ class MonsterDropItem extends ItemEntity {
         }
 
         PlayerUtil::playSound($player, $this->soundName, $this->soundPitch, $this->soundVolume);
+
+        $this->pickup = true;
 
         parent::onCollideWithPlayer($player);
     }

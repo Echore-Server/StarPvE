@@ -79,7 +79,7 @@ class WaveMonsters {
                                 return false;
                             }, 1);
                             $defAnimation->setInitiator(function (Living $entity) {
-                                $pos = $entity->getPosition();
+                                $pos = clone $this->pos;
                                 $d = (1.5 - ($entity->size->getWidth()));
                                 if ($d < 0) {
                                     $d = 0;

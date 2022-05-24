@@ -236,9 +236,43 @@ class WaveController implements CooltimeAttachable, Listener {
                 $ldc = $entity->getLastDamageCauseByPlayer();
                 $ldcI = $entity->getLastDamageCause();
                 if ($ldcI?->getCause() !== EntityDamageEvent::CAUSE_SUICIDE) {
+                    $drops = $this->monsterDrops[$entity::class] ?? [];
+
+                    #$particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
+                    #$entity->getWorld()->addParticle($entity->getPosition()->add(0, 0.1, 0), $particle);
+
+                    $par = new SingleParticle();
+                    $pp = $entity->getPosition();
+                    $pp->y += 1.5;
+                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $pp, ParticleOption::spawnPacket("starpve:totem_jet_particle", ""));
+
+                    foreach ($drops as $item) {
+                        $motion = new Vector3(
+                            RandomUtil::rand_float(-0.12, 0.12),
+                            RandomUtil::rand_float(0.2, 0.45),
+                            RandomUtil::rand_float(-0.12, 0.12)
+                        );
+
+                        $loc = $entity->getLocation();
+                        $loc->yaw = lcg_value() * 360;
+                        $loc->pitch = 0;
+                        $dropItemEntity = new MonsterDropItem($loc, clone $item);
+                        $dropItemEntity->setMotion($motion);
+                        $dropItemEntity->setPickupDelay(8);
+                        if ($item->getId() === ItemIds::BREAD) {
+                            $dropItemEntity->setSound("block.beehive.enter", 0.9, 0.5);
+                        } else {
+                            $dropItemEntity->setSound("step.amethyst_block", 2.0, 1.0);
+                        }
+
+                        $dropItemEntity->spawnToAll();
+                    }
+
                     if ($ldc instanceof EntityDamageByEntityEvent) {
-                        $damager = $ldc->getdamager();
+                        $damager = $ldc->getDamager();
                         if ($damager instanceof Player) {
+                            $dropItemEntity->setOwningEntity($damager);
+
                             PlayerUtil::playSound($damager, "random.orb", 1.0, 0.8);
 
                             $waveBase = 1 + floor(($this->wave - 1) / 2);
@@ -279,37 +313,6 @@ class WaveController implements CooltimeAttachable, Listener {
                             #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
                             #$entity->setScoreTag("§a+§l{$gainExp}§r§fexp §7(§a{$exp}§f/§a{$nextExp}§7)");   
                         }
-                    }
-                    $drops = $this->monsterDrops[$entity::class] ?? [];
-
-                    #$particle = new BlockBreakParticle(BlockFactory::getInstance()->get(ItemIds::REDSTONE_BLOCK, 0));
-                    #$entity->getWorld()->addParticle($entity->getPosition()->add(0, 0.1, 0), $particle);
-
-                    $par = new SingleParticle();
-                    $pp = $entity->getPosition();
-                    $pp->y += 1.5;
-                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $pp, ParticleOption::spawnPacket("starpve:totem_jet_particle", ""));
-
-                    foreach ($drops as $item) {
-                        $motion = new Vector3(
-                            RandomUtil::rand_float(-0.12, 0.12),
-                            RandomUtil::rand_float(0.2, 0.45),
-                            RandomUtil::rand_float(-0.12, 0.12)
-                        );
-
-                        $loc = $entity->getLocation();
-                        $loc->yaw = lcg_value() * 360;
-                        $loc->pitch = 0;
-                        $dropItemEntity = new MonsterDropItem($loc, clone $item);
-                        $dropItemEntity->setMotion($motion);
-                        $dropItemEntity->setPickupDelay(8);
-                        if ($item->getId() === ItemIds::BREAD) {
-                            $dropItemEntity->setSound("block.beehive.enter", 0.9, 0.5);
-                        } else {
-                            $dropItemEntity->setSound("step.amethyst_block", 2.0, 1.0);
-                        }
-
-                        $dropItemEntity->spawnToAll();
                     }
                 }
 

@@ -12,8 +12,15 @@ use pocketmine\scheduler\TaskHandler;
 
 class TaskUtil {
 
+	/**
+	 * @var TaskHandler[]
+	 */
+	protected static array $list = [];
+
 	public static function delayed(Task $task, int $delay): TaskHandler {
-		return StarPvE::getInstance()->getScheduler()->scheduleDelayedTask($task, $delay);
+		$handler = StarPvE::getInstance()->getScheduler()->scheduleDelayedTask($task, $delay);
+		self::$list[] = $handler;
+		return $handler;
 	}
 
 	public static function repeatingClosure(\Closure $closure, int $period): TaskHandler {
@@ -22,7 +29,30 @@ class TaskUtil {
 	}
 
 	public static function repeating(Task $task, int $period): TaskHandler {
-		return StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($task, $period);
+		$handler = StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($task, $period);
+		self::$list[] = $handler;
+		return $handler;
+	}
+
+	/**
+	 * @return TaskHandler[]
+	 */
+	public static function getHandled(): array {
+		return self::$list;
+	}
+
+	/**
+	 * @return TaskHandler[]
+	 */
+	public static function getRunning(): array {
+		$running = [];
+		foreach (self::$list as $handler) {
+			if (!$handler->isCancelled()) {
+				$running[] = $handler;
+			}
+		}
+
+		return $running;
 	}
 
 	public static function repeatingClosureLimit(\Closure $closure, int $period, int $limit): TaskHandler {
@@ -67,6 +97,7 @@ class TaskUtil {
 				$check = ($this->checker)();
 				if ($check === false) {
 					$this->getHandler()->cancel();
+					return;
 				}
 
 				($this->closure)();

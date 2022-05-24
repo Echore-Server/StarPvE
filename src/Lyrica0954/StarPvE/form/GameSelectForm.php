@@ -6,8 +6,10 @@ namespace Lyrica0954\StarPvE\form;
 
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\StarPvE;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 
 class GameSelectForm implements Form {
@@ -36,7 +38,7 @@ class GameSelectForm implements Form {
         ];
         return [
             "type" => "form",
-            "title" => "§a§lゲームセレクト",
+            "title" => "ゲームサービス >> 一覧",
             "content" => "",
             "buttons" => $buttons
         ];
@@ -45,16 +47,10 @@ class GameSelectForm implements Form {
     public function handleResponse(Player $player, $data): void {
         if ($data !== null) {
             if (($game = (array_values($this->games)[$data] ?? null)) !== null) {
-                if ($game->canJoin($player)) {
-                    $gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
-                    if (($gamePlayer = $gamePlayerManager->getGamePlayer($player)) !== null) {
-                        $gamePlayer->joinGame($game);
-                    } else {
-                        $player->sendMessage("§cエラー: ゲームに参加できませんでした");
-                    }
-                } else {
-                    $player->sendMessage("§cこのゲームには参加できません");
-                }
+                TaskUtil::delayed(new ClosureTask(function () use ($player, $game) {
+                    $form = new GameInformationForm($game);
+                    $player->sendForm($form);
+                }), 1);
             } else {
                 if ($data == (count($this->games))) {
                     $games = StarPvE::getInstance()->getGameManager()->getGames();

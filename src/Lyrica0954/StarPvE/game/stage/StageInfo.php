@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\stage;
 
+use Lyrica0954\StarPvE\identity\IdentityGroup;
 use pocketmine\math\Vector3;
 
 class StageInfo {
@@ -24,6 +25,8 @@ class StageInfo {
 
 	protected string $author;
 
+	protected IdentityGroup $identityGroup;
+
 	public function __construct(
 		string $name,
 		Vector3 $center,
@@ -32,7 +35,8 @@ class StageInfo {
 		Vector3 $lane3,
 		Vector3 $lane4,
 		string $worldName,
-		string $author
+		string $author,
+		IdentityGroup $identityGroup
 	) {
 		$this->name = $name;
 		$this->center = $center;
@@ -42,27 +46,7 @@ class StageInfo {
 		$this->lane4 = $lane4;
 		$this->worldName = $worldName;
 		$this->author = $author;
-	}
-
-	public static function parseData(array $json): self {
-		return new StageInfo(
-			$json["name"],
-			self::solveVector3($json["center"]),
-			self::solveVector3($json["lane1"]),
-			self::solveVector3($json["lane2"]),
-			self::solveVector3($json["lane3"]),
-			self::solveVector3($json["lane4"]),
-			$json["worldName"],
-			$json["author"]
-		);
-	}
-
-	public static function solveVector3(array $json): Vector3 {
-		return new Vector3(
-			$json["x"],
-			$json["y"],
-			$json["z"]
-		);
+		$this->identityGroup = $identityGroup;
 	}
 
 	public function getName(): string {
@@ -95,5 +79,9 @@ class StageInfo {
 
 	public function getAuthor(): string {
 		return $this->author;
+	}
+
+	public function getIdentityGroup(): IdentityGroup {
+		return $this->identityGroup;
 	}
 }
