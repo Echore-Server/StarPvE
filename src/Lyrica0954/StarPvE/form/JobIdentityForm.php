@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\form;
 
 use Lyrica0954\StarPvE\identity\Identity;
+use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\utils\Messanger;
 use pocketmine\form\Form;
@@ -26,7 +27,7 @@ class JobIdentityForm implements Form {
 		$activateableIdentity = [];
 		$identityCount = count($identityGroup->getAll());
 		foreach ($identityGroup->getAll() as $identity) {
-			$activateable = $identity->isActivateableFor($this->player);
+			$activateable = $identity->isApplicable();
 			$activateableIdentity[] = $identity;
 			$desc = $activateable ? "§a有効" : "§c無効";
 			$buttons[] = [
@@ -47,9 +48,9 @@ class JobIdentityForm implements Form {
 	public function handleResponse(Player $player, $data): void {
 		if ($data !== null) {
 			$identity = $this->identities[$data] ?? null;
-			if ($identity instanceof Identity) {
+			if ($identity instanceof JobIdentity) {
 				Messanger::talk($player, "職業", "§cこの特性を有効するには以下の条件を満たす必要があります");
-				Messanger::condition($player, $identity->getActivateCondition());
+				Messanger::condition($player, $identity->getCondition());
 			}
 		}
 	}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\stage;
 
+use Lyrica0954\StarPvE\game\identity\AmpMonsterHealthArgIdentity;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use pocketmine\math\Vector3;
 use pocketmine\utils\SingletonTrait;
@@ -47,6 +48,13 @@ class StageFactory {
 			)
 		);
 
+		$ident = new IdentityGroup;
+		$list = [
+			new AmpMonsterHealthArgIdentity(2.0)
+		];
+
+		$ident->addAll($list);
+
 		$this->register(
 			new StageInfo(
 				DefaultStages::STAIR,
@@ -57,7 +65,7 @@ class StageFactory {
 				new Vector3(39.5, 81, 1.5),
 				"map_2",
 				"Lyrica0954",
-				new IdentityGroup
+				$ident
 			)
 		);
 	}

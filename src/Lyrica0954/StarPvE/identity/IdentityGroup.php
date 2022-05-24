@@ -33,18 +33,31 @@ class IdentityGroup {
         }
     }
 
-    public function reset(?Player $player = null): void {
-        foreach ($this->identities as $identity) {
-            if ($player instanceof Player ? $identity->isActivateableFor($player) : true) {
-                $identity->reset($player);
+    /**
+     * @param (Identity|null)[] $list
+     * 
+     * @return void
+     */
+    public function addAllSafe(array $list): void {
+        foreach ($list as $identity) {
+            if ($identity instanceof Identity) {
+                $this->add($identity);
             }
         }
     }
 
-    public function apply(?Player $player = null): void {
+    public function reset(): void {
         foreach ($this->identities as $identity) {
-            if ($player instanceof Player ? $identity->isActivateableFor($player) : true) {
-                $identity->apply($player);
+            if ($identity->isApplicable()) {
+                $identity->reset();
+            }
+        }
+    }
+
+    public function apply(): void {
+        foreach ($this->identities as $identity) {
+            if ($identity->isApplicable()) {
+                $identity->apply();
             }
         }
     }
@@ -76,14 +89,14 @@ class IdentityGroup {
      * 
      * @return Identity[]
      */
-    public function getActive(Player $player): array {
-        $active = [];
+    public function getApplicable(): array {
+        $applicable = [];
         foreach ($this->identities as $identity) {
-            if ($identity->isActivateableFor($player)) {
-                $active[] = $identity;
+            if ($identity->isApplicable()) {
+                $applicable[] = $identity;
             }
         }
-        return $active;
+        return $applicable;
     }
 
     public function get(int $key): ?Identity {

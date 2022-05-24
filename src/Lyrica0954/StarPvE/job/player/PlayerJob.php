@@ -58,7 +58,7 @@ abstract class PlayerJob extends Job {
         $this->ability = $this->getInitialAbility();
         $this->skill = $this->getInitialSkill();
         $this->identityGroup = $this->getInitialIdentityGroup();
-        $this->identityGroup->apply($player);
+        $this->identityGroup->apply();
         $this->action = new ActionListManager();
         $this->lastActionUpdate = 0;
         if ($player instanceof Player) {
@@ -89,7 +89,7 @@ abstract class PlayerJob extends Job {
         $this->skill->close();
         $this->cooltimeNotifier->stop();
 
-        $this->identityGroup->reset($this->player);
+        $this->identityGroup->reset();
 
         $this->identityGroup->close();
 

@@ -13,48 +13,23 @@ use pocketmine\player\Player;
 use pocketmine\Server;
 
 abstract class Identity {
-    
-    protected ?Condition $activateCondition;
 
-    public function close(): void{
+    public function close(): void {
         if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
     }
 
-    protected function registerEvent(): void{
+    protected function registerEvent(): void {
         if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
     }
 
-    public static function setCondition(Identity $identity, ?Condition $condition): Identity{
-        $identity->setActivateCondition($condition);
-        return $identity;
+    public function __construct() {
     }
 
-    public function __construct(){
-        $this->activateCondition = null;
-    }
+    abstract public function apply(): void;
 
-    public function setActivateCondition(?Condition $condition){
-        $this->activateCondition = $condition;
-    }
+    abstract public function reset(): void;
 
-    public function getActivateCondition(): ?Condition{
-        return $this->activateCondition;
-    }
-
-    abstract public function apply(?Player $player): void;
-
-    abstract public function reset(?Player $player): void;
-
-    public function isActivateableFor(Player $player): bool{
-        $condition = $this->getActivateCondition();
-
-        if ($condition !== null){
-            return $condition->check($player);
-        } else {
-            return true;
-        }
-    }
-
+    abstract public function isApplicable(): bool;
 
     abstract public function getName(): string;
 

@@ -104,7 +104,14 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 		}
 	}
 
-	public function onEntityDamageByEntity(EntityDamageByEntityEvent $event) {
+	/**
+	 * @param EntityDamageByEntityEvent $event
+	 * 
+	 * @return void
+	 * 
+	 * @priority MONITOR
+	 */
+	public function onEntityDamageByEntity(EntityDamageByEntityEvent $event): void {
 		$entity = $event->getEntity();
 		$damager = $event->getDamager();
 		if ($damager === $this->player && $this->player instanceof Player) {

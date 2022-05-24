@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\event\game\GameStartEvent;
+use Lyrica0954\StarPvE\game\identity\GameArgIdentity;
 use Lyrica0954\StarPvE\game\shop\content\ArmorUpgradeContent;
 use Lyrica0954\StarPvE\game\shop\content\ItemContent;
 use Lyrica0954\StarPvE\game\shop\content\SwordUpgradeContent;
@@ -90,6 +91,12 @@ class Game implements CooltimeAttachable {
     public function __construct(World $world, StageInfo $stageInfo) {
         $this->world = $world;
         $this->stageInfo = $stageInfo;
+        foreach ($stageInfo->getIdentityGroup()->getAll() as $identity) {
+            if ($identity instanceof GameArgIdentity) {
+                $identity->setGame($this);
+            }
+        }
+        $stageInfo->getIdentityGroup()->apply();
         $this->status = self::STATUS_PREPARE;
         $this->centerPos = Position::fromObject($stageInfo->getCenter(), $world);
         $this->villager = null;
@@ -613,6 +620,10 @@ class Game implements CooltimeAttachable {
 
     public function end(int $closeDelay) {
         $this->status = self::STATUS_ENDING;
+
+        $this->stageInfo->getIdentityGroup()->reset();
+        $this->stageInfo->getIdentityGroup()->close();
+
         StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
             $this->closeEntities();
         }), 5);

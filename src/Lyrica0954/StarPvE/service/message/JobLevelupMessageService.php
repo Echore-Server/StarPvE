@@ -45,7 +45,7 @@ class JobLevelupMessageService extends ListenerService {
 					 * @var PlayerJob $jobInstance
 					 */
 
-					$list = $jobInstance->getIdentityGroup()->getActive($player);
+					$list = $jobInstance->getIdentityGroup()->getApplicable();
 					$l2 = [];
 					foreach ($list as $identity) {
 						$l2[] = $identity->getName();
@@ -82,7 +82,7 @@ class JobLevelupMessageService extends ListenerService {
 					$player->sendMessage("§6> 次のExp: §a{$exp}§f/§a{$nextExp}");
 					$player->sendMessage("§a-----------------------");
 
-					$list = $jobInstance->getIdentityGroup()->getActive($player);
+					$list = $jobInstance->getIdentityGroup()->getApplicable();
 					$active = [];
 					foreach ($list as $identity) {
 						$active[] = $identity->getName();

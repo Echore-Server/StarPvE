@@ -51,11 +51,12 @@ class Tank extends PlayerJob implements AlwaysAbility, Listener {
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup {
+		$p = ($this->player instanceof Player);
 		$g = new IdentityGroup();
 		$list = [
-			Identity::setCondition(new AddMaxHealthIdentity(10), null)
+			$p ? new AddMaxHealthIdentity($this->player, null, 10) : null
 		];
-		$g->addAll($list);
+		$g->addAllSafe($list);
 		return $g;
 	}
 

@@ -15,6 +15,8 @@ use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\Villager;
+use Lyrica0954\StarPvE\event\game\wave\WaveMonsterSpawnEvent;
+use Lyrica0954\StarPvE\event\game\wave\WaveStartEvent;
 use Lyrica0954\StarPvE\event\PlayerDeathOnGameEvent;
 use Lyrica0954\StarPvE\game\monster\Attacker;
 use Lyrica0954\StarPvE\game\wave\CustomWaveStart;
@@ -374,6 +376,9 @@ class WaveController implements CooltimeAttachable, Listener {
     public function waveStart() {
         $this->wave++;
 
+        $ev = new WaveStartEvent($this->getGame(), $this->wave);
+        $ev->call();
+
         $waveData = $this->getWaveDataFrom($this->wave);
         if ($waveData !== null) {
             $this->log("§7Wave {$this->wave} Started!");
@@ -406,7 +411,14 @@ class WaveController implements CooltimeAttachable, Listener {
             foreach ($monsters->getAll() as $monsterData) {
                 $this->monsterRemain += $monsterData->count;
             }
-            $monsters->spawnToAll($pos, $this->monsterAttributes, $this->monsterEquipments, $hook);
+
+            $att = [];
+            foreach ($this->monsterAttributes as $k => $attribute) {
+                $att[$k] = clone $attribute;
+            }
+            $ev = new WaveMonsterSpawnEvent($this->getGame(), $this->wave, $monsters, $pos, $att);
+            $ev->call();
+            $monsters->spawnToAll($ev->getPosition(), $ev->getAttributes(), $this->monsterEquipments, $hook);
         } else {
             throw new \Exception("Game is closed: WaveController: spawnMonster called");
         }
