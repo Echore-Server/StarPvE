@@ -11,12 +11,12 @@ use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use pocketmine\player\Player;
 
-class AddMaxHealthIdentity extends PlayerIdentity {
+class AddMaxHealthArgIdentity extends PlayerArgIdentity {
 
     protected int $add;
 
-    public function __construct(Player $player, ?Condition $condition = null, int $add) {
-        parent::__construct($player, $condition);
+    public function __construct(?Condition $condition = null, int $add) {
+        parent::__construct($condition);
         $this->add = $add;
     }
 
@@ -29,10 +29,14 @@ class AddMaxHealthIdentity extends PlayerIdentity {
     }
 
     public function apply(): void {
-        EntityUtil::addMaxHealthSynchronously($this->player, $this->add);
+        if ($this->player !== null) {
+            EntityUtil::addMaxHealthSynchronously($this->player, $this->add);
+        }
     }
 
     public function reset(): void {
-        EntityUtil::addMaxHealthSynchronously($this->player, -$this->add);
+        if ($this->player !== null) {
+            EntityUtil::addMaxHealthSynchronously($this->player, -$this->add);
+        }
     }
 }

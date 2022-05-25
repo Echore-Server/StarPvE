@@ -9,14 +9,18 @@ use Lyrica0954\StarPvE\data\condition\ConditionTrait;
 use Lyrica0954\StarPvE\identity\Identity;
 use pocketmine\player\Player;
 
-abstract class PlayerIdentity extends Identity {
+abstract class PlayerArgIdentity extends Identity {
 	use ConditionTrait;
 
 	protected ?Player $player;
 
-	public function __construct(Player $player, ?Condition $condition = null) {
-		$this->player = $player;
+	public function __construct(?Condition $condition = null) {
+		$this->player = null;
 		$this->condition = $condition;
+	}
+
+	public function setPlayer(?Player $player): void {
+		$this->player = $player;
 	}
 
 	public function getPlayer(): Player {
@@ -24,7 +28,11 @@ abstract class PlayerIdentity extends Identity {
 	}
 
 	public function isApplicable(): bool {
-		$result = $this->condition?->check($this->player) ?? true;
+		if ($this->player !== null) {
+			$result = $this->condition?->check($this->player) ?? true;
+		} else {
+			$result = true;
+		}
 
 		return $result;
 	}

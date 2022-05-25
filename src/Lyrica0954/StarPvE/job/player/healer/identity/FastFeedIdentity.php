@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\job\player\healer\identity;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\Identity;
+use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\identity\player\PlayerIdentity;
 use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -15,13 +16,13 @@ use pocketmine\event\Listener;
 use pocketmine\player\Player;
 use pocketmine\scheduler\TaskHandler;
 
-class FastFeedIdentity extends PlayerIdentity {
+class FastFeedIdentity extends PlayerArgIdentity {
 
 	protected int $period;
 	protected ?TaskHandler $taskHandler;
 
-	public function __construct(Player $player, ?Condition $condition = null, int $period) {
-		parent::__construct($player, $condition);
+	public function __construct(?Condition $condition = null, int $period) {
+		parent::__construct($condition);
 		$this->period = max(1, $period);
 		$this->taskHandler = null;
 	}
@@ -36,19 +37,23 @@ class FastFeedIdentity extends PlayerIdentity {
 	}
 
 	public function apply(): void {
-		$this->reset();
+		if ($this->player !== null) {
+			$this->reset();
 
-		$this->taskHandler = TaskUtil::repeatingClosure(function () {
-			$hunger = $this->player->getHungerManager();
-			$food = $hunger->getFood();
-			if ($food >= $hunger->getMaxFood()) {
-				$regain = new EntityRegainHealthEvent($this->player, 1, EntityRegainHealthEvent::CAUSE_CUSTOM);
-				$this->player->heal($regain);
-			}
-		}, $this->period);
+			$this->taskHandler = TaskUtil::repeatingClosure(function () {
+				$hunger = $this->player->getHungerManager();
+				$food = $hunger->getFood();
+				if ($food >= $hunger->getMaxFood()) {
+					$regain = new EntityRegainHealthEvent($this->player, 1, EntityRegainHealthEvent::CAUSE_CUSTOM);
+					$this->player->heal($regain);
+				}
+			}, $this->period);
+		}
 	}
 
 	public function reset(): void {
-		$this->taskHandler?->cancel();
+		if ($this->player !== null) {
+			$this->taskHandler?->cancel();
+		}
 	}
 }

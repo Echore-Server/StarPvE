@@ -8,13 +8,9 @@ use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
-use Lyrica0954\StarPvE\identity\player\AddMaxHealthIdentity;
+use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
-use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
-use Lyrica0954\StarPvE\job\identity\ability\AddBaseDamageIdentity;
-use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
-use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
 use Lyrica0954\StarPvE\job\JobIdentityGroup;
 use Lyrica0954\StarPvE\job\LineOption;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -51,10 +47,9 @@ class Tank extends PlayerJob implements AlwaysAbility, Listener {
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup {
-		$p = ($this->player instanceof Player);
 		$g = new IdentityGroup();
 		$list = [
-			$p ? new AddMaxHealthIdentity($this->player, null, 10) : null
+			new AddMaxHealthArgIdentity(null, 10)
 		];
 		$g->addAllSafe($list);
 		return $g;

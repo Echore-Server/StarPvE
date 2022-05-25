@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player;
 
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\ActionBarManager;
 use Lyrica0954\StarPvE\job\ActionListManager;
@@ -58,6 +59,11 @@ abstract class PlayerJob extends Job {
         $this->ability = $this->getInitialAbility();
         $this->skill = $this->getInitialSkill();
         $this->identityGroup = $this->getInitialIdentityGroup();
+        foreach ($this->identityGroup->getAll() as $identity) {
+            if ($identity instanceof PlayerArgIdentity) {
+                $identity->setPlayer($player);
+            }
+        }
         $this->identityGroup->apply();
         $this->action = new ActionListManager();
         $this->lastActionUpdate = 0;

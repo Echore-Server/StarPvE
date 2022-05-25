@@ -8,6 +8,7 @@ use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\identity\player\AddMaxHealthIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
@@ -27,12 +28,11 @@ use pocketmine\Server;
 class Healer extends PlayerJob implements AlwaysAbility, Listener {
 
     protected function getInitialIdentityGroup(): IdentityGroup {
-        $p = $this->player instanceof Player;
         $g = new IdentityGroup();
         $list = [
-            $p ? new AddMaxHealthIdentity($this->player, null, 2) : null,
+            new AddMaxHealthArgIdentity(null, 2),
             new IncreaseAreaIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.5),
-            $p ? new FastFeedIdentity($this->player, null, 30) : null
+            new FastFeedIdentity(null, 30)
         ];
         $g->addAllSafe($list);
         return $g;
