@@ -35,6 +35,7 @@ use Lyrica0954\StarPvE\job\player\shaman\Shaman;
 use Lyrica0954\StarPvE\job\player\swordman\Swordman;
 use Lyrica0954\StarPvE\job\player\tank\Tank;
 use Lyrica0954\StarPvE\service\BlockFriendlyFireService;
+use Lyrica0954\StarPvE\service\indicator\ExpIndicatorService;
 use Lyrica0954\StarPvE\service\indicator\InboundDamageService;
 use Lyrica0954\StarPvE\service\indicator\OutboundDamageService;
 use Lyrica0954\StarPvE\service\indicator\PlayerHealthIndicatorService;
@@ -229,6 +230,7 @@ final class StarPvE extends PluginBase {
         $session->add(new GenericLevelupMessageService($session));
         $session->add(new JobLevelupMessageService($session));
         $session->add(new PlayerAdviceMessageService($session));
+        $session->add(new ExpIndicatorService($session));
 
         $this->log("Starting Service Session...");
         $session->start();

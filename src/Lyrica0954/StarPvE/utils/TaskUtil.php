@@ -19,7 +19,7 @@ class TaskUtil {
 
 	public static function delayed(Task $task, int $delay): TaskHandler {
 		$handler = StarPvE::getInstance()->getScheduler()->scheduleDelayedTask($task, $delay);
-		self::$list[] = $handler;
+		#self::$list[] = $handler;
 		return $handler;
 	}
 
@@ -30,7 +30,7 @@ class TaskUtil {
 
 	public static function repeating(Task $task, int $period): TaskHandler {
 		$handler = StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($task, $period);
-		self::$list[] = $handler;
+		#self::$list[] = $handler;
 		return $handler;
 	}
 
