@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\engineer;
 
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\ability\ThrowEntityAbilityBase;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
@@ -16,12 +17,7 @@ use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 
 
-class ThrowGravityBallAbility extends Ability {
-
-    /**
-     * @var Entity[]
-     */
-    protected array $entities;
+class ThrowGravityBallAbility extends ThrowEntityAbilityBase {
 
     protected EffectInstance $effect;
 
@@ -51,26 +47,10 @@ class ThrowGravityBallAbility extends Ability {
         $this->amount = new AbilityStatus(2.0);
         $this->duration = new AbilityStatus(11 * 20);
         $this->effect = new EffectInstance(VanillaEffects::SLOWNESS(), 30, 1, false, true);
-
-        $this->entities = [];
     }
 
-    public function close(): void {
-
-        foreach ($this->entities as $entity) {
-            if (!$entity->isClosed()) {
-                $entity->close();
-            }
-        }
-
-        $this->entities = [];
-
-        parent::close();
-    }
-
-    protected function onActivate(): ActionResult {
+    protected function getEntity(): Entity {
         $item = ItemFactory::getInstance()->get(ItemIds::FIRE_CHARGE);
-        $motion = $this->player->getDirectionVector()->multiply($this->speed->get());
         $loc = $this->player->getLocation();
         $loc->y += $this->player->getEyeHeight();
         $entity = new GravityBall($loc, $item);
@@ -78,12 +58,7 @@ class ThrowGravityBallAbility extends Ability {
         $entity->area = $this->area->get();
         $entity->period = (int) floor(20 / $this->amount->get());
         $entity->effect = clone $this->effect;
-        $entity->setMotion($motion);
-        $entity->setOwningEntity($this->player);
-        $entity->spawnToAll();
 
-        $this->entities[] = $entity;
-
-        return ActionResult::SUCCEEDED();
+        return $entity;
     }
 }

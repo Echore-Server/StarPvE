@@ -50,7 +50,7 @@ class StageFactory {
 
 		$ident = new IdentityGroup;
 		$list = [
-			new AmpMonsterHealthArgIdentity(2.0)
+			new AmpMonsterHealthArgIdentity(1.2)
 		];
 
 		$ident->addAll($list);

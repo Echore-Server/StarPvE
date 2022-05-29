@@ -8,6 +8,7 @@ use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
@@ -72,11 +73,11 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 		(new SingleParticle)->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:splash_spell_emitter", ""));
 
 		$range = match ($entity::class) {
-			MonsterData::CREEPER => 10.0,
+			DefaultMonsters::CREEPER => 10.0,
 			default => 2.8
 		};
 		$per = match ($entity::class) {
-			MonsterData::CREEPER => 0.4,
+			DefaultMonsters::CREEPER => 0.4,
 			default => 0.16
 		};
 

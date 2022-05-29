@@ -32,7 +32,8 @@ class AmpMonsterHealthArgIdentity extends ModifyMonsterArgIdentityBase {
 	}
 
 	protected function onSpawn(WaveMonsterSpawnEvent $event): void {
-		foreach ($event->getAttributes() as $id => $attribute) {
+		foreach ($event->getOptions() as $id => $option) {
+			$attribute = $option->getAttribute();
 			$attribute->health = (int) ($attribute->health * $this->amp);
 		}
 	}

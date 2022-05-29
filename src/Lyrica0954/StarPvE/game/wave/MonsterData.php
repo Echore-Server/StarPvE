@@ -19,33 +19,22 @@ use pocketmine\entity\Entity;
 
 class MonsterData {
 
-    const ZOMBIE = Zombie::class;
-    const CREEPER = Creeper::class;
-    const ATTACKER = Attacker::class;
-    const SPIDER = Spider::class;
-    const HUSK = Husk::class;
-    const SKELETON = Skeleton::class;
-    const DEFENDER = Defender::class;
-    
-    const ZOMBIE_LORD = ZombieLord::class;
-    const STRAY = Stray::class;
-
     public string $name;
     public int $count;
 
     public ?SpawnAnimation $animation;
 
-    public function __construct(string $name, int $count, ?SpawnAnimation $animation = null){
+    public function __construct(string $name, int $count, ?SpawnAnimation $animation = null) {
         $this->name = $name;
         $this->count = $count;
         $this->animation = $animation;
     }
 
-    public static function isMonster(Entity $entity): bool{
+    public static function isMonster(Entity $entity): bool {
         return ($entity instanceof FightingEntity) || $entity instanceof Attacker;
     }
 
-    public static function equal(Entity $entity, string $class){
+    public static function equal(Entity $entity, string $class) {
         return $entity::class == $class; #関数にする必要ある？
     }
 }

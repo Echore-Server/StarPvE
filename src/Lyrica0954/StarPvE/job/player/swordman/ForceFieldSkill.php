@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\job\player\swordman;
 
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SphereParticle;
+use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilityStatus;
@@ -56,7 +57,7 @@ class ForceFieldSkill extends Skill {
             if (MonsterData::isMonster($entity)) {
                 $xz = 6.0;
                 $y = 2.0;
-                if (MonsterData::equal($entity, MonsterData::ATTACKER)) {
+                if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
                     $xz = 2.0;
                     $y = 1.0;
                 }

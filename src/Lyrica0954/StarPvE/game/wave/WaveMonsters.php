@@ -39,13 +39,24 @@ class WaveMonsters {
         StarPvE::getInstance()->log("§7[WaveMonsters] {$message}");
     }
 
-    public function spawnToAll(Position $pos, array $attributeMap, array $equipmentMap, \Closure $hook = null) {
+    /**
+     * @param Position $pos
+     * @param MonsterOption[] $optionMap
+     * @param \Closure|null $hook
+     * 
+     * @return [type]
+     */
+    public function spawnToAll(Position $pos, array $optionMap, \Closure $hook = null) {
         foreach ($this->monsters as $monster) {
             $class = $monster->name;
             $time = 90 * 20;
             $period = (int) floor($time / $monster->count);
-            $attribute = $attributeMap[$class];
-            $equipment = $equipmentMap[$class];
+            $option = $optionMap[$class];
+            if (!$option instanceof MonsterOption) {
+                throw new \Exception("Option not registered: {$class}");
+            }
+            $attribute = $option->getAttribute();
+            $equipment = $option->getEquipment();
             StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask(new class($monster, $pos, $attribute, $equipment, $hook) extends Task {
 
                 private MonsterData $monster;

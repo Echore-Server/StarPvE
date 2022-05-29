@@ -42,7 +42,7 @@ class DeathPulseSkill extends Skill {
 		$period = DescriptionTranslator::second($speedFake);
 		return
 			sprintf('§b発動時:§f 自分から %1$s の地点にパルスを発生させ、§c2.5秒§f かけて自分のところまで移動する。
-移動中パルスに触れた敵を %2$s 間動けなくする。
+移動中パルスに触れた敵を %2$s スタンさせる。
 パルスが移動し終えたら、
 自分から %1$s 以内にいる敵全てに敵の最大体力 %3$s 分のダメージを与える攻撃を %4$s、%5$s ごとに行う。', $area, $duration, $damagePer, $amount, $period);
 	}

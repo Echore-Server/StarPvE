@@ -12,6 +12,7 @@ use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
+use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EffectGroup;
@@ -100,7 +101,7 @@ class FreezeArrow extends SpecialArrow implements Listener {
 							}
 							$effects = ($this->areaEffects ?? (new EffectGroup()));
 							$effects->apply($entity);
-							if ($entity instanceof FightingEntity && !MonsterData::equal($entity, MonsterData::ATTACKER)) {
+							if ($entity instanceof FightingEntity && !MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
 								if (!$entity->isFriend()) {
 									$entity->setFriend(true);
 									$beforeTarget = $entity->getTarget();
@@ -172,7 +173,7 @@ class FreezeArrow extends SpecialArrow implements Listener {
 						if (MonsterData::isMonster($entity)) {
 							$effects = ($this->explodeEffects ?? (new EffectGroup()));
 							$effects->apply($entity);
-							if (!MonsterData::equal($entity, MonsterData::ATTACKER)) {
+							if (!MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
 								$motion = EntityUtil::modifyKnockback($entity, $this, 3.5, 1.0);
 								$entity->setMotion($motion);
 							}

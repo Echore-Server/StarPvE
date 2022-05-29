@@ -54,3 +54,9 @@ Engineer - 防衛
 Healer - 支援[回復]
 Archer - 防衛/戦闘
 Tank - 支援[戦闘]
+
+マップ
+
+Castle - Tank, Engineer, Fighter
+Laboratory - Swordman, Tank, Engineer
+Stair - Archer, Shaman, Engineer, Swordman, Magician

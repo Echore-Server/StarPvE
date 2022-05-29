@@ -10,6 +10,7 @@ use Lyrica0954\StarPvE\entity\JobShop;
 use Lyrica0954\StarPvE\form\GameSelectForm;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
+use pocketmine\entity\Entity;
 use pocketmine\entity\Location;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -37,6 +38,7 @@ use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
 use pocketmine\network\mcpe\protocol\SpawnParticleEffectPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
@@ -105,6 +107,14 @@ class EventListener implements Listener {
     #            }
     #        }
     #    }
+    #}
+
+    #public function onPacketReceive(DataPacketReceiveEvent $event) {
+    #    $session = $event->getOrigin();
+    #    $packet = $event->getPacket();
+    #    $name = $packet->getName();
+
+    #    $session->getLogger()->warning("Received Packet: {$name}");
     #}
 
     public function onExhaust(PlayerExhaustEvent $event) {

@@ -10,17 +10,13 @@ use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\job\skill\ThrowEntitySkillBase;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use pocketmine\entity\Entity;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 
-class ThrowShieldBallSkill extends Skill {
-
-    /**
-     * @var Entity[]
-     */
-    protected array $entities;
+class ThrowShieldBallSkill extends ThrowEntitySkillBase {
 
     public function getCooltime(): int {
         return (110 * 20);
@@ -46,36 +42,15 @@ class ThrowShieldBallSkill extends Skill {
     protected function init(): void {
         $this->duration = new AbilityStatus(1 * 20);
         $this->speed = new AbilityStatus(0.9);
-
-        $this->entities = [];
     }
 
-    public function close(): void {
-
-        foreach ($this->entities as $entity) {
-            if (!$entity->isClosed()) {
-                $entity->close();
-            }
-        }
-
-        $this->entities = [];
-
-        parent::close();
-    }
-
-    protected function onActivate(): ActionResult {
+    protected function getEntity(): Entity {
         $item = ItemFactory::getInstance()->get(ItemIds::NETHER_REACTOR);
-        $motion = $this->player->getDirectionVector()->multiply($this->speed->get());
         $loc = $this->player->getLocation();
         $loc->y += $this->player->getEyeHeight();
         $entity = new ShieldBall($loc, $item);
         $entity->lossPeriod = (int) $this->duration->get();
-        $entity->setMotion($motion);
-        $entity->setOwningEntity($this->player);
-        $entity->spawnToAll();
 
-        $this->entities[] = $entity;
-
-        return ActionResult::SUCCEEDED();
+        return $entity;
     }
 }

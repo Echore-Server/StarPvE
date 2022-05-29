@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\event\game\wave;
 
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\wave\MonsterAttribute;
+use Lyrica0954\StarPvE\game\wave\MonsterOption;
 use Lyrica0954\StarPvE\game\wave\WaveMonsters;
 use pocketmine\world\Position;
 
@@ -15,12 +16,24 @@ class WaveMonsterSpawnEvent extends WaveEvent {
 
 	protected Position $position;
 
-	public function __construct(Game $game, int $wave, WaveMonsters $waveMonsters, Position $position, array $attributes) {
+	/**
+	 * @var MonsterOption[]
+	 */
+	protected array $options;
+
+	/**
+	 * @param Game $game
+	 * @param int $wave
+	 * @param WaveMonsters $waveMonsters
+	 * @param Position $position
+	 * @param MonsterOption[] $option
+	 */
+	public function __construct(Game $game, int $wave, WaveMonsters $waveMonsters, Position $position, array $options) {
 		parent::__construct($game);
 		$this->wave = $wave;
 		$this->waveMonsters = $waveMonsters;
 		$this->position = $position;
-		$this->attributes = $attributes;
+		$this->options = $options;
 	}
 
 	public function getWaveMonsters(): WaveMonsters {
@@ -32,10 +45,10 @@ class WaveMonsterSpawnEvent extends WaveEvent {
 	}
 
 	/**
-	 * @return MonsterAttribute[]
+	 * @return MonsterOption[]
 	 */
-	public function getAttributes(): array {
-		return $this->attributes;
+	public function getOptions(): array {
+		return $this->options;
 	}
 
 	public function setPosition(Position $position): void {

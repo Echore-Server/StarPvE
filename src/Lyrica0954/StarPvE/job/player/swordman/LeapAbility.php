@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player\swordman;
 
+use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilityStatus;
@@ -120,7 +121,7 @@ class LeapAbility extends Ability implements Ticking, Listener {
                                 $this->damaged[] = $hash;
                                 $xz = 2.5;
                                 $y = 1.1;
-                                if (MonsterData::equal($entity, MonsterData::ATTACKER)) {
+                                if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
                                     $xz = 0.9;
                                     $y = 1.0;
                                 }

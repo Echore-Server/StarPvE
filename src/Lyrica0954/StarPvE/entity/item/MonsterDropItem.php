@@ -10,6 +10,7 @@ use pocketmine\entity\Location;
 use pocketmine\entity\object\ItemEntity;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
 use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
@@ -22,6 +23,21 @@ class MonsterDropItem extends ItemEntity {
     private float $soundVolume = 1.0;
 
     protected bool $pickup = false;
+
+    /**
+     * @param Item $item
+     * 
+     * @return Item[]
+     */
+    public static function split(Item $item): array {
+        $items = [];
+        $count = $item->getCount();
+        for ($i = 1; $i <= $count; $i++) {
+            $items[] = ItemFactory::getInstance()->get($item->getId());
+        }
+
+        return $items;
+    }
 
     public function setSound(string $soundName, float $soundPitch, float $soundVolume) {
         $this->soundName = $soundName;

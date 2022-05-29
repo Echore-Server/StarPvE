@@ -12,6 +12,7 @@ use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
 use Lyrica0954\StarPvE\game\Game;
+use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\game\wave\SpawnAnimation;
 use Lyrica0954\StarPvE\game\wave\WaveMonsters;
@@ -89,7 +90,7 @@ class ZombieLord extends SmartZombie implements Listener {
 			}
 		});
 
-		$monsters = new WaveMonsters(new MonsterData(MonsterData::ZOMBIE, 1, $animation));
+		$monsters = new WaveMonsters(new MonsterData(DefaultMonsters::ZOMBIE, 1, $animation));
 
 		$game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($this->getWorld());
 		if ($game instanceof Game) {

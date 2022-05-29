@@ -25,6 +25,7 @@ use Lyrica0954\StarPvE\game\player\GamePlayerManager;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\JobManager;
 use Lyrica0954\StarPvE\job\player\archer\Archer;
+use Lyrica0954\StarPvE\job\player\castle\Castle;
 use Lyrica0954\StarPvE\job\player\engineer\Engineer;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
@@ -208,6 +209,7 @@ final class StarPvE extends PluginBase {
         $this->jobManager->register(new Shaman(null));
         $this->jobManager->register(new Archer(null));
         $this->jobManager->register(new Tank(null));
+        $this->jobManager->register(new Castle(null));
 
 
         $this->log("Starting Player Data Center...");

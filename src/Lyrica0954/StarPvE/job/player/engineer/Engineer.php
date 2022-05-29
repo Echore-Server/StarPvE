@@ -40,7 +40,7 @@ class Engineer extends PlayerJob {
 
     public function getDescription(): string {
         return
-            "§7- §l§a防衛§r
+            "§7- §l§9防衛§r
 
 特殊なアビリティーを持つエンジニア。
 シールドで味方を守ったり、敵の進行を止めたりできる優秀な職業だが、

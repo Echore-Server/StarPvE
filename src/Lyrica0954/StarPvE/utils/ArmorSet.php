@@ -19,7 +19,7 @@ class ArmorSet {
     protected Armor|ItemBlock $leggings;
     protected Armor|ItemBlock $boots;
 
-    public static function leather(){
+    public static function leather() {
         $f = ItemFactory::getInstance();
         $h = $f->get(ItemIds::LEATHER_HELMET);
         $c = $f->get(ItemIds::LEATHER_CHESTPLATE);
@@ -28,7 +28,7 @@ class ArmorSet {
         return new self($h, $c, $l, $b);
     }
 
-    public static function iron(){
+    public static function iron() {
         $f = ItemFactory::getInstance();
         $h = $f->get(ItemIds::IRON_HELMET);
         $c = $f->get(ItemIds::IRON_CHESTPLATE);
@@ -37,7 +37,7 @@ class ArmorSet {
         return new self($h, $c, $l, $b);
     }
 
-    public static function chainmail(){
+    public static function chainmail() {
         $f = ItemFactory::getInstance();
         $h = $f->get(ItemIds::CHAINMAIL_HELMET);
         $c = $f->get(ItemIds::CHAINMAIL_CHESTPLATE);
@@ -46,7 +46,7 @@ class ArmorSet {
         return new self($h, $c, $l, $b);
     }
 
-    public static function gold(){
+    public static function gold() {
         $f = ItemFactory::getInstance();
         $h = $f->get(ItemIds::GOLDEN_HELMET);
         $c = $f->get(ItemIds::GOLDEN_CHESTPLATE);
@@ -55,7 +55,7 @@ class ArmorSet {
         return new self($h, $c, $l, $b);
     }
 
-    public static function diamond(){
+    public static function diamond() {
         $f = ItemFactory::getInstance();
         $h = $f->get(ItemIds::DIAMOND_HELMET);
         $c = $f->get(ItemIds::DIAMOND_CHESTPLATE);
@@ -64,18 +64,22 @@ class ArmorSet {
         return new self($h, $c, $l, $b);
     }
 
-    public function __construct(?Armor $helmet, ?Armor $chestplate, ?Armor $leggings, ?Armor $boots){
+    public static function none() {
+        return new self(null, null, null, null);
+    }
+
+    public function __construct(?Armor $helmet, ?Armor $chestplate, ?Armor $leggings, ?Armor $boots) {
         $this->helmet = $this->replaceAir($helmet);
         $this->chestplate = $this->replaceAir($chestplate);
         $this->leggings = $this->replaceAir($leggings);
         $this->boots = $this->replaceAir($boots);
     }
 
-    public function replaceAir(?Armor $armor){
+    public function replaceAir(?Armor $armor) {
         return ($armor instanceof Armor) ? $armor : (ItemFactory::getInstance()->get(ItemIds::AIR));
     }
 
-    public function setUnbreakable(bool $unbreakable = true){
+    public function setUnbreakable(bool $unbreakable = true) {
         $parts = [
             $this->helmet,
             $this->chestplate,
@@ -83,30 +87,30 @@ class ArmorSet {
             $this->boots
         ];
 
-        foreach($parts as $part){
-            if ($part instanceof Durable){
+        foreach ($parts as $part) {
+            if ($part instanceof Durable) {
                 $part->setUnbreakable($unbreakable);
             }
         }
     }
 
-    public function getHelmet(){
+    public function getHelmet() {
         return $this->helmet;
     }
 
-    public function getChestplate(){
+    public function getChestplate() {
         return $this->chestplate;
     }
 
-    public function getLeggings(){
+    public function getLeggings() {
         return $this->leggings;
     }
 
-    public function getBoots(){
+    public function getBoots() {
         return $this->boots;
     }
-    
-    public function equip(Living $living){
+
+    public function equip(Living $living) {
         $inv = $living->getArmorInventory();
         $inv->setHelmet($this->helmet);
         $inv->setChestplate($this->chestplate);

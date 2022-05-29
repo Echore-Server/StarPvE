@@ -8,6 +8,7 @@ use Lyrica0954\MagicParticle\LineParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\entity\item\GhostItemEntity;
+use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -90,8 +91,8 @@ class GravityBall extends GhostItemEntity {
                         if (MonsterData::isMonster($entity) && $entity instanceof Living) {
                             $dist = $this->getPosition()->distance($entity->getPosition());
                             $powerM = match (true) {
-                                (MonsterData::equal($entity, MonsterData::ATTACKER)) => 0.1,
-                                (MonsterData::equal($entity, MonsterData::HUSK)) => 0,
+                                (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) => 0.1,
+                                (MonsterData::equal($entity, DefaultMonsters::HUSK)) => 0,
                                 default => 0.9
                             };
                             $power = 1.0 + ($dist * $powerM);
