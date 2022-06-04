@@ -20,6 +20,7 @@ Engineer - 戦闘をサポート
 Healer - 味方をサポート
 Archer - 後衛で遠距離攻撃
 Tank - 前衛で耐久
+Castle -　戦闘をサポート
 
 
 強み
@@ -32,6 +33,7 @@ Engineer - 長時間のエリアコントロール、敵を集めて攻撃しや
 Healer - 回復
 Archer - 遠距離攻撃、短時間の強力なエリアコントロール
 Tank - 高い耐久力
+Castle - 中時間のエリアコントロール、高単体火力
 
 弱み
 
@@ -43,6 +45,7 @@ Engineer - 低い火力
 Healer - 低い火力
 Archer - 近距離攻撃ができない、遠距離攻撃を当てるのが難しい
 Tank - 低い火力
+Castle - 他の職業と合わせないと弱い
 
 役割
 
@@ -54,9 +57,10 @@ Engineer - 防衛
 Healer - 支援[回復]
 Archer - 防衛/戦闘
 Tank - 支援[戦闘]
+Castle - 防衛
 
 マップ
 
 Castle - Tank, Engineer, Fighter
 Laboratory - Swordman, Tank, Engineer
-Stair - Archer, Shaman, Engineer, Swordman, Magician
+Stair - Archer, Shaman, Engineer, Swordman, Magician, Castle

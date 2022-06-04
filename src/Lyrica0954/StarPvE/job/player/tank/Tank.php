@@ -49,7 +49,7 @@ class Tank extends PlayerJob implements AlwaysAbility, Listener {
 	protected function getInitialIdentityGroup(): IdentityGroup {
 		$g = new IdentityGroup();
 		$list = [
-			new AddMaxHealthArgIdentity(null, 10)
+			new AddMaxHealthArgIdentity(null, 18)
 		];
 		$g->addAllSafe($list);
 		return $g;

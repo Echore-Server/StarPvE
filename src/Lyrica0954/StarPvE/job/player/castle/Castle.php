@@ -6,8 +6,10 @@ namespace Lyrica0954\StarPvE\job\player\castle;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\player\castle\entity\TrapDevice;
+use Lyrica0954\StarPvE\job\player\castle\entity\VoidDevice;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\player\swordman\ForceFieldSkill;
 use Lyrica0954\StarPvE\job\Skill;
@@ -40,6 +42,21 @@ class Castle extends PlayerJob {
 			$entity->close();
 			return $entity;
 		}, ['starpve:trap_device'], EntityLegacyIds::ITEM);
+
+		$f->register(VoidDevice::class, function (World $world, CompoundTag $nbt): VoidDevice {
+			$itemTag = $nbt->getCompoundTag("Item");
+			if ($itemTag === null) {
+				throw new SavedDataLoadingException("Expected \"Item\" NBT tag not found");
+			}
+
+			$item = Item::nbtDeserialize($itemTag);
+			if ($item->isNull()) {
+				throw new SavedDataLoadingException("Item is invalid");
+			}
+			$entity = new VoidDevice(EntityDataHelper::parseLocation($nbt, $world), $item, $nbt);
+			$entity->close();
+			return $entity;
+		}, ['starpve:void_device'], EntityLegacyIds::ITEM);
 	}
 
 	protected function getInitialAbility(): Ability {
@@ -47,12 +64,14 @@ class Castle extends PlayerJob {
 	}
 
 	protected function getInitialSkill(): Skill {
-		return new ForceFieldSkill($this);
+		return new ThrowVoidSkill($this);
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup {
 		$g = new IdentityGroup();
-		$list = [];
+		$list = [
+			new AddMaxHealthArgIdentity(null, 10)
+		];
 		$g->addAll($list);
 		return $g;
 	}

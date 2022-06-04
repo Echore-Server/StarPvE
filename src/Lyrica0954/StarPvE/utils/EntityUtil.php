@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\utils;
 
 use Generator;
+use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\Entity;
@@ -37,6 +38,11 @@ class EntityUtil implements Listener {
      * @var array{hash: string, info: (TaskHandler|int)[]}
      */
     protected static array $immobile = [];
+
+    /**
+     * @var array{hash: string, info: (TaskHandler|int)[]}
+     */
+    protected static array $slowdown = [];
 
     public function init(PluginBase $plugin): void {
         self::$instance = $this;
@@ -191,6 +197,39 @@ class EntityUtil implements Listener {
                     unset(self::$immobile[$h]);
                 }), $duration)
             ];
+        }
+    }
+
+    public static function slowdown(Living $entity, int $duration, float $multiplier) {
+        $duration = max(0, $duration);
+        if ($duration > 0) {
+            $h = spl_object_hash($entity);
+            $data = self::$slowdown[$h] ?? [0 => null, 1 => null];
+            $tick = $data[0];
+            $handler = $data[1];
+            if ($handler instanceof TaskHandler && is_int($tick)) {
+                $elapsed = Server::getInstance()->getTick() - $tick;
+                $remain = $handler->getDelay() - $elapsed;
+                if ($remain < $duration) {
+                    $handler->cancel();
+                    self::$slowdown[$h] = [
+                        0 => Server::getInstance()->getTick(),
+                        1 => TaskUtil::delayed(new ClosureTask(function () use ($entity, $h, $multiplier) {
+                            $entity->setMovementSpeed($entity->getMovementSpeed() / $multiplier);
+                            unset(self::$slowdown[$h]);
+                        }), $duration)
+                    ];
+                }
+            } else {
+                $entity->setMovementSpeed($entity->getMovementSpeed() * $multiplier);
+                self::$slowdown[$h] = [
+                    0 => Server::getInstance()->getTick(),
+                    1 => TaskUtil::delayed(new ClosureTask(function () use ($entity, $h, $multiplier) {
+                        $entity->setMovementSpeed($entity->getMovementSpeed() / $multiplier);
+                        unset(self::$slowdown[$h]);
+                    }), $duration)
+                ];
+            }
         }
     }
 

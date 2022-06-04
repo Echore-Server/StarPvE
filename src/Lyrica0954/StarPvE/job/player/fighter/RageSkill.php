@@ -29,7 +29,7 @@ use pocketmine\Server;
 class RageSkill extends Skill implements Listener {
 
     public function getCooltime(): int {
-        return (90 * 20);
+        return (96 * 20);
     }
 
     public function getName(): String {
@@ -54,7 +54,7 @@ class RageSkill extends Skill implements Listener {
     }
 
     protected function init(): void {
-        $this->duration = new AbilityStatus(40 * 20);
+        $this->duration = new AbilityStatus(34 * 20);
         $this->damage = new AbilityStatus(3.0);
         $this->amount = new AbilityStatus(2);
         $this->percentage = new AbilityStatus(0.8);

@@ -8,6 +8,7 @@ use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
@@ -43,7 +44,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
     protected function getInitialIdentityGroup(): IdentityGroup {
         $g = new IdentityGroup();
         $list = [
-            new IncreaseDamageIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, 0.5)
+            new AddMaxHealthArgIdentity(null, 6)
         ];
         $g->addAll($list);
         return $g;
