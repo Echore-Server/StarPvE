@@ -117,7 +117,7 @@ class Game implements CooltimeAttachable {
         $this->lane2 = new Lane(Position::fromObject($stageInfo->getLane2(), $world), $this->centerPos);
         $this->lane3 = new Lane(Position::fromObject($stageInfo->getLane3(), $world), $this->centerPos);
         $this->lane4 = new Lane(Position::fromObject($stageInfo->getLane4(), $world), $this->centerPos);
-        $this->maxPlayers = 5;
+        $this->maxPlayers = 6;
 
         $this->closed = false;
 

@@ -1,0 +1,36 @@
+
+Zombie 
+HP 24 ATK 4.5 SPD 0.35
+
+Attacker 
+HP 116 ATK 6.0 SPD 0.025
+
+Creeper 
+HP 15 ATK 1.0 SPD 0.45
+
+Spider 
+HP 50 ATK 3.0 SPD 0.37
+
+Husk 
+HP 55 ATK 8.0 SPD 0.2
+
+Skeleton 
+HP 50 ATK 2.0 SPD 0.21
+
+Defender 
+Hp 80 ATK 0.5 SPD 0.3
+
+ZombieLord 
+HP 360 ATK 10.0 SPD 0.22
+
+Stray 
+HP 270 ATK 3.0 SPD 0.24
+
+
+
+(New)
+
+Silverfish
+HP 5
+
+プレイヤーが半径8m以内にいると地面に潜り(透明化)、
