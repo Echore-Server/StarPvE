@@ -7,6 +7,8 @@ namespace Lyrica0954\StarPvE\game;
 use Lyrica0954\BossBar\BossBar;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\Service\Service;
+use Lyrica0954\Service\ServiceSession;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\StarPvE\constant\Formats;
@@ -29,6 +31,7 @@ use Lyrica0954\StarPvE\game\wave\WaveData;
 use Lyrica0954\StarPvE\game\wave\WaveMonsters;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
+use Lyrica0954\StarPvE\service\PlayerCounterService;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
@@ -43,6 +46,7 @@ use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDeathEvent;
+use pocketmine\event\HandlerListManager;
 use pocketmine\event\Listener;
 use pocketmine\item\Armor;
 use pocketmine\item\Item;
@@ -75,6 +79,10 @@ class WaveController implements CooltimeAttachable, Listener {
     protected int $monsterRemain;
     protected int $wave;
 
+    protected ServiceSession $serviceSession;
+
+    protected string $killCounterHash;
+
     public function __construct(Game $game, array $waveData) {
         $this->game = $game;
         $this->waveData = $waveData;
@@ -89,6 +97,15 @@ class WaveController implements CooltimeAttachable, Listener {
         $this->monsterOptions = MonsterFactory::getInstance()->getList();
 
         $this->createCooltimeHandler("Wave Tick", CooltimeHandler::BASE_SECOND, 1);
+        $this->serviceSession = new ServiceSession(StarPvE::getInstance());
+        $killCounter = new PlayerCounterService($this->serviceSession);
+        $this->killCounterHash = spl_object_hash($killCounter);
+        $this->serviceSession->add($killCounter);
+        $this->serviceSession->start();
+    }
+
+    public function getKillCounter(): ?PlayerCounterService {
+        return $this->serviceSession->getServices()[$this->killCounterHash] ?? null;
     }
 
     public function getGame(): Game {
@@ -235,6 +252,8 @@ class WaveController implements CooltimeAttachable, Listener {
                                         $par->setInvisible(true);
                                         $entity->getWorld()->addParticle($entity->getPosition()->add(0, 1.0, 0), $par);
                                     }), 20);
+
+                                    $this->getKillCounter()->add($damager);
                                 }
                             }
                             #$entity->setNameTag("§7Killed by §6{$damager->getName()}");
@@ -326,6 +345,8 @@ class WaveController implements CooltimeAttachable, Listener {
     public function demonKill() {
         $this->breakCooltimeHandler();
         $this->reset();
+        HandlerListManager::global()->unregisterAll($this);
+        $this->serviceSession->shutdown();
 
         $this->log("§dDemon killed");
     }
