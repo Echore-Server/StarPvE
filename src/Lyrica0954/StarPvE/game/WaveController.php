@@ -20,7 +20,9 @@ use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\event\game\wave\WaveMonsterSpawnEvent;
 use Lyrica0954\StarPvE\event\game\wave\WaveStartEvent;
 use Lyrica0954\StarPvE\event\PlayerDeathOnGameEvent;
+use Lyrica0954\StarPvE\form\PerkIdentitiesForm;
 use Lyrica0954\StarPvE\game\monster\Attacker;
+use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\game\wave\CustomWaveStart;
 use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterAttribute;
@@ -36,8 +38,10 @@ use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\ArmorSet;
+use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\RandomUtil;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\block\BlockFactory;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
@@ -58,6 +62,7 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
+use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\particle\FloatingTextParticle;
@@ -83,6 +88,11 @@ class WaveController implements CooltimeAttachable, Listener {
 
     protected string $killCounterHash;
 
+    /**
+     * @var TaskHandler[]
+     */
+    protected array $spawnTasks;
+
     public function __construct(Game $game, array $waveData) {
         $this->game = $game;
         $this->waveData = $waveData;
@@ -102,6 +112,8 @@ class WaveController implements CooltimeAttachable, Listener {
         $this->killCounterHash = spl_object_hash($killCounter);
         $this->serviceSession->add($killCounter);
         $this->serviceSession->start();
+
+        $this->spawnTasks = [];
     }
 
     public function getKillCounter(): ?PlayerCounterService {
@@ -262,6 +274,28 @@ class WaveController implements CooltimeAttachable, Listener {
                     }
                 }
 
+                $stageEntities = 0;
+                foreach ($this->game->getWorld()->getEntities() as $te) {
+                    if (MonsterData::isMonster($te)) {
+                        if (!$te->isClosed() && $te->isAlive()) {
+                            if ($entity !== $te) {
+                                $stageEntities++;
+                            }
+                        }
+                    }
+                }
+
+                #$this->game->broadcastMessage("{$stageEntities}");
+                if ($stageEntities <= 0) {
+                    $this->game->broadcastMessage("§7フィールド上の敵がすべて殲滅されました！次のモンスターが瞬時にスポーンします！");
+                    #print_r($this->spawnTasks);
+                    foreach ($this->spawnTasks as $taskHandler) {
+                        if (!$taskHandler->isCancelled()) {
+                            $taskHandler->run();
+                        }
+                    }
+                }
+
                 if ($this->monsterRemain <= 0) {
                     $this->game->broadcastMessage("§cUnexpected: monsterRemain が 0以下 です");
                 } else {
@@ -319,6 +353,7 @@ class WaveController implements CooltimeAttachable, Listener {
 
     public function waveStart() {
         $this->wave++;
+        $this->spawnTasks = [];
 
         $ev = new WaveStartEvent($this->getGame(), $this->wave);
         $ev->call();
@@ -364,7 +399,8 @@ class WaveController implements CooltimeAttachable, Listener {
             }
             $ev = new WaveMonsterSpawnEvent($this->getGame(), $this->wave, $monsters, $pos, $opt);
             $ev->call();
-            $monsters->spawnToAll($ev->getPosition(), $ev->getOptions(), $hook);
+            $tasks = $monsters->spawnToAll($ev->getPosition(), $ev->getOptions(), $hook);
+            $this->spawnTasks = array_merge($this->spawnTasks, $tasks);
         } else {
             throw new \Exception("Game is closed: WaveController: spawnMonster called");
         }
@@ -399,6 +435,22 @@ class WaveController implements CooltimeAttachable, Listener {
 
     public function waveClear() {
         $nextWave = $this->wave + 1;
+        if ($this->wave % 5 === 0) {
+            foreach ($this->game->getPlayers() as $player) {
+                $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
+                if ($gamePlayer instanceof GamePlayer) {
+                    $identities = PerkIdentitiesForm::generateIdentities($gamePlayer, $nextWave);
+                    $form = new PerkIdentitiesForm($gamePlayer, $identities);
+                    TaskUtil::delayed(new ClosureTask(function () use ($form, $player) {
+                        $player->sendMessage("§cパークを取得できます！");
+                        $player->sendTitle("§r ", "§72秒後にパーク選択画面を開きます...");
+                        TaskUtil::delayed(new ClosureTask(function () use ($form, $player) {
+                            $player->sendForm($form);
+                        }), 40);
+                    }), 60);
+                }
+            }
+        }
         $this->mobRemain = 0;
         $this->log("Wave Cleared!");
         if ($nextWave > $this->getMaxWave()) {

@@ -43,6 +43,7 @@ use Lyrica0954\StarPvE\service\indicator\PlayerHealthIndicatorService;
 use Lyrica0954\StarPvE\service\message\GenericLevelupMessageService;
 use Lyrica0954\StarPvE\service\message\JobLevelupMessageService;
 use Lyrica0954\StarPvE\service\message\PlayerAdviceMessageService;
+use Lyrica0954\StarPvE\utils\BuffUtil;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use pocketmine\block\Gravel;
 use pocketmine\data\bedrock\EntityLegacyIds;
@@ -193,6 +194,7 @@ final class StarPvE extends PluginBase {
     protected function onEnable(): void {
         $this->log("Loading Utilities...");
         (new EntityUtil)->init($this);
+        $buffUtil = (new BuffUtil($this));
 
         $wm = $this->getServer()->getWorldManager();
         $wm->loadWorld("map", true);

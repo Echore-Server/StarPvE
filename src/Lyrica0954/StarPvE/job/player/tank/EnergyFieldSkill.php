@@ -39,7 +39,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 
 	protected function init(): void {
 		$this->area = new AbilityStatus(6.5);
-		$this->duration = new AbilityStatus(10);
+		$this->duration = new AbilityStatus(5);
 		$this->tick = 0;
 	}
 
@@ -59,6 +59,37 @@ class EnergyFieldSkill extends Skill implements Listener {
 		);
 	}
 
+	public function activate(): ActionResult {
+		if (!$this->closed) {
+			if (!$this->cooltimeHandler->isActive()) {
+				if (!$this->active) {
+					if ($this->getCooltime() > 0) {
+						$this->cooltimeHandler->start($this->getCooltime());
+					}
+					$result = $this->onActivate();
+
+					if ($result->isMiss()) {
+						$this->cooltimeHandler->stop();
+					}
+
+					return $result;
+				} else {
+					foreach ($this->tasks as $taskHandler) {
+						if (!$taskHandler->isCancelled()) {
+							$taskHandler->cancel();
+						}
+					}
+					return ActionResult::SUCCEEDED_SILENT();
+				}
+			} else {
+				return ActionResult::FAILED_BY_COOLTIME();
+			}
+		} else {
+			throw new \Exception("cannot activate closed ability");
+		}
+	}
+
+
 	protected function onActivate(): ActionResult {
 		$job = $this->getJob();
 		if ($job instanceof Tank) {
@@ -73,6 +104,14 @@ class EnergyFieldSkill extends Skill implements Listener {
 
 
 		$task = TaskUtil::reapeatingClosureCheck(function () {
+			if (!$this->player->isConnected()) {
+				foreach ($this->tasks as $taskHandler) {
+					if (!$taskHandler->isCancelled()) {
+						$taskHandler->cancel();
+					}
+				}
+				return;
+			}
 			if ($this->tick % 30 == 0) {
 				(new SphereParticle($this->area->get(), 10, 10, 360, -90, 0))->sendToPlayers(
 					$this->player->getWorld()->getPlayers(),
@@ -117,6 +156,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 			}
 
 			if ($this->tick % 20 == 0) {
+				$this->player->setHealth(min($this->player->getHealth() + 1, $this->player->getMaxHealth()));
 				foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
 					if ($entity instanceof ShieldBall) {
 						$entity->setPower($entity->getPower() + 2);

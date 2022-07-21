@@ -96,6 +96,13 @@ abstract class Ability {
 
     abstract protected function init(): void;
 
+    /**
+     * @return TaskHandler[]
+     */
+    public function getTasks(): array {
+        return $this->tasks;
+    }
+
     public function registerTask(TaskHandler $handler): void {
         $this->tasks[] = $handler;
     }

@@ -15,6 +15,7 @@ use pocketmine\entity\Location;
 use pocketmine\item\Armor;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\Task;
+use pocketmine\scheduler\TaskHandler;
 use pocketmine\world\Position;
 
 class WaveMonsters {
@@ -44,9 +45,10 @@ class WaveMonsters {
      * @param MonsterOption[] $optionMap
      * @param \Closure|null $hook
      * 
-     * @return [type]
+     * @return TaskHandler[]
      */
-    public function spawnToAll(Position $pos, array $optionMap, \Closure $hook = null) {
+    public function spawnToAll(Position $pos, array $optionMap, \Closure $hook = null): array {
+        $tasks = [];
         foreach ($this->monsters as $monster) {
             $class = $monster->name;
             $time = 90 * 20;
@@ -57,7 +59,7 @@ class WaveMonsters {
             }
             $attribute = $option->getAttribute();
             $equipment = $option->getEquipment();
-            StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask(new class($monster, $pos, $attribute, $equipment, $hook) extends Task {
+            $handler = StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask(new class($monster, $pos, $attribute, $equipment, $hook) extends Task {
 
                 private MonsterData $monster;
                 private MonsterAttribute $attribute;
@@ -116,7 +118,10 @@ class WaveMonsters {
                     }
                 }
             }, $period);
+            $tasks[] = $handler;
             $this->log("Added Monster Spawner");
         }
+
+        return $tasks;
     }
 }

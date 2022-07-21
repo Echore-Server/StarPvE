@@ -88,6 +88,7 @@ class GamePlayer {
 
     public function joinGame(Game $game) {
         PlayerUtil::reset($this->player);
+        $this->resetAll();
         $this->player->teleport($game->getCenterPosition());
 
         $this->setGame($game);
@@ -97,7 +98,7 @@ class GamePlayer {
         PlayerUtil::reset($this->player);
         PlayerUtil::teleportToLobby($this->player);
 
-        $this->resetEquipment();
+        $this->resetAll();
         $this->setGame(null);
     }
 

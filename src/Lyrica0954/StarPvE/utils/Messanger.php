@@ -35,7 +35,7 @@ class Messanger {
     public static function getIdFromObject(object $object, string $function, string $add = "") {
         $ref = new \ReflectionClass($object);
         $name = $ref->getShortName();
-        $id = "{$name}#{$function}<F>-{$add}<C>";
+        $id = "class: {$name} fn: {$function} {$add}";
         return $id;
     }
 
