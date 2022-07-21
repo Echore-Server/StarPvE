@@ -29,7 +29,7 @@ class GamePlayer {
         $this->player = $player;
         $this->game = null;
 
-        $this->swordEquipment = new SwordEquipment($this); #todo: GamePlayerEquipmentManager
+        $this->swordEquipment = new SwordEquipment($this);
         $this->armorEquipment = new ArmorEquipment($this);
 
         $this->identityGroup = new IdentityGroup();
