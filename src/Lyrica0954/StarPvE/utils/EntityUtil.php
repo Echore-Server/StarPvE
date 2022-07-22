@@ -395,7 +395,7 @@ class EntityUtil implements Listener {
 
     public static function multiplyFinalDamage(EntityDamageEvent $source, float $multiplier): void {
         $before = $source->getModifier(self::DAMAGE_MODIFIER_PERCENTAGE);
-        $finalDamage = $source->getFinalDamage() + (-$before);
+        $finalDamage = $source->getFinalDamage(); # + (-$before);
         $subtractDamage = ($finalDamage) * (1 - $multiplier);
         $source->setModifier(
             $before - $subtractDamage,

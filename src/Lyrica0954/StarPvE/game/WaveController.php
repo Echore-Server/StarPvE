@@ -313,11 +313,6 @@ class WaveController implements CooltimeAttachable, Listener {
         }
     }
 
-    public function getMonsterAttribute(LivingBase $entity) {
-        $class = $entity::class;
-        $attribute = $this->monsterAttributes[$class] ?? null;
-        return $attribute;
-    }
 
     protected function reset() {
         $this->wave = 0;
@@ -355,6 +350,7 @@ class WaveController implements CooltimeAttachable, Listener {
         $this->wave++;
         $this->spawnTasks = [];
 
+
         $ev = new WaveStartEvent($this->getGame(), $this->wave);
         $ev->call();
 
@@ -368,9 +364,13 @@ class WaveController implements CooltimeAttachable, Listener {
                 }
             }
 
+            $reinforce = $this->getReinforceValue($this->wave);
+            $percentage = (int) round(($reinforce - 1.0) * 100);
+
             foreach ($this->game->getPlayers() as $player) {
                 PlayerUtil::playSound($player, "mob.evocation_illager.prepare_attack");
                 $player->sendTitle($waveData->parseTitleFormat($this->wave), "§r ");
+                $player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
             }
 
             $this->spawnWaveMonster($this->wave);
@@ -386,6 +386,20 @@ class WaveController implements CooltimeAttachable, Listener {
         $this->log("§dDemon killed");
     }
 
+    public function getReinforceValue(int $wave): float {
+        $reinforcePeriod = floor($wave / 2);
+        $reinforce = 1.0 + $reinforcePeriod * 0.05;
+        return $reinforce;
+    }
+
+    public function modifySpawnOption(MonsterOption $option): void {
+        $reinforce = $this->getReinforceValue($this->wave);
+
+        $att = $option->getAttribute();
+        $att->health = (int) round($att->health * $reinforce);
+        $att->damage *= $reinforce;
+    }
+
 
     public function spawnMonster(WaveMonsters $monsters, Position $pos, \Closure $hook = null) {
         if (!$this->game->isClosed()) {
@@ -395,7 +409,9 @@ class WaveController implements CooltimeAttachable, Listener {
 
             $opt = [];
             foreach ($this->monsterOptions as $k => $option) {
-                $opt[$k] = clone $option;
+                $cop = clone $option;
+                $this->modifySpawnOption($cop);
+                $opt[$k] = $cop;
             }
             $ev = new WaveMonsterSpawnEvent($this->getGame(), $this->wave, $monsters, $pos, $opt);
             $ev->call();
@@ -435,7 +451,7 @@ class WaveController implements CooltimeAttachable, Listener {
 
     public function waveClear() {
         $nextWave = $this->wave + 1;
-        if ($this->wave % 5 === 0) {
+        if ($this->wave % 4 === 0) {
             foreach ($this->game->getPlayers() as $player) {
                 $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
                 if ($gamePlayer instanceof GamePlayer) {
@@ -443,11 +459,11 @@ class WaveController implements CooltimeAttachable, Listener {
                     $form = new PerkIdentitiesForm($gamePlayer, $identities);
                     TaskUtil::delayed(new ClosureTask(function () use ($form, $player) {
                         $player->sendMessage("§cパークを取得できます！");
-                        $player->sendTitle("§r ", "§72秒後にパーク選択画面を開きます...");
+                        $player->sendTitle("§r ", "§75秒後にパーク選択画面を開きます...");
                         TaskUtil::delayed(new ClosureTask(function () use ($form, $player) {
                             $player->sendForm($form);
-                        }), 40);
-                    }), 60);
+                        }), 100);
+                    }), 100);
                 }
             }
         }
@@ -456,9 +472,21 @@ class WaveController implements CooltimeAttachable, Listener {
         if ($nextWave > $this->getMaxWave()) {
             $this->game->gameclear();
         } else {
+            $lastReinforce = $this->getReinforceValue($this->wave);
+            $nextReinforce = $this->getReinforceValue($nextWave);
+            $percentage = (int) round(($nextReinforce - 1.0) * 100);
+
             foreach ($this->game->getPlayers() as $player) {
                 PlayerUtil::playSound($player, "random.levelup", 1.0, 0.5);
                 $player->sendTitle("§eWave Clear!", "§7Next wave in 30 seconds...");
+
+                if ($lastReinforce !== $nextReinforce) {
+                    TaskUtil::delayed(new ClosureTask(function () use ($player, $lastReinforce, $nextReinforce, $percentage) {
+                        PlayerUtil::playSound($player, "mob.witch.celebrate", 1.0, 0.8);
+                        $player->sendMessage("§7モンスターの攻撃力、体力 §c+3%");
+                        $player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
+                    }), 20);
+                }
             }
 
             $this->game->getBossBar()->setHealthPercent(0.0);
