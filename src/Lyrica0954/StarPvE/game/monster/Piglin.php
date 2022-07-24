@@ -50,7 +50,7 @@ class Piglin extends FightingEntity implements Hostile, ProjectileSource {
         return 14;
     }
 
-    protected function onTick(int $currentTick): void {
+    protected function onTick(int $currentTick, int $tickDiff = 1): void {
     }
 
     public function hitEntity(Entity $entity, float $range): void {

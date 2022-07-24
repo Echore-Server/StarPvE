@@ -74,9 +74,9 @@ class ThunderboltAbility extends Ability implements Ticking {
 
     protected function init(): void {
         $this->damage = new AbilityStatus(6.0);
-        $this->duration = new AbilityStatus(3);
+        $this->duration = new AbilityStatus(2);
         $this->chainDamage = new AbilityStatus(4.0);
-        $this->amount = new AbilityStatus(6);
+        $this->amount = new AbilityStatus(5);
         $this->area = new AbilityStatus(8.5);
     }
 

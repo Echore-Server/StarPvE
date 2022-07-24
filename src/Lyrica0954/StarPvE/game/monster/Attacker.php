@@ -26,65 +26,65 @@ class Attacker extends FightingEntity implements Neutral {
 
     protected float $reach = 1.2;
 
-    public static function getNetworkTypeId(): string{
+    public static function getNetworkTypeId(): string {
         return EntityIds::WITCH;
     }
 
-    public function checkTarget(Entity $entity, float $range): bool{
+    public function checkTarget(Entity $entity, float $range): bool {
         return ($entity instanceof Villager) && $range <= $this->getFollowRange();
     }
 
-    public function checkCurrentTarget(){
+    public function checkCurrentTarget() {
         return true;
     }
 
-    public function attack(EntityDamageEvent $source): void{
+    public function attack(EntityDamageEvent $source): void {
         parent::attack($source);
 
         $game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($this->getWorld());
-        if ($game instanceof Game){
+        if ($game instanceof Game) {
             $this->target = $game->getVillager();
         }
     }
 
-    protected function initEntity(CompoundTag $nbt): void{
+    protected function initEntity(CompoundTag $nbt): void {
         parent::initEntity($nbt);
 
         $game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($this->getWorld());
-        if ($game instanceof Game){
+        if ($game instanceof Game) {
             $this->target = $game->getVillager();
         } else {
             $this->close();
         }
     }
 
-    protected function selectTarget(array $targets): void{
+    protected function selectTarget(array $targets): void {
     }
 
-    public function avoidCollidingEntities(){
+    public function avoidCollidingEntities() {
         #unti!
     }
 
-    protected function getInitialSizeInfo(): EntitySizeInfo{
+    protected function getInitialSizeInfo(): EntitySizeInfo {
         return new EntitySizeInfo(1.95, 0.8);
     }
 
-    protected function getInitialFightStyle(): Style{
+    protected function getInitialFightStyle(): Style {
         return new MeleeStyle($this);
     }
 
-    public function getAddtionalAttackCooldown(): int{
+    public function getAddtionalAttackCooldown(): int {
         return 40;
     }
 
-    public function moveForward(){
-        if (!$this->isImmobile()){
+    public function moveForward() {
+        if (!$this->isImmobile()) {
             parent::moveForward();
         }
     }
 
-    protected function onTick(int $currentTick): void{
-        if ($this->isInAttackRange($this->target)){
+    protected function onTick(int $currentTick, int $tickDiff = 1): void {
+        if ($this->isInAttackRange($this->target)) {
             $this->setImmobile(true);
         } else {
             $this->setImmobile(false);
@@ -92,11 +92,11 @@ class Attacker extends FightingEntity implements Neutral {
     }
 
 
-    public function getFollowRange(): float{
+    public function getFollowRange(): float {
         return 100;
     }
 
-    public function getName(): string{
+    public function getName(): string {
         return "Attacker";
     }
 }

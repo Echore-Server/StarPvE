@@ -32,6 +32,9 @@ class Defender extends FightingEntity implements Neutral {
 
     protected int $ptick = 0;
 
+    protected int $atick = 0;
+    protected int $vtick = 0;
+
     public static function getNetworkTypeId(): string {
         return EntityIds::DROWNED;
     }
@@ -72,7 +75,7 @@ class Defender extends FightingEntity implements Neutral {
         return 5;
     }
 
-    protected function onTick(int $currentTick): void {
+    protected function onTick(int $currentTick, int $tickDiff = 1): void {
         if ($this->getHelping() === null) {
             foreach (EntityUtil::getWithinRange($this->getPosition(), 15) as $entity) {
                 if ($entity instanceof Attacker) {
@@ -85,7 +88,7 @@ class Defender extends FightingEntity implements Neutral {
             if (!$helping->isAlive() || $helping->isClosed()) {
                 $this->setHelping(null);
             } else {
-                $this->ptick++;
+                $this->ptick += $tickDiff;
                 $epos = $helping->getPosition();
                 $epos->y += 0.6;
                 $pos = $this->getPosition();
@@ -111,12 +114,17 @@ class Defender extends FightingEntity implements Neutral {
         $next->y += (2.25 * sin($n));
         $velocity = $next->subtractVector($current);
 
-        if ($currentTick % 5 == 0) {
+        $this->vtick += $tickDiff;
+
+        if ($this->vtick >= 5) {
+            $this->vtick = 0;
             $par = new CircleParticle(5, 6, 0);
             $par->sendToPlayers($this->getWorld()->getPlayers(), $current, ParticleOption::spawnPacket("minecraft:basic_crit_particle", ""));
         }
 
-        if ($currentTick % 2 == 0) {
+        $this->atick += $tickDiff;
+        if ($this->atick >= 2) {
+            $this->atick = 0;
             foreach ($this->getWorld()->getEntities() as $entity) {
                 if ($entity instanceof Player) {
                     if (!$entity->isSpectator() && $entity->isAlive()) {

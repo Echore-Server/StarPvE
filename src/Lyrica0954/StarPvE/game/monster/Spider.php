@@ -23,7 +23,7 @@ class Spider extends SmartSpider {
 
     protected float $reach = 2.0;
 
-    protected function onTick(int $currentTick): void {
+    protected function onTick(int $currentTick, int $tickDiff = 1): void {
         if ($currentTick % 70 == 0) {
             foreach (EntityUtil::getWithinRange($this->getPosition(), $this->getAttackRange() * 2.0) as $entity) {
                 if ($entity instanceof Player) {

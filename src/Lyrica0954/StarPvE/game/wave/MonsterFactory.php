@@ -144,6 +144,19 @@ class MonsterFactory {
 
 		$this->register(
 			new MonsterOption(
+				DefaultMonsters::ENDERMAN,
+				new MonsterAttribute(12, 4, 0.4),
+				ArmorSet::none(),
+				[
+					VanillaItems::EMERALD()->setCount(6)
+				],
+				8
+			)
+		);
+
+
+		$this->register(
+			new MonsterOption(
 				DefaultMonsters::ZOMBIE_LORD,
 				new MonsterAttribute(360, 10.0, 0.22),
 				ArmorSet::chainmail(),

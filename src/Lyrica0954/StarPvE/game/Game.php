@@ -132,6 +132,7 @@ class Game implements CooltimeAttachable {
                 null,
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 2),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 5)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 1),
