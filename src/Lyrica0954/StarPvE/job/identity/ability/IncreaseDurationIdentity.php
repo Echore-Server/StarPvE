@@ -26,7 +26,8 @@ class IncreaseDurationIdentity extends AttachAbilityIdentityBase {
 	public function getDescription(): string {
 		$attaching = $this->getAttaching();
 		$name = $attaching->getCooltimeHandler()->getId();
-		return "{$name}の効果時間が {$this->add} 増加";
+		$sec = round($this->add / 20, 1);
+		return "{$name}の効果時間が {$sec}秒 増加";
 	}
 
 	public function apply(): void {

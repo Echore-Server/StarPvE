@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\utils;
 
+use Lyrica0954\SmartEntity\entity\LivingBase;
+use pocketmine\entity\Human;
 use pocketmine\entity\Living;
 use pocketmine\item\Armor;
 use pocketmine\item\Durable;
@@ -18,6 +20,8 @@ class ArmorSet {
     protected Armor|ItemBlock $chestplate;
     protected Armor|ItemBlock $leggings;
     protected Armor|ItemBlock $boots;
+
+    protected Item|ItemBlock $mainhand;
 
     public static function leather() {
         $f = ItemFactory::getInstance();
@@ -68,15 +72,16 @@ class ArmorSet {
         return new self(null, null, null, null);
     }
 
-    public function __construct(?Armor $helmet, ?Armor $chestplate, ?Armor $leggings, ?Armor $boots) {
+    public function __construct(?Armor $helmet, ?Armor $chestplate, ?Armor $leggings, ?Armor $boots, ?Item $mainhand = null) {
         $this->helmet = $this->replaceAir($helmet);
         $this->chestplate = $this->replaceAir($chestplate);
         $this->leggings = $this->replaceAir($leggings);
         $this->boots = $this->replaceAir($boots);
+        $this->mainhand = $this->replaceAir($mainhand);
     }
 
-    public function replaceAir(?Armor $armor) {
-        return ($armor instanceof Armor) ? $armor : (ItemFactory::getInstance()->get(ItemIds::AIR));
+    public function replaceAir(?Item $item) {
+        return ($item instanceof Item) ? $item : (ItemFactory::getInstance()->get(ItemIds::AIR));
     }
 
     public function setUnbreakable(bool $unbreakable = true) {
@@ -84,7 +89,8 @@ class ArmorSet {
             $this->helmet,
             $this->chestplate,
             $this->leggings,
-            $this->boots
+            $this->boots,
+            $this->mainhand
         ];
 
         foreach ($parts as $part) {
@@ -110,11 +116,19 @@ class ArmorSet {
         return $this->boots;
     }
 
+    public function getMainhand() {
+        return $this->mainhand;
+    }
+
     public function equip(Living $living) {
         $inv = $living->getArmorInventory();
         $inv->setHelmet($this->helmet);
         $inv->setChestplate($this->chestplate);
         $inv->setLeggings($this->leggings);
         $inv->setBoots($this->boots);
+
+        if ($living instanceof LivingBase) {
+            $living->setItemInHand($this->mainhand);
+        }
     }
 }

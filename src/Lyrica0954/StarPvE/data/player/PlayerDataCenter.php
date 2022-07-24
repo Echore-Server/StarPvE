@@ -23,6 +23,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 
     private array $genericDefault;
     private array $jobDefault;
+    private array $settingDefault;
 
     protected array $data;
 
@@ -54,6 +55,8 @@ class PlayerDataCenter extends DataCenter implements Listener {
             JobConfigAdapter::NEXT_EXP => JobConfigAdapter::getExpToCompleteLevel(1)
         ];
 
+        $this->settingDefault = [];
+
         $this->load($folder);
         StarPvE::getInstance()->getServer()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
     }
@@ -75,13 +78,14 @@ class PlayerDataCenter extends DataCenter implements Listener {
         $count = 0;
         foreach (glob($folder . "/*", GLOB_ONLYDIR) as $pdFolder) {
             $generic = new Config("{$pdFolder}/generic.yml", Config::YAML, $this->genericDefault);
+            $setting = new Config("{$pdFolder}/setting.yml", Config::YAML, $this->settingDefault);
             $jobs = [];
             foreach (glob($pdFolder . ' /job/*.yml') as $jobFile) {
                 $jobs[basename($jobFile)] = new Config($jobFile, Config::YAML);
             }
             $xuid = basename($pdFolder);
             if (strlen($xuid) == 16) {
-                $this->data[$xuid] = new PlayerConfig($generic, $jobs, $xuid);
+                $this->data[$xuid] = new PlayerConfig($generic, $setting, $jobs, $xuid);
                 $count++;
             } else {
                 $this->log("§eData Corrupt: {$xuid}");
@@ -141,11 +145,23 @@ class PlayerDataCenter extends DataCenter implements Listener {
         return $job;
     }
 
+    public function createSettingConfig(Player $player) {
+        $info = [
+            "Username" => $player->getName()
+        ];
+
+        $default = array_merge($info, $this->settingDefault);
+        $dataFolder = StarPvE::getInstance()->getDataFolder();
+        $file = $dataFolder . "player_data/{$player->getXuid()}/setting.yml";
+        $setting = new Config($file, Config::YAML, $default);
+        return $setting;
+    }
+
 
     public function createFor(Player $player): void {
         $dataFolder = StarPvE::getInstance()->getDataFolder();
         @mkdir($dataFolder . "player_data/{$player->getXuid()}/job", 0777, true);
 
-        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), [], $player->getXuid());
+        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), $this->createSettingConfig($player), [], $player->getXuid());
     }
 }

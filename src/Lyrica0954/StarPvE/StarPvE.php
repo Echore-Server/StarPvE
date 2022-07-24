@@ -11,6 +11,7 @@ use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\JobShop;
 use Lyrica0954\StarPvE\entity\MemoryEntity;
 use Lyrica0954\StarPvE\entity\Villager;
+use Lyrica0954\StarPvE\game\GameCreationOption;
 use Lyrica0954\StarPvE\game\GameManager;
 use Lyrica0954\StarPvE\game\monster\Attacker;
 use Lyrica0954\StarPvE\game\monster\boss\Stray;
@@ -18,6 +19,7 @@ use Lyrica0954\StarPvE\game\monster\boss\ZombieLord;
 use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\monster\Defender;
 use Lyrica0954\StarPvE\game\monster\Husk;
+use Lyrica0954\StarPvE\game\monster\Piglin;
 use Lyrica0954\StarPvE\game\monster\Skeleton;
 use Lyrica0954\StarPvE\game\monster\Spider;
 use Lyrica0954\StarPvE\game\monster\Zombie;
@@ -43,6 +45,7 @@ use Lyrica0954\StarPvE\service\indicator\PlayerHealthIndicatorService;
 use Lyrica0954\StarPvE\service\message\GenericLevelupMessageService;
 use Lyrica0954\StarPvE\service\message\JobLevelupMessageService;
 use Lyrica0954\StarPvE\service\message\PlayerAdviceMessageService;
+use Lyrica0954\StarPvE\service\player\PlayerChatService;
 use Lyrica0954\StarPvE\utils\BuffUtil;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use pocketmine\block\Gravel;
@@ -51,6 +54,7 @@ use pocketmine\data\SavedDataLoadingException;
 use pocketmine\entity\EntityDataHelper;
 use pocketmine\entity\EntityFactory;
 use pocketmine\entity\Skin;
+use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\item\Item;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\upnp\UPnP;
@@ -139,6 +143,10 @@ final class StarPvE extends PluginBase {
         $f->register(Defender::class, function (World $world, CompoundTag $nbt): Defender {
             return new Defender(EntityDataHelper::parseLocation($nbt, $world), $nbt);
         }, ["starpve:defender"], EntityLegacyIds::DROWNED);
+
+        $f->register(Piglin::class, function (World $world, CompoundTag $nbt): Piglin {
+            return new Piglin(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:piglin"], EntityLegacyIds::ZOMBIE_PIGMAN);
 
         $f->register(ZombieLord::class, function (World $world, CompoundTag $nbt): ZombieLord {
             return new ZombieLord(EntityDataHelper::parseLocation($nbt, $world), $nbt);
@@ -235,12 +243,13 @@ final class StarPvE extends PluginBase {
         $session->add(new JobLevelupMessageService($session));
         $session->add(new PlayerAdviceMessageService($session));
         $session->add(new ExpIndicatorService($session));
+        $session->add(new PlayerChatService($session));
 
         $this->log("Starting Service Session...");
         $session->start();
 
         $this->log("Creating New Game...");
-        $this->gameManager->createNewGame();
+        $this->gameManager->createNewGame(GameCreationOption::manual());
     }
 
     public function log(string $message) {

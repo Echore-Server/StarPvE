@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\command;
 
+use Lyrica0954\StarPvE\form\command\GameCreationForm;
 use Lyrica0954\StarPvE\game\Game;
+use Lyrica0954\StarPvE\game\GameCreationOption;
 use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
@@ -72,22 +74,27 @@ final class GameCommand extends PluginCommandNoAuth {
 						}
 						break;
 					case 'create':
-						$id = null;
-						if (count($args) > 1) {
-							$id = $args[1];
-							if (strlen($id) !== mb_strlen($id, "utf-8")) {
-								Messanger::error($sender, "ゲームIDに特殊文字は指定できません", "user");
-							} else {
-								if (strlen($id) <= 16) {
-									$manager->createNewGame($id);
-									$sender->sendMessage("§aゲーム {$id} を開始しました");
-								} else {
-									Messanger::error($sender, "ゲームIDは16文字以下である必要があります", "user");
-								}
-							}
+						if ($sender instanceof Player) {
+							$form = new GameCreationForm();
+							$sender->sendForm($form);
 						} else {
-							$id = $manager->createNewGame(null);
-							$sender->sendMessage("§aゲーム {$id} を開始しました");
+							$id = null;
+							if (count($args) > 1) {
+								$id = $args[1];
+								if (strlen($id) !== mb_strlen($id, "utf-8")) {
+									Messanger::error($sender, "ゲームIDに特殊文字は指定できません", "user");
+								} else {
+									if (strlen($id) <= 16) {
+										$manager->createNewGame(GameCreationOption::manual(6, null, $id));
+										$sender->sendMessage("§aゲーム {$id} を開始しました");
+									} else {
+										Messanger::error($sender, "ゲームIDは16文字以下である必要があります", "user");
+									}
+								}
+							} else {
+								$id = $manager->createNewGame(GameCreationOption::manual());
+								$sender->sendMessage("§aゲーム {$id} を開始しました");
+							}
 						}
 						break;
 					case 'createcount':
@@ -95,7 +102,7 @@ final class GameCommand extends PluginCommandNoAuth {
 							$count = (int) $args[1];
 
 							for ($i = 0; $i <= $count; $i++) {
-								$id = $manager->createNewGame(null);
+								$id = $manager->createNewGame(GameCreationOption::manual());
 								$sender->sendMessage("§aゲーム {$id} を開始しました");
 							}
 						}

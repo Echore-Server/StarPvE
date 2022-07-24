@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\identity;
 
+use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use pocketmine\network\mcpe\protocol\types\PlayerAction;
 use pocketmine\player\Player;
 
 class IdentityGroup {

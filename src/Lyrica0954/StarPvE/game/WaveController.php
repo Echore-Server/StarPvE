@@ -451,18 +451,14 @@ class WaveController implements CooltimeAttachable, Listener {
 
     public function waveClear() {
         $nextWave = $this->wave + 1;
-        if ($this->wave % 4 === 0) {
+        if ($nextWave % 4 === 0) {
             foreach ($this->game->getPlayers() as $player) {
                 $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
                 if ($gamePlayer instanceof GamePlayer) {
-                    $identities = PerkIdentitiesForm::generateIdentities($gamePlayer, $nextWave);
-                    $form = new PerkIdentitiesForm($gamePlayer, $identities);
-                    TaskUtil::delayed(new ClosureTask(function () use ($form, $player) {
-                        $player->sendMessage("§cパークを取得できます！");
-                        $player->sendTitle("§r ", "§75秒後にパーク選択画面を開きます...");
-                        TaskUtil::delayed(new ClosureTask(function () use ($form, $player) {
-                            $player->sendForm($form);
-                        }), 100);
+                    $gamePlayer->setPerkAvailable($gamePlayer->getPerkAvailable() + 1);
+                    TaskUtil::delayed(new ClosureTask(function () use ($player) {
+                        PlayerUtil::playSound($player, "conduit.activate", 1.0, 0.8);
+                        $player->sendTitle("§r ", "§7ショップでパークを獲得できます！");
                     }), 100);
                 }
             }
@@ -483,7 +479,7 @@ class WaveController implements CooltimeAttachable, Listener {
                 if ($lastReinforce !== $nextReinforce) {
                     TaskUtil::delayed(new ClosureTask(function () use ($player, $lastReinforce, $nextReinforce, $percentage) {
                         PlayerUtil::playSound($player, "mob.witch.celebrate", 1.0, 0.8);
-                        $player->sendMessage("§7モンスターの攻撃力、体力 §c+3%");
+                        $player->sendMessage("§7モンスターの攻撃力、体力 §c+5%");
                         $player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
                     }), 20);
                 }

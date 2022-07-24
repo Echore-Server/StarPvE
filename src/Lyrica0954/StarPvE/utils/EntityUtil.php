@@ -352,7 +352,7 @@ class EntityUtil implements Listener {
         $entity->setHealth($health);
     }
 
-    public static function attackEntity(EntityDamageByEntityEvent $source, float $xz = 1.0, float $y = 1.0, bool $forceMotion = false) {
+    public static function attackEntity(EntityDamageByEntityEvent $source, float $xz = 1.0, float $y = 1.0, bool $forceMotion = false): Vector3 {
         $source->setKnockBack(0);
         $entity = $source->getEntity();
         $damager = $source->getDamager();
@@ -362,7 +362,9 @@ class EntityUtil implements Listener {
         $entity->attack($source);
         if (!$source->isCancelled() || $forceMotion) {
             $entity->setMotion($kb);
+            return $kb;
         }
+        return new Vector3(0, 0, 0);
     }
 
     public static function calculateKnockback(Entity $entity, float $x, float $z, float $base = 0.4): Vector3 {

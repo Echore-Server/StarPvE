@@ -98,6 +98,7 @@ class TrapDevice extends GhostItemEntity {
 								$entity->attack($source);
 
 								EntityUtil::immobile($entity, 6 * 20);
+								PlayerUtil::broadcastSound($entity, "mob.allay.hurt", 1.5, 0.6);
 							}
 						}
 					}

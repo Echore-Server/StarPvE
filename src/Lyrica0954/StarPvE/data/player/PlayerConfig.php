@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\data\player;
 
+use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
 use Lyrica0954\StarPvE\data\adapter\SimpleConfigAdapter;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
@@ -26,31 +27,36 @@ class PlayerConfig {
      * @param Config[] $jobs
      * @param string $xuid
      */
-    public function __construct(Config $generic, array $jobs, string $xuid){
+    public function __construct(Config $generic, Config $setting, array $jobs, string $xuid) {
         $this->generic = new GenericConfigAdapter($xuid, $generic);
+        $this->setting = new PlayerConfigAdapter($xuid, $setting);
         $this->jobs = [];
         $this->xuid = $xuid;
-        foreach($jobs as $name=>$jobConfig){
+        foreach ($jobs as $name => $jobConfig) {
             $this->jobs[$name] = new JobConfigAdapter($xuid, $jobConfig);
         }
     }
 
-    public function getGeneric(): GenericConfigAdapter{
+    public function getGeneric(): GenericConfigAdapter {
         return $this->generic;
+    }
+
+    public function getSetting(): PlayerConfigAdapter {
+        return $this->setting;
     }
 
     /**
      * @return JobConfigAdapter[]
      */
-    public function getJobs(): array{
+    public function getJobs(): array {
         return $this->jobs;
     }
 
-    public function getJob(string $name): ?JobConfigAdapter{
+    public function getJob(string $name): ?JobConfigAdapter {
         return $this->jobs[$name] ?? null;
     }
 
-    public function addJob(string $name, Config $job): void{
+    public function addJob(string $name, Config $job): void {
         $this->jobs[$name] = new JobConfigAdapter($this->xuid, $job);
     }
 }

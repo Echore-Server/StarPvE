@@ -44,25 +44,18 @@ class GameManager {
         StarPvE::getInstance()->log("§7[GameManager] {$message}");
     }
 
-    public function createNewGame(string $id = null): ?string {
-        if ($id === null) {
-            $id = $this->generateId(10);
-            while (in_array($id, array_keys($this->games))) {
-                $this->log("§bRegenerating Game ID...");
-                $id = $this->generateId(10);
-            }
-        } else {
-            if (in_array($id, array_keys($this->games))) {
-                return null;
-            }
+    public function createNewGame(GameCreationOption $option): ?string {
+        $id = $option->getId();
+        if (in_array($id, array_keys($this->games))) {
+            return null;
         }
 
         $wm = Server::getInstance()->getWorldManager();
-        $stages = array_values(StageFactory::getInstance()->getList());
-        if (empty($stages)) {
+        $stageInfo = StageFactory::getInstance()->get($option->getStageName());
+        if ($stageInfo === null) {
             return null;
         }
-        $stageInfo = clone $stages[array_rand($stages)];
+
         $worldName = $stageInfo->getWorldName();
         if ($wm->isWorldLoaded($worldName)) {
             $wm->unloadWorld($wm->getWorldByName($worldName));
@@ -74,7 +67,7 @@ class GameManager {
             $world = $wm->getWorldByName($id);
             $world->setTime(13000);
             $world->stopTime();
-            $game = new Game($world, $stageInfo);
+            $game = new Game($world, $stageInfo, $option);
 
             $this->addGame($game, $id);
 

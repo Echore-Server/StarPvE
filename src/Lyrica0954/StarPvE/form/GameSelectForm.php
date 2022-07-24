@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\form;
 
 use Lyrica0954\StarPvE\game\Game;
+use Lyrica0954\StarPvE\game\GameCreationOption;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\form\Form;
@@ -55,7 +56,7 @@ class GameSelectForm implements Form {
                 if ($data == (count($this->games))) {
                     $games = StarPvE::getInstance()->getGameManager()->getGames();
                     if (count($games) < 3) {
-                        $id = StarPvE::getInstance()->getGameManager()->createNewGame();
+                        $id = StarPvE::getInstance()->getGameManager()->createNewGame(GameCreationOption::manual());
                         if ($id !== null) {
                             $game = StarPvE::getInstance()->getGameManager()->getGame($id);
                             $stageInfo = $game->getStageInfo();

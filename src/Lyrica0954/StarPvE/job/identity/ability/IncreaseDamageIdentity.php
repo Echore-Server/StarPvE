@@ -34,6 +34,6 @@ class IncreaseDamageIdentity extends AttachAbilityIdentityBase {
 	}
 
 	public function reset(): void {
-		$$this->getAttaching()->getDamage()->subtract($this->add);
+		$this->getAttaching()->getDamage()->subtract($this->add);
 	}
 }

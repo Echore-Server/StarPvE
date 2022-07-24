@@ -126,6 +126,24 @@ class MonsterFactory {
 
 		$this->register(
 			new MonsterOption(
+				DefaultMonsters::PIGLIN,
+				new MonsterAttribute(24, 4.5, 0.6),
+				new ArmorSet(
+					VanillaItems::GOLDEN_HELMET(),
+					VanillaItems::GOLDEN_CHESTPLATE(),
+					VanillaItems::GOLDEN_LEGGINGS(),
+					VanillaItems::GOLDEN_BOOTS(),
+					VanillaItems::GOLDEN_SWORD()
+				),
+				[
+					VanillaItems::EMERALD()->setCount(2)
+				],
+				3
+			)
+		);
+
+		$this->register(
+			new MonsterOption(
 				DefaultMonsters::ZOMBIE_LORD,
 				new MonsterAttribute(360, 10.0, 0.22),
 				ArmorSet::chainmail(),

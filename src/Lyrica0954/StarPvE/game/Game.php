@@ -17,6 +17,8 @@ use Lyrica0954\StarPvE\event\game\GameStartEvent;
 use Lyrica0954\StarPvE\game\identity\GameArgIdentity;
 use Lyrica0954\StarPvE\game\shop\content\ArmorUpgradeContent;
 use Lyrica0954\StarPvE\game\shop\content\ItemContent;
+use Lyrica0954\StarPvE\game\shop\content\PerkContent;
+use Lyrica0954\StarPvE\game\shop\content\PrestageContent;
 use Lyrica0954\StarPvE\game\shop\content\SwordUpgradeContent;
 use Lyrica0954\StarPvE\game\shop\Shop;
 use Lyrica0954\StarPvE\game\stage\Lane;
@@ -89,7 +91,7 @@ class Game implements CooltimeAttachable {
         return $text;
     }
 
-    public function __construct(World $world, StageInfo $stageInfo) {
+    public function __construct(World $world, StageInfo $stageInfo, GameCreationOption $creationOption) {
         $this->world = $world;
         $this->stageInfo = $stageInfo;
         foreach ($stageInfo->getIdentityGroup()->getAll() as $identity) {
@@ -102,7 +104,7 @@ class Game implements CooltimeAttachable {
         $this->centerPos = Position::fromObject($stageInfo->getCenter(), $world);
         $this->villager = null;
 
-        $this->bossBar = new BossBar("Monster Remain");
+        $this->bossBar = new BossBar("残りモンスター");
         $this->bossBar->setColor(BossBarColor::RED);
 
         $this->shop = new Shop;
@@ -110,6 +112,8 @@ class Game implements CooltimeAttachable {
         $this->shop->addContent(new ArmorUpgradeContent("防具の強化"));
         $f = ItemFactory::getInstance();
         $this->shop->addContent(new ItemContent("パン x4", $f->get(ItemIds::BREAD, 0, 4), $f->get(ItemIds::EMERALD, 0, 10)));
+        $this->shop->addContent(new PerkContent("パークの取得"));
+        $this->shop->addContent(new PrestageContent("プレステージの実行"));
 
         $this->createCooltimeHandler("Game Tick", CooltimeHandler::BASE_SECOND, 1);
 
@@ -117,7 +121,7 @@ class Game implements CooltimeAttachable {
         $this->lane2 = new Lane(Position::fromObject($stageInfo->getLane2(), $world), $this->centerPos);
         $this->lane3 = new Lane(Position::fromObject($stageInfo->getLane3(), $world), $this->centerPos);
         $this->lane4 = new Lane(Position::fromObject($stageInfo->getLane4(), $world), $this->centerPos);
-        $this->maxPlayers = 6;
+        $this->maxPlayers = $creationOption->getMaxPlayers();
 
         $this->closed = false;
 
@@ -237,7 +241,8 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ZOMBIE, 9),
                     new MonsterData(DefaultMonsters::CREEPER, 3),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
-                    new MonsterData(DefaultMonsters::HUSK, 1), #NEW: HUSK
+                    new MonsterData(DefaultMonsters::HUSK, 1), #NEW: HUSK, PIGLIN
+                    new MonsterData(DefaultMonsters::PIGLIN, 1)
 
                 ),
                 new WaveMonsters(
@@ -270,7 +275,8 @@ class Game implements CooltimeAttachable {
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 4),
-                    new MonsterData(DefaultMonsters::ATTACKER, 2)
+                    new MonsterData(DefaultMonsters::ATTACKER, 2),
+                    new MonsterData(DefaultMonsters::PIGLIN, 3)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 5),
@@ -284,12 +290,14 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ZOMBIE, 12),
                     new MonsterData(DefaultMonsters::ATTACKER, 4),
                     new MonsterData(DefaultMonsters::HUSK, 3),
+                    new MonsterData(DefaultMonsters::PIGLIN, 1)
 
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 5),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
-                    new MonsterData(DefaultMonsters::SPIDER, 1) #NEW: SPIDER
+                    new MonsterData(DefaultMonsters::SPIDER, 1), #NEW: SPIDER
+                    new MonsterData(DefaultMonsters::PIGLIN, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 4),
@@ -298,7 +306,8 @@ class Game implements CooltimeAttachable {
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 5),
-                    new MonsterData(DefaultMonsters::ATTACKER, 1)
+                    new MonsterData(DefaultMonsters::ATTACKER, 1),
+                    new MonsterData(DefaultMonsters::PIGLIN, 3)
                 )
             ),
             9 => new WaveData(
@@ -308,7 +317,8 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ZOMBIE, 13),
                     new MonsterData(DefaultMonsters::ATTACKER, 2),
                     new MonsterData(DefaultMonsters::HUSK, 2),
-                    new MonsterData(DefaultMonsters::SPIDER, 3)
+                    new MonsterData(DefaultMonsters::SPIDER, 3),
+                    new MonsterData(DefaultMonsters::PIGLIN, 7)
 
                 ),
                 new WaveMonsters(
@@ -337,6 +347,7 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ATTACKER, 4),
                     new MonsterData(DefaultMonsters::HUSK, 6),
                     new MonsterData(DefaultMonsters::SPIDER, 3),
+                    new MonsterData(DefaultMonsters::PIGLIN, 2),
                     new MonsterData(DefaultMonsters::SKELETON, 1) #NEW: SKELETON
 
                 ),
@@ -345,20 +356,22 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ATTACKER, 3),
                     new MonsterData(DefaultMonsters::SPIDER, 3),
                     new MonsterData(DefaultMonsters::HUSK, 2),
-                    new MonsterData(DefaultMonsters::SKELETON, 1)
+                    new MonsterData(DefaultMonsters::SKELETON, 1),
+                    new MonsterData(DefaultMonsters::PIGLIN, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 6),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::SPIDER, 2),
                     new MonsterData(DefaultMonsters::CREEPER, 3),
+                    new MonsterData(DefaultMonsters::PIGLIN, 3)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 3),
                     new MonsterData(DefaultMonsters::ATTACKER, 2),
                     new MonsterData(DefaultMonsters::CREEPER, 7),
                     new MonsterData(DefaultMonsters::SKELETON, 1),
-                    new MonsterData(DefaultMonsters::STRAY, 1)
+                    new MonsterData(DefaultMonsters::PIGLIN, 2)
                 )
             ),
             11 => new WaveData(
@@ -375,27 +388,30 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ATTACKER, 7),
                     new MonsterData(DefaultMonsters::CREEPER, 6),
                     new MonsterData(DefaultMonsters::SPIDER, 3),
-                    new MonsterData(DefaultMonsters::SKELETON, 2)
+                    new MonsterData(DefaultMonsters::SKELETON, 2),
+                    new MonsterData(DefaultMonsters::PIGLIN, 3)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 4),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::SPIDER, 1),
                     new MonsterData(DefaultMonsters::CREEPER, 2),
-                    new MonsterData(DefaultMonsters::SKELETON, 1)
+                    new MonsterData(DefaultMonsters::SKELETON, 1),
+                    new MonsterData(DefaultMonsters::PIGLIN, 3)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 2),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::CREEPER, 3),
-                    new MonsterData(DefaultMonsters::SKELETON, 3)
+                    new MonsterData(DefaultMonsters::SKELETON, 3),
+                    new MonsterData(DefaultMonsters::PIGLIN, 3)
                 )
             ),
             12 => new WaveData(
                 $defaultTitleFormat,
                 new CustomWaveStart(function (WaveController $wc) {
                     $wc->getGame()->broadcastMessage("§l§cアタッカーとクリーパーの群れがレーン §e2 §cに接近中です！");
-                    $wc->getGame()->broadcastMessage("§l§cゾンビの群れがレーン §e4 §cに接近中です！");
+                    $wc->getGame()->broadcastMessage("§l§cゾンビとピグリンの群れがレーン §e4 §cに接近中です！");
                 }),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 1),
@@ -420,7 +436,8 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ZOMBIE, 20),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::DEFENDER, 1),
-                    new MonsterData(DefaultMonsters::CREEPER, 3)
+                    new MonsterData(DefaultMonsters::CREEPER, 3),
+                    new MonsterData(DefaultMonsters::PIGLIN, 12)
                 )
             ),
         ]);

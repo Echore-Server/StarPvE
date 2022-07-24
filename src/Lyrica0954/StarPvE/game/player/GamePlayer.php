@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\player;
 
+use Lyrica0954\StarPvE\form\PerkIdentitiesForm;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\player\equipment\ArmorEquipment;
 use Lyrica0954\StarPvE\game\player\equipment\SwordEquipment;
@@ -25,6 +26,8 @@ class GamePlayer {
 
     protected IdentityGroup $identityGroup;
 
+    protected int $perkAvailable;
+
     public function __construct(Player $player) {
         $this->player = $player;
         $this->game = null;
@@ -33,6 +36,24 @@ class GamePlayer {
         $this->armorEquipment = new ArmorEquipment($this);
 
         $this->identityGroup = new IdentityGroup();
+
+        $this->perkAvailable = 0;
+    }
+
+    public function getPerkAvailable(): int {
+        return $this->perkAvailable;
+    }
+
+    public function sendPerkForm(): void {
+        if ($this->game !== null) {
+            $identities = PerkIdentitiesForm::generateIdentities($this, $this->game->getWaveController()->getWave());
+            $form = new PerkIdentitiesForm($this, $identities);
+            $this->player->sendForm($form);
+        }
+    }
+
+    public function setPerkAvailable(int $count): void {
+        $this->perkAvailable = $count;
     }
 
     public function getSwordEquipment(): SwordEquipment {
@@ -57,6 +78,8 @@ class GamePlayer {
 
     public function resetAll(): void {
         $this->identityGroup->reset($this->player);
+        $this->identityGroup = new IdentityGroup();
+        $this->perkAvailable = 0;
 
         $this->resetEquipment();
     }

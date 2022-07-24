@@ -15,6 +15,8 @@ use Lyrica0954\StarPvE\identity\player\ReducePercentageArgIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseAreaIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\IncreaseDurationIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\IncreasePercentageIdentity;
 use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\StarPvE;
@@ -29,16 +31,22 @@ class PerkIdentitiesForm implements Form {
         $identities = [
             new AttackPercentageArgIdentity(null, 0.1),
             new ReducePercentageArgIdentity(null, 0.1),
-            new AddMaxHealthArgIdentity(null, 2)
+            new AddMaxHealthArgIdentity(null, 4)
         ];
 
         if ($playerJob instanceof PlayerJob) {
             $rand = [
-                new IncreaseDamageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 1),
-                new IncreaseAreaIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 1),
+                new IncreaseDamageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 1.5),
+                new IncreaseAreaIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 1.5),
+                new IncreaseDurationIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 100),
+                new IncreasePercentageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.2)
             ];
 
-            $identities[] = $rand[array_rand($rand)];
+            for ($i = 0; $i <= 1; $i++) {
+                $ind = array_rand($rand);
+                $identities[] = $rand[$ind];
+                unset($rand[$ind]);
+            }
         }
 
         return $identities;

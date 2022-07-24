@@ -169,7 +169,7 @@ class ThunderboltAbility extends Ability implements Ticking {
 
                     EntityUtil::immobile($ne, (int) $this->duration->get());
                     $min = EntityUtil::getCollisionMin($ne);
-                    $emitter = EmitterParticle::createEmitterForEntity($ne, 0.3, 6);
+                    $emitter = EmitterParticle::createEmitterForEntity($ne, 0.3, 4);
                     $emitter->sendToPlayers(
                         $ne->getWorld()->getPlayers(),
                         VectorUtil::insertWorld($min, $ne->getWorld()),

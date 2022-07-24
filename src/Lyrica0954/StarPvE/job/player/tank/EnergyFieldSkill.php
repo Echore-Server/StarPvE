@@ -74,9 +74,18 @@ class EnergyFieldSkill extends Skill implements Listener {
 
 					return $result;
 				} else {
-					foreach ($this->tasks as $taskHandler) {
-						if (!$taskHandler->isCancelled()) {
-							$taskHandler->cancel();
+					if ($this->isActive()) {
+						foreach ($this->tasks as $taskHandler) {
+							if (!$taskHandler->isCancelled()) {
+								$taskHandler->cancel();
+							}
+						}
+
+						$this->player->sendMessage("§aスキルをキャンセルしました");
+
+						$job = $this->getJob();
+						if ($job instanceof Tank) {
+							$job->setAbility(new RegrowthAbility($job));
 						}
 					}
 					return ActionResult::SUCCEEDED_SILENT();
@@ -202,17 +211,25 @@ class EnergyFieldSkill extends Skill implements Listener {
 			if ($entity->getWorld() == $this->player->getWorld()) {
 				if ($entity !== $this->player) {
 					if ($this->isActive()) {
-						$distance = $entity->getPosition()->distance($this->player->getPosition());
-						if ($distance <= $this->area->get()) {
-							$absorp = $event->getModifier(EntityDamageEvent::MODIFIER_ABSORPTION);
-							$reduce = $event->getFinalDamage() + (-$absorp);
-							$job = $this->getJob();
-							if ($job instanceof Tank) {
-								$job->addEnergy(-$reduce);
+						if (
+							$event->getCause() == EntityDamageEvent::CAUSE_MAGIC ||
+							$event->getCause() == EntityDamageEvent::CAUSE_CONTACT ||
+							$event->getCause() == EntityDamageEvent::CAUSE_ENTITY_ATTACK ||
+							$event->getCause() == EntityDamageEvent::CAUSE_ENTITY_EXPLOSION ||
+							$event->getCause() == EntityDamageEvent::CAUSE_PROJECTILE
+						) {
+							$distance = $entity->getPosition()->distance($this->player->getPosition());
+							if ($distance <= $this->area->get()) {
+								$absorp = $event->getModifier(EntityDamageEvent::MODIFIER_ABSORPTION);
+								$reduce = $event->getFinalDamage() + (-$absorp);
+								$job = $this->getJob();
+								if ($job instanceof Tank) {
+									$job->addEnergy(-$reduce);
+								}
+								PlayerUtil::broadcastSound($entity->getPosition(), "item.shield.block", 1.0, 1.0);
+								$event->cancel();
+								$this->getJob()->getActionListManager()->push(new LineOption("§7{$entity->getName()} §7の §c{$reduce} §7ダメージを防いだ！"));
 							}
-							PlayerUtil::broadcastSound($entity->getPosition(), "item.shield.block", 1.0, 1.0);
-							$event->cancel();
-							$this->getJob()->getActionListManager()->push(new LineOption("§7{$entity->getName()} §7の §c{$reduce} §7ダメージを防いだ！"));
 						}
 					}
 				}

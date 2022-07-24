@@ -20,14 +20,23 @@ class ShopForm implements Form {
         $buttons = [];
         foreach ($this->shop->getContents() as $content) {
             $costItem = $content->getCost($this->player);
-            $has = PlayerUtil::countItem($this->player, $costItem->getId());
             $text = "§l{$content->getName()}§r";
-            if ($content->canBuy($this->player)) {
-                $text .= "\n§a購入可能 §f| §e{$has}§f/§c{$costItem->getCount()}";
+            if ($costItem !== null) {
+                $has = PlayerUtil::countItem($this->player, $costItem->getId());
+                $itemPercentage = " §f| §e{$has}§f/§c{$costItem->getCount()}";
             } else {
-                $need = $costItem->getCount() - $has;
-                if ($need > 0) {
-                    $text .= "\n§c{$costItem->getName()}が不足しています §f| §e{$has}§f/§c{$costItem->getCount()}";
+                $itemPercentage = "";
+            }
+            if ($content->canBuy($this->player)) {
+                $text .= "\n§a購入可能{$itemPercentage}";
+            } else {
+                if ($costItem !== null) {
+                    $need = $costItem->getCount() - $has;
+                    if ($need > 0) {
+                        $text .= "\n§c{$costItem->getName()}が不足しています §f| §e{$has}§f/§c{$costItem->getCount()}";
+                    } else {
+                        $text .= "\n§cこのアイテムは購入できません";
+                    }
                 } else {
                     $text .= "\n§cこのアイテムは購入できません";
                 }

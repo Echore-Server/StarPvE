@@ -10,6 +10,7 @@ use Lyrica0954\StarPvE\game\monster\boss\ZombieLord;
 use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\monster\Defender;
 use Lyrica0954\StarPvE\game\monster\Husk;
+use Lyrica0954\StarPvE\game\monster\Piglin;
 use Lyrica0954\StarPvE\game\monster\Skeleton;
 use Lyrica0954\StarPvE\game\monster\Spider;
 use Lyrica0954\StarPvE\game\monster\Zombie;
@@ -23,6 +24,7 @@ class DefaultMonsters {
 	const HUSK = Husk::class;
 	const SKELETON = Skeleton::class;
 	const DEFENDER = Defender::class;
+	const PIGLIN = Piglin::class;
 
 	const ZOMBIE_LORD = ZombieLord::class;
 	const STRAY = Stray::class;

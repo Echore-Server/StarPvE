@@ -52,7 +52,7 @@ class DownPulseAbility extends Ability implements Listener {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(1.25);
+		$this->percentage = new AbilityStatus(1.25);
 		$this->area = new AbilityStatus(4.0);
 		$this->speed = new AbilityStatus(0.1);
 	}
@@ -141,7 +141,7 @@ class DownPulseAbility extends Ability implements Listener {
 		$entity = $event->getEntity();
 		$h = spl_object_hash($entity);
 		if (isset($this->effected[$h])) {
-			EntityUtil::multiplyFinalDamage($event, $this->damage->get());
+			EntityUtil::multiplyFinalDamage($event, $this->percentage->get());
 		}
 	}
 }

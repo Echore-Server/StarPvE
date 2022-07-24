@@ -8,7 +8,7 @@ use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 
-class IncreaseDamageIdentity extends AttachAbilityIdentityBase {
+class IncreasePercentageIdentity extends AttachAbilityIdentityBase {
 
 	protected float $add;
 
@@ -26,7 +26,8 @@ class IncreaseDamageIdentity extends AttachAbilityIdentityBase {
 	public function getDescription(): string {
 		$attaching = $this->getAttaching();
 		$name = $attaching->getCooltimeHandler()->getId();
-		return "{$name}の倍率/確率が {$this->add} 増加";
+		$percentage = round($this->add * 100);
+		return "{$name}の倍率/確率が {$percentage} 増加";
 	}
 
 	public function apply(): void {
