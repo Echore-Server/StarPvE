@@ -132,7 +132,7 @@ class Game implements CooltimeAttachable {
                 null,
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 2),
-                    new MonsterData(DefaultMonsters::ENDERMAN, 5)
+                    new MonsterData(DefaultMonsters::ENDERMAN, 30)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 1),
@@ -264,10 +264,11 @@ class Game implements CooltimeAttachable {
             7 => new WaveData(
                 $defaultTitleFormat,
                 null,
-                new WaveMonsters(
+                new WaveMonsters( #NEW: ENDERMAN
                     new MonsterData(DefaultMonsters::ZOMBIE, 9),
                     new MonsterData(DefaultMonsters::ATTACKER, 5),
                     new MonsterData(DefaultMonsters::HUSK, 3),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 2)
 
                 ),
                 new WaveMonsters(
@@ -298,7 +299,8 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ZOMBIE, 5),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::SPIDER, 1), #NEW: SPIDER
-                    new MonsterData(DefaultMonsters::PIGLIN, 2)
+                    new MonsterData(DefaultMonsters::PIGLIN, 2),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 1)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 4),
@@ -308,7 +310,8 @@ class Game implements CooltimeAttachable {
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 5),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
-                    new MonsterData(DefaultMonsters::PIGLIN, 3)
+                    new MonsterData(DefaultMonsters::PIGLIN, 3),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 2)
                 )
             ),
             9 => new WaveData(
@@ -319,7 +322,8 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ATTACKER, 2),
                     new MonsterData(DefaultMonsters::HUSK, 2),
                     new MonsterData(DefaultMonsters::SPIDER, 3),
-                    new MonsterData(DefaultMonsters::PIGLIN, 7)
+                    new MonsterData(DefaultMonsters::PIGLIN, 7),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 1)
 
                 ),
                 new WaveMonsters(
@@ -332,25 +336,29 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ZOMBIE, 6),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::SPIDER, 2),
-                    new MonsterData(DefaultMonsters::CREEPER, 3)
+                    new MonsterData(DefaultMonsters::CREEPER, 3),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 3)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 3),
                     new MonsterData(DefaultMonsters::ATTACKER, 2),
-                    new MonsterData(DefaultMonsters::CREEPER, 7)
+                    new MonsterData(DefaultMonsters::CREEPER, 7),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 2)
                 )
             ),
             10 => new WaveData( #todo: boss
                 $defaultTitleFormat,
-                null,
+                new CustomWaveStart(function (WaveController $wc) {
+                    $wc->getGame()->broadcastMessage("§l§cエンダーマンの群れがレーン §e1 §cに接近中です！！");
+                }),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 12),
                     new MonsterData(DefaultMonsters::ATTACKER, 4),
                     new MonsterData(DefaultMonsters::HUSK, 6),
                     new MonsterData(DefaultMonsters::SPIDER, 3),
                     new MonsterData(DefaultMonsters::PIGLIN, 2),
-                    new MonsterData(DefaultMonsters::SKELETON, 1) #NEW: SKELETON
-
+                    new MonsterData(DefaultMonsters::SKELETON, 1), #NEW: SKELETON,
+                    new MonsterData(DefaultMonsters::ENDERMAN, 8)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 8),
@@ -358,14 +366,16 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::SPIDER, 3),
                     new MonsterData(DefaultMonsters::HUSK, 2),
                     new MonsterData(DefaultMonsters::SKELETON, 1),
-                    new MonsterData(DefaultMonsters::PIGLIN, 2)
+                    new MonsterData(DefaultMonsters::PIGLIN, 2),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 6),
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::SPIDER, 2),
                     new MonsterData(DefaultMonsters::CREEPER, 3),
-                    new MonsterData(DefaultMonsters::PIGLIN, 3)
+                    new MonsterData(DefaultMonsters::PIGLIN, 3),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 3),
@@ -390,7 +400,8 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::CREEPER, 6),
                     new MonsterData(DefaultMonsters::SPIDER, 3),
                     new MonsterData(DefaultMonsters::SKELETON, 2),
-                    new MonsterData(DefaultMonsters::PIGLIN, 3)
+                    new MonsterData(DefaultMonsters::PIGLIN, 3),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 2)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 4),
@@ -405,7 +416,8 @@ class Game implements CooltimeAttachable {
                     new MonsterData(DefaultMonsters::ATTACKER, 1),
                     new MonsterData(DefaultMonsters::CREEPER, 3),
                     new MonsterData(DefaultMonsters::SKELETON, 3),
-                    new MonsterData(DefaultMonsters::PIGLIN, 3)
+                    new MonsterData(DefaultMonsters::PIGLIN, 3),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 3)
                 )
             ),
             12 => new WaveData(
