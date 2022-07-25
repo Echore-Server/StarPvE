@@ -11,6 +11,7 @@ use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\entity\item\GhostItemEntity;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -57,7 +58,7 @@ class TrapDevice extends GhostItemEntity {
 
 			if ($this->visTick >= 15) {
 				$this->visTick = 0;
-				(new CircleParticle($this->area, 6))->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:falling_dust_scaffolding_particle", ""));
+				ParticleUtil::send(new CircleParticle($this->area, 6), $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:falling_dust_scaffolding_particle", ""));
 			}
 
 			if ($this->tick >= $this->duration || $this->amount <= $this->count) {
@@ -86,7 +87,7 @@ class TrapDevice extends GhostItemEntity {
 							if ($visTick >= 20) {
 								$this->attackTick[$k][1] = 0;
 								PlayerUtil::broadcastSound($this, "fire.ignite", 0.75, 1.0);
-								(new LineParticle($this->getPosition(), 3))->sendToPlayers($this->getWorld()->getPlayers(), $entity->getPosition(), $particleOption);
+								ParticleUtil::send(new LineParticle($this->getPosition(), 3), $this->getWorld()->getPlayers(), $entity->getPosition(), $particleOption);
 							}
 
 							if ($tick >= 60) {
@@ -105,7 +106,8 @@ class TrapDevice extends GhostItemEntity {
 				}
 			}
 		} else {
-			(new SingleParticle)->sendToPlayers(
+			ParticleUtil::send(
+				new SingleParticle,
 				$this->getWorld()->getPlayers(),
 				VectorUtil::insertWorld(
 					$this->getOffsetPosition(

@@ -16,6 +16,7 @@ use Lyrica0954\StarPvE\event\PlayerDeathOnGameEvent;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\animation\ArmSwingAnimation;
@@ -94,7 +95,7 @@ class Enderman extends FightingEntity implements Hostile, Listener {
             }
             if ($this->holdDamageTick >= 20) {
                 $effect = new SaturatedLineworkEffect(3, 2, 1, 6);
-                $effect->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->holding->getPosition(), 0, 1.0, 0), ParticleOption::spawnPacket("minecraft:villager_angry", ""));
+                ParticleUtil::send($effect, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->holding->getPosition(), 0, 1.0, 0), ParticleOption::spawnPacket("minecraft:villager_angry", ""));
                 $this->holdDamageTick = 0;
                 PlayerUtil::broadcastSound($this->holding, "mob.irongolem.crack", 0.8, 1.0);
                 $source = new EntityDamageEvent($this->holding, EntityDamageEvent::CAUSE_MAGIC, $this->getAttackDamage());

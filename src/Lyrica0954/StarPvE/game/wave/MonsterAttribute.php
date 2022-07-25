@@ -12,13 +12,13 @@ class MonsterAttribute {
     public float $damage;
     public float $speed;
 
-    public function __construct(int $health, float $damage, float $speed){
+    public function __construct(int $health, float $damage, float $speed) {
         $this->health = $health;
         $this->damage = $damage;
         $this->speed = $speed;
     }
 
-    public function apply(LivingBase $entity){
+    public function apply(LivingBase $entity) {
         $entity->setMovementSpeed($this->speed);
         $entity->setAttackDamage($this->damage);
         $entity->setMaxHealth($this->health);

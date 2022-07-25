@@ -15,6 +15,7 @@ use Lyrica0954\SmartEntity\entity\Neutral;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
@@ -97,7 +98,7 @@ class Defender extends FightingEntity implements Neutral {
                 $par = (new LineParticle($pos, 3));
                 if ($this->ptick >= 10) {
                     $this->ptick = 0;
-                    $par->sendToPlayers($this->getWorld()->getPlayers(), $epos, ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
+                    ParticleUtil::send($par, $this->getWorld()->getPlayers(), $epos, ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
                 }
             }
         }
@@ -119,7 +120,7 @@ class Defender extends FightingEntity implements Neutral {
         if ($this->vtick >= 5) {
             $this->vtick = 0;
             $par = new CircleParticle(5, 6, 0);
-            $par->sendToPlayers($this->getWorld()->getPlayers(), $current, ParticleOption::spawnPacket("minecraft:basic_crit_particle", ""));
+            ParticleUtil::send($par, $this->getWorld()->getPlayers(), $current, ParticleOption::spawnPacket("minecraft:basic_crit_particle", ""));
         }
 
         $this->atick += $tickDiff;

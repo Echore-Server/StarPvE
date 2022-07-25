@@ -8,11 +8,11 @@ use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use pocketmine\event\Event;
 
-class JobEvent extends Event{
+class JobEvent extends Event {
 
 	protected Job $job;
 
-	public function getJob(): Job{
+	public function getJob(): Job {
 		return $this->job;
 	}
 }

@@ -12,7 +12,7 @@ use pocketmine\player\Player;
 class PlayerDeathOnGameEvent extends PlayerEvent implements Cancellable {
 	use CancellableTrait;
 
-	public function __construct(Player $player){
+	public function __construct(Player $player) {
 		$this->player = $player;
 	}
 }

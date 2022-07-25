@@ -85,7 +85,7 @@ final class GameCommand extends PluginCommandNoAuth {
 									Messanger::error($sender, "ゲームIDに特殊文字は指定できません", "user");
 								} else {
 									if (strlen($id) <= 16) {
-										$manager->createNewGame(GameCreationOption::manual(6, null, $id));
+										$manager->createNewGame(GameCreationOption::manual(null, $id));
 										$sender->sendMessage("§aゲーム {$id} を開始しました");
 									} else {
 										Messanger::error($sender, "ゲームIDは16文字以下である必要があります", "user");

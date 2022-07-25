@@ -23,5 +23,4 @@ interface DrawableParticle {
      * @return Vector3[]
      */
     public function drawAsDelayed(Position $pos): array;
-
 }

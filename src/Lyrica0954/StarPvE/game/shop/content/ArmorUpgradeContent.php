@@ -14,17 +14,17 @@ use pocketmine\player\Player;
 
 class ArmorUpgradeContent extends ShopContent {
 
-    protected function getGamePlayer(Player $player): ?GamePlayer{
+    protected function getGamePlayer(Player $player): ?GamePlayer {
         $gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
         return $gamePlayerManager->getGamePlayer($player);
     }
 
-    public function canBuy(Player $player): bool{
+    public function canBuy(Player $player): bool {
         $canBuy = parent::canBuy($player);
 
         $gamePlayer = $this->getGamePlayer($player);
-        if ($gamePlayer instanceof GamePlayer){
-            if (!$gamePlayer->getArmorEquipment()->canUpgrade()){
+        if ($gamePlayer instanceof GamePlayer) {
+            if (!$gamePlayer->getArmorEquipment()->canUpgrade()) {
                 $canBuy = false;
             }
         }
@@ -32,17 +32,17 @@ class ArmorUpgradeContent extends ShopContent {
         return $canBuy;
     }
 
-    protected function onBought(Player $player): bool{
+    protected function onBought(Player $player): bool {
         $gamePlayer = $this->getGamePlayer($player);
         $ae = $gamePlayer?->getArmorEquipment();
         $ae?->upgrade();
         return $ae instanceof ArmorEquipment;
     }
 
-    public function getCost(Player $player): ?Item{
+    public function getCost(Player $player): ?Item {
         $gamePlayer = $this->getGamePlayer($player);
         $ae = $gamePlayer?->getArmorEquipment();
-        if ($ae instanceof ArmorEquipment){
+        if ($ae instanceof ArmorEquipment) {
             return $ae->getCost($ae->getLevel() + 1);
         } else {
             return null;

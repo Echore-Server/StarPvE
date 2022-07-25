@@ -55,7 +55,10 @@ class PlayerDataCenter extends DataCenter implements Listener {
             JobConfigAdapter::NEXT_EXP => JobConfigAdapter::getExpToCompleteLevel(1)
         ];
 
-        $this->settingDefault = [];
+        $this->settingDefault = [
+            SettingVariables::PARTICLE_PER_TICK => 50,
+            SettingVariables::DEBUG_DAMAGE => false
+        ];
 
         $this->load($folder);
         StarPvE::getInstance()->getServer()->getPluginManager()->registerEvents($this, StarPvE::getInstance());

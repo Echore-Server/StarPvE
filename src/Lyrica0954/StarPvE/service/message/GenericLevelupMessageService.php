@@ -18,9 +18,9 @@ class GenericLevelupMessageService extends ListenerService {
 
 	protected array $previous;
 
-	protected function init(): void{
+	protected function init(): void {
 		parent::init();
-		
+
 		$this->previous = [];
 	}
 
@@ -29,12 +29,12 @@ class GenericLevelupMessageService extends ListenerService {
 	 * 
 	 * @return void
 	 */
-	public function onGlobalAddExp(GlobalAddExpEvent $event): void{
+	public function onGlobalAddExp(GlobalAddExpEvent $event): void {
 		$adapter = $event->getAdapter();
 
-		if ($adapter instanceof GenericConfigAdapter){
+		if ($adapter instanceof GenericConfigAdapter) {
 			$player = PlayerUtil::searchByXuid($adapter->getXuid());
-			if ($player instanceof Player){
+			if ($player instanceof Player) {
 				$selectableJobs = StarPvE::getInstance()->getJobManager()->getSelectableJobs($player);
 				$this->previous[spl_object_hash($player)] = $selectableJobs;
 			}
@@ -46,11 +46,11 @@ class GenericLevelupMessageService extends ListenerService {
 	 * 
 	 * @return void
 	 */
-	public function onGlobalLevelup(GlobalLevelupEvent $event): void{
+	public function onGlobalLevelup(GlobalLevelupEvent $event): void {
 		$adapter = $event->getAdapter();
-		if ($adapter instanceof GenericConfigAdapter){
+		if ($adapter instanceof GenericConfigAdapter) {
 			$player = PlayerUtil::searchByXuid($adapter->getXuid());
-			if ($player instanceof Player){
+			if ($player instanceof Player) {
 				$currentSelectableJobs = StarPvE::getInstance()->getJobManager()->getSelectableJobs($player);
 				$newSelectableJobs = array_diff($currentSelectableJobs, $this->previous[spl_object_hash($player)] ?? []);
 				$exp = $adapter->getConfig()->get(GenericConfigAdapter::EXP, 0);
@@ -59,10 +59,10 @@ class GenericLevelupMessageService extends ListenerService {
 				$player->sendMessage("§6> レベル: §a{$event->getOld()} >> {$event->getNew()}");
 				$player->sendMessage("§6> 次のExp: §a{$exp}§f/§a{$nextExp}");
 				$player->sendMessage("§a-----------------------");
-	
-				foreach($newSelectableJobs as $class){
+
+				foreach ($newSelectableJobs as $class) {
 					$job = new $class(null);
-					if ($job instanceof Job){
+					if ($job instanceof Job) {
 						$player->sendMessage("§d> §d{$job->getName()} §7がアンロックされました！");
 					}
 				}

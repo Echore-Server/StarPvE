@@ -11,13 +11,13 @@ use pocketmine\entity\animation\ArmSwingAnimation;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 
-class Husk extends SmartHusk{
+class Husk extends SmartHusk {
     use HealthBarEntity;
 
     protected float $reach = 2.5;
 
-    public function attackEntity(Entity $entity, float $range): bool{
-        if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0){
+    public function attackEntity(Entity $entity, float $range): bool {
+        if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
             $this->broadcastAnimation(new ArmSwingAnimation($this));
             $source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
             EntityUtil::attackEntity($source, 1.0, 1.6);
@@ -30,7 +30,7 @@ class Husk extends SmartHusk{
         }
     }
 
-    public function getFollowRange(): float{
+    public function getFollowRange(): float {
         return 50;
     }
 }

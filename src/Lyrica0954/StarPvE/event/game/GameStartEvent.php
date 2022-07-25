@@ -8,7 +8,7 @@ use Lyrica0954\StarPvE\game\Game;
 
 class GameStartEvent extends GameEvent {
 
-	public function __construct(Game $game){
+	public function __construct(Game $game) {
 		$this->game = $game;
 	}
 }

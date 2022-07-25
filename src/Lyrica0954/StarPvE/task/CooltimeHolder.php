@@ -11,8 +11,8 @@ trait CooltimeHolder {
 
     protected ?CooltimeHandler $cooltimeHandler = null;
 
-    protected function createCooltimeHandler(string $id, int $baseTick, int $speed = 1){
-        if ($this->cooltimeHandler !== null){
+    protected function createCooltimeHandler(string $id, int $baseTick, int $speed = 1) {
+        if ($this->cooltimeHandler !== null) {
             $this->breakCooltimeHandler();
             StarPvE::getInstance()->log("§7[CooltimeHolder] Task Safety: Broke Current CooltimeHandler");
         }
@@ -20,7 +20,7 @@ trait CooltimeHolder {
         $this->cooltimeHandler->attach($this);
     }
 
-    protected function breakCooltimeHandler(){
+    protected function breakCooltimeHandler() {
         $this->cooltimeHandler?->detach();
         $this->cooltimeHandler = null;
     }

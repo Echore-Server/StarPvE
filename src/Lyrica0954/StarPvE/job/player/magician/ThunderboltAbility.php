@@ -16,6 +16,7 @@ use Lyrica0954\StarPvE\job\ticking\TickingController;
 use Lyrica0954\StarPvE\particle\ElectricSparkParticle;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\RandomUtil;
 use Lyrica0954\StarPvE\utils\RayTraceEntityResult;
@@ -91,7 +92,8 @@ class ThunderboltAbility extends Ability implements Ticking {
         $dir = $this->player->getDirectionVector()->multiply(14.0);
         $tpos = $ep->addVector($dir);
 
-        $par->sendToPlayers(
+        ParticleUtil::send(
+            $par,
             $this->player->getWorld()->getPlayers(),
             new Position(
                 $tpos->x,
@@ -159,7 +161,7 @@ class ThunderboltAbility extends Ability implements Ticking {
                     $randHeight = $ne->size->getHeight() / 4;
                     $nextPos->y += $ne->size->getEyeHeight();
                     $nextPos->y += RandomUtil::rand_float(-$randHeight, $randHeight);
-                    $par->sendToPlayers($hitEntity->getWorld()->getPlayers(), $nextPos, ParticleOption::spawnPacket("starpve:magician_gas", ""));
+                    ParticleUtil::send($par, $hitEntity->getWorld()->getPlayers(), $nextPos, ParticleOption::spawnPacket("starpve:magician_gas", ""));
 
                     PlayerUtil::broadcastSound($nextPos, "random.glass", 0.8 + ($this->chainCount * 0.15), 1.0);
                     $damage = $this->chainCount == 0 ? $this->damage->get() : $this->chainDamage->get();
@@ -170,7 +172,8 @@ class ThunderboltAbility extends Ability implements Ticking {
                     EntityUtil::immobile($ne, (int) $this->duration->get());
                     $min = EntityUtil::getCollisionMin($ne);
                     $emitter = EmitterParticle::createEmitterForEntity($ne, 0.3, 4);
-                    $emitter->sendToPlayers(
+                    ParticleUtil::send(
+                        $emitter,
                         $ne->getWorld()->getPlayers(),
                         VectorUtil::insertWorld($min, $ne->getWorld()),
                         ParticleOption::spawnPacket("minecraft:sparkler_emitter", "")

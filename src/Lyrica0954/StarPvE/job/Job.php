@@ -13,14 +13,14 @@ abstract class Job {
 
     abstract public function getDescription(): string;
 
-    public function isSelectable(Player $player): bool{
+    public function isSelectable(Player $player): bool {
         $condition = $this->getSelectableCondition();
-        if ($condition !== null){
+        if ($condition !== null) {
             return $condition->check($player);
         } else {
             return true;
         }
     }
 
-    abstract public function getSelectableCondition(): ?Condition; 
+    abstract public function getSelectableCondition(): ?Condition;
 }

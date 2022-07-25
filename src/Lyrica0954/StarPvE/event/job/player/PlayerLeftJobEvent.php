@@ -10,7 +10,7 @@ use pocketmine\player\Player;
 class PlayerLeftJobEvent extends PlayerJobEvent {
 
 
-	public function __construct(Player $player, PlayerJob $job){
+	public function __construct(Player $player, PlayerJob $job) {
 		$this->player = $player;
 		$this->job = $job;
 	}

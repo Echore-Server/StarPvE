@@ -38,12 +38,36 @@ class PartDelayedParticle extends CoveredParticle {
 		$this->particle = $particle->getParticle();
 	}
 
+	public function getOffset(): int {
+		return $this->offset;
+	}
+
+	public function getPartLength(): int {
+		return $this->partLength;
+	}
+
+	public function getPeriod(): int {
+		return $this->period;
+	}
+
+	public function isReverse(): bool {
+		return $this->reverse;
+	}
+
 	public function addDrawHook(\Closure $closure) {
 		$this->drawHooks[] = $closure;
 	}
 
 	public function addPartHook(\Closure $closure) {
 		$this->partHooks[] = $closure;
+	}
+
+	public function getPartHooks(): array {
+		return $this->partHooks;
+	}
+
+	public function getDrawHooks(): array {
+		return $this->drawHooks;
 	}
 
 	public function draw(): array {
@@ -64,52 +88,5 @@ class PartDelayedParticle extends CoveredParticle {
 		}
 
 		return $packets;
-	}
-
-	public function sendToPlayer(Player $player, ParticleOption $option) {
-		$this->sendPartsToPlayers([$player], $this->getPackets($option));
-	}
-
-	public function sendToPlayers(array $players, ParticleOption $option): void {
-		$this->sendPartsToPlayers($players, $this->getPackets($option));
-	}
-
-	/**
-	 * @param Player[] $player
-	 * @param array{k: int, packets: array{k: int, packet: Packet}} $parts
-	 * 
-	 * @return void
-	 */
-	protected function sendPartsToPlayers(array $players, array $parts): void {
-		foreach ($this->partHooks as $hook) {
-			$parts = ($hook)($parts);
-		}
-
-		$limit = (int) floor(count($parts) / $this->partLength);
-		TaskUtil::repeatingClosureLimit(function () use ($players, $parts) {
-			$this->offset += $this->partLength;
-			$slicedPart = array_slice($parts, $this->offset, $this->partLength);
-			foreach ($slicedPart as $packed) {
-				/**
-				 * @var Packet[] $packed
-				 */
-				foreach ($packed as $pk) {
-					foreach ($this->drawHooks as $hook) {
-						($hook)($pk->position);
-					}
-					foreach ($players as $player) {
-						if ($player instanceof Player && $player->isOnline()) {
-							if ($this->filter($player, $pk->position)) {
-								$player->getNetworkSession()->addToSendBuffer($pk);
-							}
-						}
-					}
-				}
-			}
-		}, $this->period, $limit);
-	}
-
-	protected function filter(Player $player, Vector3 $pos, float $maxRange = 20): ?Vector3 {
-		return ($player->canInteract($pos, $maxRange, M_SQRT3 / 3)) ? $pos : null;
 	}
 }

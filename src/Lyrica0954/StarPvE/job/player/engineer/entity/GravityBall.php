@@ -11,6 +11,7 @@ use Lyrica0954\StarPvE\entity\item\GhostItemEntity;
 use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
@@ -43,7 +44,8 @@ class GravityBall extends GhostItemEntity {
         if ($this->preparing || $this->active) {
             $this->tick++;
         } else {
-            (new SingleParticle)->sendToPlayers(
+            ParticleUtil::send(
+                new SingleParticle,
                 $this->getWorld()->getPlayers(),
                 VectorUtil::insertWorld(
                     $this->getOffsetPosition(
@@ -75,7 +77,7 @@ class GravityBall extends GhostItemEntity {
                 }
             } else {
                 $this->attackTick += 1;
-                (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:end_chest", ""));
+                ParticleUtil::send(new SingleParticle, $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:end_chest", ""));
                 if ($this->attackTick >= $this->period) {
                     $this->attackTick = 0;
                     $par = new LineParticle($this->getPosition(), 3);
@@ -97,7 +99,8 @@ class GravityBall extends GhostItemEntity {
                             };
                             $power = 1.0 + ($dist * $powerM);
 
-                            $par->sendToPlayers(
+                            ParticleUtil::send(
+                                $par,
                                 $this->getWorld()->getPlayers(),
                                 VectorUtil::insertWorld(
                                     $entity->getEyePos(),

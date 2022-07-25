@@ -15,21 +15,21 @@ class ServiceHost {
 
 	protected ?ServiceSession $root;
 
-	public function __construct(PluginBase $plugin){
+	public function __construct(PluginBase $plugin) {
 		$this->plugin = $plugin;
 		$this->root = null;
 	}
 
-	public function getPlugin(): PluginBase{
+	public function getPlugin(): PluginBase {
 		return $this->plugin;
 	}
 
-	public function current(): ServiceSession{
+	public function current(): ServiceSession {
 		return $this->root;
 	}
 
-	public function open(): ServiceSession{
-		if ($this->root instanceof ServiceSession){
+	public function open(): ServiceSession {
+		if ($this->root instanceof ServiceSession) {
 			throw new \Exception("already open");
 		}
 
@@ -37,7 +37,7 @@ class ServiceHost {
 		return $this->root;
 	}
 
-	public function close(): void{
+	public function close(): void {
 		$this->root->shutdown();
 		$this->root = null;
 	}

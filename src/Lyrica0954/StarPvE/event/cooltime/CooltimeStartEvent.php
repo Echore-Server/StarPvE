@@ -16,16 +16,16 @@ class CooltimeStartEvent extends CooltimeEvent implements Cancellable {
 	 */
 	protected int $cooltime;
 
-	public function __construct(CooltimeHandler $handler, int $cooltime){
+	public function __construct(CooltimeHandler $handler, int $cooltime) {
 		$this->handler = $handler;
 		$this->cooltime = $cooltime;
 	}
 
-	public function getCooltime(): int{
+	public function getCooltime(): int {
 		return $this->cooltime;
 	}
 
-	public function setCooltime(int $cooltime): void{
+	public function setCooltime(int $cooltime): void {
 		$this->cooltime = $cooltime;
 	}
 }

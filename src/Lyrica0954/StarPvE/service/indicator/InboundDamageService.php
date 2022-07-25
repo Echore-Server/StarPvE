@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\service\indicator;
 
 use Lyrica0954\Service\Service;
+use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
+use Lyrica0954\StarPvE\data\player\SettingVariables;
 use Lyrica0954\StarPvE\service\ListenerService;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -19,7 +21,7 @@ class InboundDamageService extends ListenerService {
      */
     private array $originalStore;
 
-    protected function init(): void{
+    protected function init(): void {
         $this->originalStore = [];
     }
 
@@ -31,10 +33,19 @@ class InboundDamageService extends ListenerService {
      * 
      * @priority LOWEST
      */
-    public function originalEvent(EntityDamageByEntityEvent $event): void{
+    public function originalEvent(EntityDamageByEntityEvent $event): void {
         $entity = $event->getEntity();
-        if ($entity instanceof Player){
-            $this->originalStore[spl_object_hash($entity)] = clone $event;
+        if ($entity instanceof Player) {
+            $adapter = SettingVariables::fetch($entity);
+            $store = false;
+
+            if ($adapter instanceof PlayerConfigAdapter) {
+                $store = $adapter->getConfig()->get(SettingVariables::DEBUG_DAMAGE, false);
+            }
+
+            if ($store) {
+                $this->originalStore[spl_object_hash($entity)] = clone $event;
+            }
         }
     }
 
@@ -45,12 +56,13 @@ class InboundDamageService extends ListenerService {
      * 
      * @priority MONITOR
      */
-    public function finalEvent(EntityDamageByEntityEvent $event): void{
+    public function finalEvent(EntityDamageByEntityEvent $event): void {
         $entity = $event->getEntity();
-        
-        if ($entity instanceof Player){
+
+        if ($entity instanceof Player) {
             $originalEvent = $this->originalStore[spl_object_hash($entity)] ?? null;
-            if ($originalEvent instanceof EntityDamageByEntityEvent){
+            if ($originalEvent instanceof EntityDamageByEntityEvent) {
+                $this->originalStore[spl_object_hash($entity)] = null;
                 $originalDamage = $originalEvent->getFinalDamage();
 
                 $finalDamage = $event->getFinalDamage();

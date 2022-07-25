@@ -19,19 +19,19 @@ use pocketmine\player\Player;
 class Villager extends Living {
     use HealthBarEntity;
 
-    public function getName(): string{
+    public function getName(): string {
         return "Villager";
     }
 
-    protected function getInitialSizeInfo(): EntitySizeInfo{
+    protected function getInitialSizeInfo(): EntitySizeInfo {
         return new EntitySizeInfo(1.8, 0.6);
     }
 
-    public static function getNetworkTypeId(): string{
+    public static function getNetworkTypeId(): string {
         return EntityIds::VILLAGER;
     }
 
-    protected function initEntity(CompoundTag $nbt): void{
+    protected function initEntity(CompoundTag $nbt): void {
         parent::initEntity($nbt);
 
         $this->barPercentage = 30;
@@ -39,9 +39,9 @@ class Villager extends Living {
         $this->getAttributeMap()->get(Attribute::KNOCKBACK_RESISTANCE)->setValue(1.0);
     }
 
-    public function onInteract(Player $player, Vector3 $clickPos): bool{
+    public function onInteract(Player $player, Vector3 $clickPos): bool {
         $game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($player->getWorld());
-        if ($game instanceof Game){
+        if ($game instanceof Game) {
             $form = new ShopForm($player, $game->getShop());
             $player->sendForm($form);
         }

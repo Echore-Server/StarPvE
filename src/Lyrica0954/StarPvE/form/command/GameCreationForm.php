@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\form\command;
 use Lyrica0954\StarPvE\form\FormUtil;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\GameCreationOption;
+use Lyrica0954\StarPvE\game\GameOption;
 use Lyrica0954\StarPvE\game\stage\StageFactory;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
@@ -54,7 +55,7 @@ class GameCreationForm implements Form {
                 $gameId = GameCreationOption::genId(10);
             }
             #print_r($data);
-            $option = new GameCreationOption($gameId, $stageName, $maxPlayers);
+            $option = new GameCreationOption($gameId, $stageName, new GameOption($maxPlayers));
             StarPvE::getInstance()->getGameManager()->createNewGame($option);
             $player->sendMessage("§aゲームを作成しました！");
         }

@@ -16,6 +16,7 @@ use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -101,13 +102,13 @@ class DownPulseAbility extends Ability implements Listener {
 
 								PlayerUtil::broadcastSound($entity, "mob.wither.break_block", 1.2, 0.6);
 								$par = (new SaturatedLineworkEffect(3, 4, 0.6, 7));
-								$par->sendToPlayers($entity->getWorld()->getPlayers(), VectorUtil::keepAdd($entity->getPosition(), 0, $entity->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
+								ParticleUtil::send($par, $entity->getWorld()->getPlayers(), VectorUtil::keepAdd($entity->getPosition(), 0, $entity->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
 
 								TaskUtil::reapeatingClosureCheck(function () use ($entity) {
 									if ($entity->isAlive() && !$entity->isClosed()) {
 										$min = EntityUtil::getCollisionMin($entity);
 										$par = EmitterParticle::createEmitterForEntity($entity, 0.5, 2);
-										$par->sendToPlayers($entity->getWorld()->getPlayers(), VectorUtil::insertWorld($min, $entity->getWorld()), ParticleOption::spawnPacket("minecraft:basic_crit_particle", ""));
+										ParticleUtil::send($par, $entity->getWorld()->getPlayers(), VectorUtil::insertWorld($min, $entity->getWorld()), ParticleOption::spawnPacket("minecraft:basic_crit_particle", ""));
 									}
 								}, 3, function () use ($entity) {
 									$result = ($entity->isAlive() && !$entity->isClosed());
@@ -124,7 +125,8 @@ class DownPulseAbility extends Ability implements Listener {
 				$par = (new CircleParticle($area, 6));
 				$pos = clone $this->pos;
 				$pos->y += $offsetY;
-				$par->sendToPlayers(
+				ParticleUtil::send(
+					$par,
 					$player->getWorld()->getPlayers(),
 					$pos,
 					ParticleOption::spawnPacket("minecraft:falling_dust_concrete_powder_particle", "")

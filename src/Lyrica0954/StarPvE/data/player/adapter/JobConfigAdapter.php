@@ -12,7 +12,7 @@ use Lyrica0954\StarPvE\job\JobManager;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\player\Player;
 
-class JobConfigAdapter extends PlayerConfigAdapter{
+class JobConfigAdapter extends PlayerConfigAdapter {
 
 	const NAME = "EntryName";
 	const LEVEL = "Level";
@@ -26,51 +26,51 @@ class JobConfigAdapter extends PlayerConfigAdapter{
 	const DEATHS = "Deaths";
 	const PLAY_COUNT = "PlayCount";
 
-	public static function getExpToCompleteLevel(int $level){
-        $jobExp = pow($level, 3) * 4 + ($level * 20);
+	public static function getExpToCompleteLevel(int $level) {
+		$jobExp = pow($level, 3) * 4 + ($level * 20);
 
-        return $jobExp;
-    }
+		return $jobExp;
+	}
 
-	public static function fetch(Player $player, string $name): ?JobConfigAdapter{
-        return PlayerDataCenter::getInstance()?->get($player)?->getJob($name);
-    }
+	public static function fetch(Player $player, string $name): ?JobConfigAdapter {
+		return PlayerDataCenter::getInstance()?->get($player)?->getJob($name);
+	}
 
-	public static function fetchCurrent(Player $player): ?JobConfigAdapter{
+	public static function fetchCurrent(Player $player): ?JobConfigAdapter {
 		$job = StarPvE::getInstance()->getJobManager()->getJob($player);
-		if ($job !== null){
+		if ($job !== null) {
 			return self::fetch($player, ((new \ReflectionClass($job))->getShortName()));
 		} else {
 			return null;
 		}
 	}
 
-	public function addExp(float $amount): mixed{
-        $eev = new GlobalAddExpEvent($this, $amount);
-        $eev->call();
+	public function addExp(float $amount): mixed {
+		$eev = new GlobalAddExpEvent($this, $amount);
+		$eev->call();
 
-        if ($eev->isCancelled()){
-            return $this->getConfig()->get(self::EXP);
-        }
+		if ($eev->isCancelled()) {
+			return $this->getConfig()->get(self::EXP);
+		}
 
-        $exp = $this->addFloat(self::EXP, $amount);
-        $this->addFloat(self::TOTAL_EXP, $amount);
-        $nextExp = $this->getConfig()->get(self::NEXT_EXP);
-        $newExp = $exp;
-        if ($exp >= $nextExp){
+		$exp = $this->addFloat(self::EXP, $amount);
+		$this->addFloat(self::TOTAL_EXP, $amount);
+		$nextExp = $this->getConfig()->get(self::NEXT_EXP);
+		$newExp = $exp;
+		if ($exp >= $nextExp) {
 			$level = $this->addInt(self::LEVEL, 1);
-			$newNextExp = self::getExpToCompleteLevel((integer) $level);
+			$newNextExp = self::getExpToCompleteLevel((int) $level);
 			$this->getConfig()->set(self::NEXT_EXP, $newNextExp);
-            $over = ($exp - $nextExp);
-            $this->getConfig()->set(self::EXP, 0);
-            $newExp = 0;
-            if ($over > 0) $newExp = $this->addExp($over);
+			$over = ($exp - $nextExp);
+			$this->getConfig()->set(self::EXP, 0);
+			$newExp = 0;
+			if ($over > 0) $newExp = $this->addExp($over);
 
 
-            $ev = new GlobalLevelupEvent($this, $level - 1, $level);
+			$ev = new GlobalLevelupEvent($this, $level - 1, $level);
 			$ev->call();
-        }
+		}
 
-        return $newExp;
-    }
+		return $newExp;
+	}
 }

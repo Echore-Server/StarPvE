@@ -12,6 +12,7 @@ use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -82,7 +83,8 @@ class RageSkill extends Skill implements Listener {
             $min = EntityUtil::getCollisionMin($this->player);
             $par = EmitterParticle::createEmitterForEntity($this->player, 0.3, 1);
 
-            $par->sendToPlayers(
+            ParticleUtil::send(
+                $par,
                 $this->player->getWorld()->getPlayers(),
                 VectorUtil::insertWorld($min, $this->player->getWorld()),
                 ParticleOption::spawnPacket("minecraft:villager_angry", "")

@@ -22,23 +22,22 @@ class SquareEffect extends ParticleEffect {
 	public function __construct(
 		private float $size,
 		private int $linePpb
-	)
-	{
+	) {
 		$this->pitch = 0;
 		$this->yaw = 0;
 	}
 
-	public function rotate(float $yaw, float $pitch){
+	public function rotate(float $yaw, float $pitch) {
 		$this->yaw = VectorUtil::rotateYaw($this->yaw, $yaw);
 		$this->pitch = VectorUtil::rotatePitch($this->pitch, $pitch);
 	}
 
-	public function setRotate(float $yaw, float $pitch){
+	public function setRotate(float $yaw, float $pitch) {
 		$this->yaw = $yaw;
 		$this->pitch = $pitch;
 	}
 
-	public function draw(Position $pos): array{
+	public function draw(Position $pos): array {
 		$particles = [];
 
 
@@ -46,11 +45,11 @@ class SquareEffect extends ParticleEffect {
 		$npitch = VectorUtil::rotatePitch($this->pitch, 45);
 		$yaw = VectorUtil::rotateYaw($this->yaw, 45);
 
-		
+
 		$rpitch = VectorUtil::rotatePitch(-$this->pitch, -45);
 		$rnpitch = VectorUtil::rotatePitch($this->pitch, -45);
 		$ryaw = VectorUtil::rotateYaw($this->yaw, -45);
-		
+
 		$threeYaw = VectorUtil::rotateYaw($yaw, 90);
 		$rthreeYaw = VectorUtil::rotateYaw($ryaw, -90);
 
@@ -86,7 +85,7 @@ class SquareEffect extends ParticleEffect {
 				new Vector2($r->x, $a->y) #が左下に
 			],
 
-			
+
 
 			4 => [
 				new Vector2($nr->x, $na->y), #が左下に
@@ -111,26 +110,26 @@ class SquareEffect extends ParticleEffect {
 			]
 		];
 
-		$fix = function(Vector3 $vec, Vector2 $angle) use($a, $na, $r, $nr){
+		$fix = function (Vector3 $vec, Vector2 $angle) use ($a, $na, $r, $nr) {
 			$rem = ($this->size * 0.4) / 2; #??????????????
-			if ($angle->y == $a->y || $angle->y == $na->y){
+			if ($angle->y == $a->y || $angle->y == $na->y) {
 				return $vec->add(0, $rem, 0);
 			}
 
-			if ($angle->y == $r->y || $angle->y == $nr->y){
+			if ($angle->y == $r->y || $angle->y == $nr->y) {
 				return $vec->subtract(0, $rem, 0);
 			}
 
 			return $vec;
 		};
 
-		foreach($pt as $o => $p){
+		foreach ($pt as $o => $p) {
 			$vec = $this->getPoint($pos, $p->x, $p->y);
-			
+
 			$connection = $connections[$o] ?? null;
-			if ($connection !== null){
-				foreach($connection as $cp){
-					if ($cp instanceof Vector2){
+			if ($connection !== null) {
+				foreach ($connection as $cp) {
+					if ($cp instanceof Vector2) {
 						$cvec = $this->getPoint($pos, $cp->x, $cp->y);
 						$line = new LineParticle(VectorUtil::insertWorld($vec, $pos->getWorld()), $this->linePpb);
 						$particles[] = new CoveredParticle($line, VectorUtil::insertWorld($cvec, $pos->getWorld()));
@@ -142,7 +141,7 @@ class SquareEffect extends ParticleEffect {
 		return $particles;
 	}
 
-	protected function getPoint(Vector3 $v, float $yaw, float $pitch): Vector3{
+	protected function getPoint(Vector3 $v, float $yaw, float $pitch): Vector3 {
 		$dir = VectorUtil::getDirectionHorizontal($yaw);
 		$dir->y = (VectorUtil::getDirectionVectorStrict(0, $pitch))->y;
 		$result = $v->addVector($dir->multiply($this->size));

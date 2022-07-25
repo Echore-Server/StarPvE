@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -69,7 +70,7 @@ class DeathPulseSkill extends Skill {
 		TaskUtil::repeatingClosureLimit(function () use ($preparePeriod, $prepareLimit, $std, $step) {
 			$par = (new CircleParticle($std->size, 5.5, 0, 360, 0.25));
 			$pos = VectorUtil::keepAdd($this->player->getPosition(), 0, 0.9, 0);
-			$par->sendToPlayers($this->player->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
+			ParticleUtil::send($par, $this->player->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
 
 			$std->size -= $step;
 
@@ -86,7 +87,8 @@ class DeathPulseSkill extends Skill {
 				$area = $this->area->get();
 				$par = (new CircleParticle($area, 5.5));
 				$pos = VectorUtil::keepAdd($this->player->getPosition(), 0, 0.9, 0);
-				$par->sendToPlayers(
+				ParticleUtil::send(
+					$par,
 					$this->player->getWorld()->getPlayers(),
 					$pos,
 					ParticleOption::spawnPacket(
@@ -97,7 +99,8 @@ class DeathPulseSkill extends Skill {
 
 				$base = (new Vector3($area, 0, $area))->divide(2);
 				$emitter = new EmitterParticle($base->multiply(-1), $base, 20);
-				$emitter->sendToPlayers(
+				ParticleUtil::send(
+					$emitter,
 					$this->player->getWorld()->getPlayers(),
 					$pos,
 					ParticleOption::spawnPacket(
@@ -107,7 +110,7 @@ class DeathPulseSkill extends Skill {
 				);
 
 				$effect = (new SaturatedLineworkEffect($area, 3, 0, 12, 360, 0, 0));
-				$effect->sendToPlayers($this->player->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
+				ParticleUtil::send($effect, $this->player->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
 
 				PlayerUtil::broadcastSound($this->player, "mob.zombie.unfect", 1.0, 0.5);
 

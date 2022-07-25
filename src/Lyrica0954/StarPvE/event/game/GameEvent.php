@@ -15,7 +15,7 @@ class GameEvent extends Event {
 	 */
 	protected Game $game;
 
-	public function getGame(): Game{
+	public function getGame(): Game {
 		return $this->game;
 	}
 }

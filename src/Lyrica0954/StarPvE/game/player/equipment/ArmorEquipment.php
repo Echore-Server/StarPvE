@@ -13,17 +13,17 @@ use pocketmine\item\ItemIds;
 
 class ArmorEquipment extends Equipment {
 
-    public function getName(): string{
+    public function getName(): string {
         return "防具";
     }
 
-    protected function getInitialMaxLevel(): int{
+    protected function getInitialMaxLevel(): int {
         return 3;
     }
 
-    public function getCost(int $level): Item{
+    public function getCost(int $level): Item {
         $f = ItemFactory::getInstance();
-        $costItem = match($level){
+        $costItem = match ($level) {
             1 => $f->get(ItemIds::EMERALD, 0, 0),
             2 => $f->get(ItemIds::EMERALD, 0, 40),
             3 => $f->get(ItemIds::EMERALD, 0, 120),
@@ -32,9 +32,9 @@ class ArmorEquipment extends Equipment {
 
         return $costItem;
     }
-    
-    protected function onUpgrade(int $level): void{
-        $armorSet = match($level){
+
+    protected function onUpgrade(int $level): void {
+        $armorSet = match ($level) {
             1 => ArmorSet::leather(),
             2 => ArmorSet::iron(),
             3 => ArmorSet::diamond(),

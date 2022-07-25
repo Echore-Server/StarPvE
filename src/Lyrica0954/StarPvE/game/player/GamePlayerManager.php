@@ -10,35 +10,35 @@ class GamePlayerManager {
 
     private array $players;
 
-    public function __construct(){
+    public function __construct() {
         $this->players = [];
     }
 
-    public function getGamePlayers(){
+    public function getGamePlayers() {
         return $this->players;
     }
 
-    public function addGamePlayer(Player $player){
-        if (!$this->isManaged($player)){
+    public function addGamePlayer(Player $player) {
+        if (!$this->isManaged($player)) {
             $this->players[spl_object_hash($player)] = new GamePlayer($player);
         }
     }
 
-    public function removeGamePlayer(Player $player){
-        if ($this->isManaged($player)){
+    public function removeGamePlayer(Player $player) {
+        if ($this->isManaged($player)) {
             unset($this->players[spl_object_hash($player)]);
         }
     }
 
-    public function isManaged(Player $player){
+    public function isManaged(Player $player) {
         return isset($this->players[spl_object_hash($player)]);
     }
 
-    public function getGamePlayer(Player $player): ?GamePlayer{
+    public function getGamePlayer(Player $player): ?GamePlayer {
         return $this->players[spl_object_hash($player)] ?? null;
     }
 
-    public function areSameGame(Player $a, Player $b){
+    public function areSameGame(Player $a, Player $b) {
         return $this->getGamePlayer($a)?->getGame() === $this->getGamePlayer($b)?->getGame();
     }
 }

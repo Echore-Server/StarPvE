@@ -8,8 +8,8 @@ use pocketmine\utils\Config;
 
 class ConfigHelper {
 
-	public static function addValue(Config $config, array $data): void{
-		foreach($data as $k => $v){
+	public static function addValue(Config $config, array $data): void {
+		foreach ($data as $k => $v) {
 			$config->set($k, $v);
 		}
 	}

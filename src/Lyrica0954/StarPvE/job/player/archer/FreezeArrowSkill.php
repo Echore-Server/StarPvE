@@ -21,7 +21,7 @@ use pocketmine\item\Bow;
 use pocketmine\item\VanillaItems;
 use pocketmine\player\Player;
 
-class FreezeArrowSkill extends Skill implements Listener{
+class FreezeArrowSkill extends Skill implements Listener {
 
 	/**
 	 * @var EffectGroup
@@ -38,23 +38,23 @@ class FreezeArrowSkill extends Skill implements Listener{
 	 */
 	protected EffectGroup $explodeEffects;
 
-	public function getCooltime(): int{
+	public function getCooltime(): int {
 		return (220 * 20);
 	}
-	
-	public function getName(): string{
+
+	public function getName(): string {
 		return "フリーズアロー";
 	}
 
-	public function getDescription(): string{
+	public function getDescription(): string {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$duration = DescriptionTranslator::second($this->duration);
 		$playerEffect = DescriptionTranslator::effectGroup($this->playerEffects);
 		$areaEffect = DescriptionTranslator::effectGroup($this->areaEffects);
 		$explodeEffect = DescriptionTranslator::effectGroup($this->explodeEffects);
 
-		return 
-sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作る有毒な矢を放つ。
+		return
+			sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作る有毒な矢を放つ。
 矢はエンティティを貫通する。
 地面に当たった場合 §b効果§f を発動する。
 
@@ -68,7 +68,7 @@ sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作
 ステージ上の全ての敵に %5$s を与えてノックバックさせる。', $area, $duration, $playerEffect, $areaEffect, $explodeEffect);
 	}
 
-	protected function init(): void{
+	protected function init(): void {
 		$this->area = new AbilityStatus(4.0);
 		$this->duration = new AbilityStatus(20 * 20);
 		$this->areaEffects = new EffectGroup(
@@ -86,16 +86,16 @@ sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作
 		);
 	}
 
-	public function onShoot(EntityShootBowEvent $event){
+	public function onShoot(EntityShootBowEvent $event) {
 		$projectile = $event->getProjectile();
 		$entity = $event->getEntity();
-		if ($projectile instanceof Arrow){
-			if ($entity === $this->player && $entity instanceof Player){
-				if ($event->getForce() == 3.0 && $entity->isSneaking()){
+		if ($projectile instanceof Arrow) {
+			if ($entity === $this->player && $entity instanceof Player) {
+				if ($event->getForce() == 3.0 && $entity->isSneaking()) {
 					$result = $this->activate();
-					if ($result->isSucceeded()){
+					if ($result->isSucceeded()) {
 						$new = new FreezeArrow($projectile->getLocation(), $projectile->getOwningEntity(), $projectile->isCritical(), $projectile->saveNBT());
-						$new->duration = (integer) $this->duration->get();
+						$new->duration = (int) $this->duration->get();
 						$new->area = $this->area->get();
 						$new->period = 10;
 						$new->areaEffects = clone $this->areaEffects;
@@ -111,20 +111,20 @@ sprintf('§b発動時:§f 周りの空間をゆがませて、安全地帯を作
 		}
 	}
 
-	public function onItemUse(PlayerItemUseEvent $event){
+	public function onItemUse(PlayerItemUseEvent $event) {
 		$item = $event->getItem();
 		$player = $event->getPlayer();
 
-		if ($player === $this->player){
-			if ($item instanceof Bow){
-				if ($player->isSneaking()){
+		if ($player === $this->player) {
+			if ($item instanceof Bow) {
+				if ($player->isSneaking()) {
 					Messanger::tooltip($player, "§c§l誤発動に注意: このまま(スニークしながら)最大チャージで発射するとスキルを使用します！");
 				}
 			}
 		}
 	}
 
-	protected function onActivate(): ActionResult{
+	protected function onActivate(): ActionResult {
 		return ActionResult::SUCCEEDED_SILENT();
 	}
 }

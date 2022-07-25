@@ -19,6 +19,7 @@ use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use Lyrica0954\StarPvE\PlayerController;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EmoteIds;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\math\Vector3;
@@ -66,7 +67,7 @@ class JobShop extends Human implements Ghost {
             $this->lookTick = 0;
 
             $ef = new PartDelayedEffect((new SaturatedLineworkEffect(14, 3, 1, 5)), 2, 1, true);
-            $ef->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
+            ParticleUtil::send($ef, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
 
 
             #$this->sq->rotate(4, 0);
@@ -102,10 +103,10 @@ class JobShop extends Human implements Ghost {
         if (($this->ptick) >= 100) {
             $this->ptick = 0;
             $ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12);
-            $ef->sendToPlayers($this->getWorld()->getPlayers(), ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
+            ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
 
             $ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12, true);
-            $ef->sendToPlayers($this->getWorld()->getPlayers(), ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
+            ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
         }
 
         return $hasUpdate;

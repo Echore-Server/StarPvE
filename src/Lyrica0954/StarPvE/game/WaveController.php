@@ -39,6 +39,7 @@ use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\ArmorSet;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\RandomUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
@@ -226,7 +227,7 @@ class WaveController implements CooltimeAttachable, Listener {
                     $par = new SingleParticle();
                     $pp = $entity->getPosition();
                     $pp->y += 1.5;
-                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $pp, ParticleOption::spawnPacket("starpve:totem_jet_particle", ""));
+                    ParticleUtil::send($par, $entity->getWorld()->getPlayers(), $pp, ParticleOption::spawnPacket("starpve:totem_jet_particle", ""));
 
                     if ($ldc instanceof EntityDamageByEntityEvent) {
                         $damager = $ldc->getDamager();

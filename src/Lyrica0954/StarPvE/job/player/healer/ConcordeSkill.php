@@ -17,6 +17,7 @@ use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EffectGroup;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\effect\EffectInstance;
@@ -100,20 +101,23 @@ class ConcordeSkill extends Skill {
                     );
                     if (StarPvE::getInstance()->getJobManager()->isJobName($entity, "Fighter")) {
                         $this->fighterEffects->apply($entity);
-                        $par->sendToPlayers(
+                        ParticleUtil::send(
+                            $par,
                             $players,
                             $parPos,
                             ParticleOption::spawnPacket("minecraft:villager_angry", "")
                         );
                     } else {
-                        $par->sendToPlayers(
+                        ParticleUtil::send(
+                            $par,
                             $players,
                             $parPos,
                             ParticleOption::spawnPacket("minecraft:heart_particle", "")
                         );
                     }
 
-                    $linePar->sendToPlayers(
+                    ParticleUtil::send(
+                        $linePar,
                         $players,
                         VectorUtil::keepAdd(
                             $entity->getPosition(),
@@ -135,7 +139,8 @@ class ConcordeSkill extends Skill {
         $selfRegain = new EntityRegainHealthEvent($this->player, $this->player->getMaxHealth(), EntityRegainHealthEvent::CAUSE_CUSTOM);
         $this->player->heal($selfRegain);
 
-        $circlePar->sendToPlayers(
+        ParticleUtil::send(
+            $circlePar,
             $players,
             VectorUtil::keepAdd($this->player->getPosition(), 0, 0.25, 0),
             ParticleOption::spawnPacket("minecraft:falling_dust_sand_particle", "")

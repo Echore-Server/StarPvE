@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE;
 
+use Lyrica0954\MagicParticle\ParticleHost;
+use Lyrica0954\MagicParticle\ParticleSender;
 use Lyrica0954\Service\ServiceHost;
 use Lyrica0954\StarPvE\command\CommandLoader;
 use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
@@ -80,6 +82,7 @@ final class StarPvE extends PluginBase {
     private GamePlayerManager $gamePlayerManager; #todo: gameManager の中に入れるべき？
     private PlayerDataCenter $playerDataCenter;
     private ServiceHost $serviceHost;
+    private ParticleHost $particleHost;
 
     public function getJobManager(): JobManager {
         return $this->jobManager;
@@ -99,6 +102,10 @@ final class StarPvE extends PluginBase {
 
     public function getServiceHost(): ServiceHost {
         return $this->serviceHost;
+    }
+
+    public function getParticleHost(): ParticleHost {
+        return $this->particleHost;
     }
 
     private function registerEntities() {
@@ -236,6 +243,9 @@ final class StarPvE extends PluginBase {
 
         $this->log("Starting Service Host...");
         $this->serviceHost = new ServiceHost($this);
+
+        $this->log("Starting Particle Host...");
+        $this->particleHost = new ParticleHost($this, new ParticleSender());
 
         $this->log("Opening Service Session...");
         $session = $this->serviceHost->open();

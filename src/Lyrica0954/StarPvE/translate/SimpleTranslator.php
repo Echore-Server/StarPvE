@@ -9,7 +9,7 @@ use pocketmine\Server;
 
 class SimpleTranslator {
 
-	public static function translate(Translatable $text): string{
+	public static function translate(Translatable $text): string {
 		$lang = Server::getInstance()->getLanguage();
 		return $lang->translate($text);
 	}

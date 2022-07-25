@@ -14,16 +14,16 @@ class CoveredParticle {
 	public function __construct(
 		SendableParticle $particle,
 		Position $pos
-	){
+	) {
 		$this->particle = $particle;
 		$this->pos = $pos;
 	}
 
-	public function getParticle(): SendableParticle{
+	public function getParticle(): SendableParticle {
 		return $this->particle;
 	}
 
-	public function getPosition(): Position{
+	public function getPosition(): Position {
 		return $this->pos;
 	}
 }

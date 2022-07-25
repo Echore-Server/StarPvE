@@ -15,6 +15,7 @@ use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -122,7 +123,8 @@ class EnergyFieldSkill extends Skill implements Listener {
 				return;
 			}
 			if ($this->tick % 30 == 0) {
-				(new SphereParticle($this->area->get(), 10, 10, 360, -90, 0))->sendToPlayers(
+				ParticleUtil::send(
+					new SphereParticle($this->area->get(), 10, 10, 360, -90, 0),
 					$this->player->getWorld()->getPlayers(),
 					$this->player->getPosition(),
 					ParticleOption::spawnPacket("starpve:soft_yellow_gas", "")
@@ -149,7 +151,8 @@ class EnergyFieldSkill extends Skill implements Listener {
 					if (count($entities) > 0) {
 						$entity = $entities[array_rand($entities)];
 
-						(new LineParticle(VectorUtil::keepAdd($this->player->getPosition(), 0, 1.0, 0), 2))->sendToPlayers(
+						ParticleUtil::send(
+							new LineParticle(VectorUtil::keepAdd($this->player->getPosition(), 0, 1.0, 0), 2),
 							$this->player->getWorld()->getPlayers(),
 							VectorUtil::keepAdd($entity->getPosition(), 0, $entity->getEyeHeight(), 0),
 							ParticleOption::spawnPacket("starpve:soft_yellow_gas", "")

@@ -14,6 +14,7 @@ use Lyrica0954\SmartEntity\SmartEntity;
 use Lyrica0954\StarPvE\entity\MemoryEntity;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\animation\ArmSwingAnimation;
@@ -87,7 +88,7 @@ class Skeleton extends SmartSkeleton {
 
                 if ($ct % 2 == 0) {
                     $par = new SingleParticle();
-                    $par->sendToPlayers($entity->getWorld()->getPlayers(), $entity->getPosition(), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
+                    ParticleUtil::send($par, $entity->getWorld()->getPlayers(), $entity->getPosition(), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
                     PlayerUtil::broadcastSound($entity, "firework.twinkle", 1.75, 0.3);
                 }
             });

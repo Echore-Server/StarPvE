@@ -17,6 +17,7 @@ use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\player\swordman\ForceFieldSkill;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -70,7 +71,7 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 		$pos = $entity->getPosition();
 		$pos->y += 0.75;
 		$players = $entity->getWorld()->getPlayers();
-		(new SingleParticle)->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:splash_spell_emitter", ""));
+		ParticleUtil::send(new SingleParticle, $players, $pos, ParticleOption::spawnPacket("minecraft:splash_spell_emitter", ""));
 
 		$range = match ($entity::class) {
 			DefaultMonsters::CREEPER => 10.0,
@@ -83,7 +84,7 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 
 		$damage = $entity->getMaxHealth() * $per;
 
-		(new CircleParticle($range, 4, unstableRate: 0.05))->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
+		ParticleUtil::send(new CircleParticle($range, 4, unstableRate: 0.05), $players, $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
 
 		PlayerUtil::broadcastSound($pos, "dig.basalt", 0.8, 1.0);
 

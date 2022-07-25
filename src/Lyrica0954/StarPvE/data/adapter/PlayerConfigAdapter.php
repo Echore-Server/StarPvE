@@ -12,12 +12,12 @@ class PlayerConfigAdapter extends SimpleConfigAdapter {
 
 	protected string $xuid;
 
-	public function __construct(string $xuid, Config $config){
+	public function __construct(string $xuid, Config $config) {
 		parent::__construct($config);
 		$this->xuid = $xuid;
 	}
 
-	public function getXuid(): string{
+	public function getXuid(): string {
 		return $this->xuid;
 	}
 }

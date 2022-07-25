@@ -17,7 +17,7 @@ class CooltimeEvent extends Event {
 	/**
 	 * @return CooltimeHandler
 	 */
-	public function getHandler(): CooltimeHandler{
+	public function getHandler(): CooltimeHandler {
 		return $this->handler;
 	}
 }

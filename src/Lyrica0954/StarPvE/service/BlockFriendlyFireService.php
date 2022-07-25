@@ -16,11 +16,11 @@ class BlockFriendlyFireService extends ListenerService {
 	 * 
 	 * @priority LOWEST
 	 */
-	public function onDamageByEntity(EntityDamageByEntityEvent $event): void{
+	public function onDamageByEntity(EntityDamageByEntityEvent $event): void {
 		$entity = $event->getEntity();
 		$damager = $event->getDamager();
 
-		if ($damager instanceof Player && $entity instanceof Player){
+		if ($damager instanceof Player && $entity instanceof Player) {
 			$event->cancel();
 		}
 	}

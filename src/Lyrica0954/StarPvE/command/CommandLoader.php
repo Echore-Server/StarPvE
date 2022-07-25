@@ -13,6 +13,7 @@ class CommandLoader {
         new GameCommand("game", $p, $p);
         new TestCommand("test", $p, $p);
         new PlayerStatusCommand("stats", $p, $p);
+        new SettingCommand("setting", $p, $p);
 
         new TaskInfoCommand("taskinfo", $p, $p);
     }

@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\game\monster\Attacker;
 use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -88,7 +89,8 @@ class ShieldBall extends GhostItemEntity {
             $this->tick += $tickDiff;
             $this->updateNameTag();
         } else {
-            (new SingleParticle)->sendToPlayers(
+            ParticleUtil::send(
+                new SingleParticle,
                 $this->getWorld()->getPlayers(),
                 VectorUtil::insertWorld(
                     $this->getOffsetPosition(
@@ -113,7 +115,7 @@ class ShieldBall extends GhostItemEntity {
 
         if ($this->active) {
             if ($this->power <= 0) {
-                (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:knockback_roar_particle", ""));
+                ParticleUtil::send(new SingleParticle, $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:knockback_roar_particle", ""));
                 PlayerUtil::broadcastSound($this, "block.lantern.break", 0.8);
 
                 $this->kill();
@@ -154,10 +156,10 @@ class ShieldBall extends GhostItemEntity {
 
                     $radius = $this->getShieldRadius();
                     for ($h = 0.75; $h < $radius; $h += 0.75) {
-                        (new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $h, 0), ParticleOption::spawnPacket("minecraft:shulker_bullet", ""));
+                        ParticleUtil::send(new SingleParticle, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $h, 0), ParticleOption::spawnPacket("minecraft:shulker_bullet", ""));
                     }
-                    $par = new SphereParticle($radius, 6, 6, 360, -90, 0);
-                    $par->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
+                    $par = new SphereParticle($radius, 9, 9, 360, -90, 0);
+                    ParticleUtil::send($par, $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
                 }
             }
         }

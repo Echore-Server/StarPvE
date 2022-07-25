@@ -16,6 +16,7 @@ use Lyrica0954\StarPvE\job\ticking\Ticking;
 use Lyrica0954\StarPvE\job\ticking\TickingController;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\Entity;
@@ -49,7 +50,7 @@ class ForceFieldSkill extends Skill {
 
     protected function onActivate(): ActionResult {
         $particle = new SphereParticle($this->area->get(), 8.5, 8.5);
-        $particle->sendToPlayers($this->player->getWorld()->getPlayers(), $this->player->getPosition(), ParticleOption::spawnPacket("minecraft:basic_flame_particle", ""));
+        ParticleUtil::send($particle, $this->player->getWorld()->getPlayers(), $this->player->getPosition(), ParticleOption::spawnPacket("minecraft:basic_flame_particle", ""));
 
         PlayerUtil::broadcastSound($this->player->getPosition(), "block.false_permissions", 0.5);
 

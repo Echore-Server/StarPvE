@@ -13,11 +13,11 @@ class Shop {
      */
     private array $contents;
 
-    public function __construct(){
+    public function __construct() {
         $this->contents = [];
     }
 
-    public function addContent(ShopContent $content): void{
+    public function addContent(ShopContent $content): void {
         $this->contents[spl_object_hash($content)] = $content;
     }
 
@@ -25,11 +25,11 @@ class Shop {
     /**
      * @return ShopContent[]
      */
-    public function getContents(): array{
+    public function getContents(): array {
         return $this->contents;
     }
 
-    public function removeContent(ShopContent $content): void{
+    public function removeContent(ShopContent $content): void {
         unset($this->contents[spl_object_hash($content)]);
     }
 }

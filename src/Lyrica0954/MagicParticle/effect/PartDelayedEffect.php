@@ -16,21 +16,20 @@ class PartDelayedEffect extends ParticleEffect {
 		private int $period,
 		private int $partLength = 1,
 		private bool $reverse = false
-	)
-	{ 
+	) {
 		$this->drawHooks = [];
 	}
 
-	public function addDrawHook(\Closure $closure){
+	public function addDrawHook(\Closure $closure) {
 		$this->drawHooks[] = $closure;
 	}
 
-	public function draw(Position $pos): array{
+	public function draw(Position $pos): array {
 		$effectParticles = $this->effect->draw($pos);
 		$delayedParticles = [];
-		foreach($effectParticles as $particle){
+		foreach ($effectParticles as $particle) {
 			$delayed =  new PartDelayedParticle($particle, $this->period, $this->partLength, $this->reverse);
-			foreach($this->drawHooks as $hook){
+			foreach ($this->drawHooks as $hook) {
 				$delayed->addDrawHook($hook);
 			}
 

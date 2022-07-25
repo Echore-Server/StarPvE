@@ -12,17 +12,17 @@ use pocketmine\item\ItemIds;
 
 class SwordEquipment extends Equipment {
 
-    public function getName(): string{
+    public function getName(): string {
         return "武器";
     }
 
-    protected function getInitialMaxLevel(): int{
+    protected function getInitialMaxLevel(): int {
         return 3;
     }
 
-    public function getCost(int $level): Item{
+    public function getCost(int $level): Item {
         $f = ItemFactory::getInstance();
-        $costItem = match($level){
+        $costItem = match ($level) {
             1 => $f->get(ItemIds::EMERALD, 0, 0),
             2 => $f->get(ItemIds::EMERALD, 0, 40),
             3 => $f->get(ItemIds::EMERALD, 0, 120),
@@ -31,26 +31,25 @@ class SwordEquipment extends Equipment {
 
         return $costItem;
     }
-    
-    protected function onUpgrade(int $level): void{
+
+    protected function onUpgrade(int $level): void {
         $f = ItemFactory::getInstance();
-        $item = match($level){
+        $item = match ($level) {
             1 => $f->get(ItemIds::WOODEN_SWORD),
             2 => $f->get(ItemIds::STONE_SWORD),
             3 => $f->get(ItemIds::DIAMOND_SWORD),
             default => $f->get(ItemIds::AIR)
-            
         };
 
-        if (!$item instanceof Durable){
+        if (!$item instanceof Durable) {
             return;
         }
 
         $item->setUnbreakable();
 
-    
+
         $index = PlayerUtil::findSwordIndex($this->player);
-        if ($index === null){
+        if ($index === null) {
             $this->player->getInventory()->addItem($item);
         } else {
             $this->player->getInventory()->setItem($index, $item);

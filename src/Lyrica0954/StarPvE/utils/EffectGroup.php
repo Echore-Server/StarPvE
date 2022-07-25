@@ -16,24 +16,24 @@ class EffectGroup {
 	 */
 	private array $effects;
 
-	public function __construct(EffectInstance... $effects){
+	public function __construct(EffectInstance ...$effects) {
 		$this->effects = $effects;
 	}
 
-	public function add(EffectInstance $effect): void{
+	public function add(EffectInstance $effect): void {
 		$this->effects[] = $effect;
 	}
 
 	/**
 	 * @return EffectInstance[]
 	 */
-	public function getAll(): array{
+	public function getAll(): array {
 		return $this->effects;
 	}
 
-	public function apply(Living $living): void{
+	public function apply(Living $living): void {
 		$ef = $living->getEffects();
-		foreach($this->effects as $effect){
+		foreach ($this->effects as $effect) {
 			$ef->add(clone $effect);
 		}
 	}

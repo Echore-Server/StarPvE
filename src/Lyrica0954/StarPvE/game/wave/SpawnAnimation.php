@@ -15,33 +15,34 @@ class SpawnAnimation {
 
 	protected ?\Closure $initiator;
 
-	public function __construct(\Closure $animator, int $animatorPeriod){
+	public function __construct(\Closure $animator, int $animatorPeriod) {
 		$this->animator = $animator;
 		$this->period = $animatorPeriod;
 		$this->initiator = null;
 	}
 
-	public function getAnimator(): \Closure{
+	public function getAnimator(): \Closure {
 		return $this->animator;
 	}
 
-	public function getInitiator(): ?\Closure{
+	public function getInitiator(): ?\Closure {
 		return $this->initiator;
 	}
 
-	public function setInitiator(\Closure $initiator): void{
+	public function setInitiator(\Closure $initiator): void {
 		$this->initiator = $initiator;
 	}
 
-	public function spawn(Living $living): void{
-		if ($this->initiator !== null){
+	public function spawn(Living $living): void {
+		if ($this->initiator !== null) {
 			($this->initiator)($living);
 		}
 
 		$living->spawnToAll();
 
 
-		TaskUtil::reapeatingClosureCheck(function(){}, $this->period, function() use($living){
+		TaskUtil::reapeatingClosureCheck(function () {
+		}, $this->period, function () use ($living) {
 			return (($this->animator)($living));
 		});
 	}

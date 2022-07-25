@@ -9,6 +9,7 @@ use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\walking\Spider as SmartSpider;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\entity\animation\ArmSwingAnimation;
 use pocketmine\entity\effect\EffectInstance;
@@ -39,7 +40,7 @@ class Spider extends SmartSpider {
                         $par = new SingleParticle();
                         $epos = $entity->getPosition();
                         $epos->y += $entity->getEyeHeight();
-                        $par->sendToPlayers($this->getWorld()->getPlayers(), $epos, ParticleOption::levelEvent(new ExplodeParticle));
+                        ParticleUtil::send($par, $this->getWorld()->getPlayers(), $epos, ParticleOption::levelEvent(new ExplodeParticle));
                     }
                 }
             }

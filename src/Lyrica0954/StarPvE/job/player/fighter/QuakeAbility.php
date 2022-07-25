@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -27,6 +28,7 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\Task;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\world\particle\BlockBreakParticle;
+use pocketmine\world\particle\Particle;
 
 class QuakeAbility extends Ability {
 
@@ -58,7 +60,7 @@ class QuakeAbility extends Ability {
         foreach (EntityUtil::getLineOfSight($this->player, 7, new Vector3($area, $area, $area)) as $result) {
             $entity = $result->getEntity();
             if (MonsterData::isMonster($entity)) {
-                (new SingleParticle())->sendToPlayers($world->getPlayers(), $entity->getPosition(), ParticleOption::spawnPacket("starpve:quake", ""));
+                ParticleUtil::send(new SingleParticle, $world->getPlayers(), $entity->getPosition(), ParticleOption::spawnPacket("starpve:quake", ""));
                 $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->damage->get());
                 EntityUtil::attackEntity($source, 0.0, 2.5, true);
             }

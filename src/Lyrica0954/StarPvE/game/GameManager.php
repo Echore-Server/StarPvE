@@ -67,7 +67,7 @@ class GameManager {
             $world = $wm->getWorldByName($id);
             $world->setTime(13000);
             $world->stopTime();
-            $game = new Game($world, $stageInfo, $option);
+            $game = new Game($world, $stageInfo, $option->getGameOption());
 
             $this->addGame($game, $id);
 

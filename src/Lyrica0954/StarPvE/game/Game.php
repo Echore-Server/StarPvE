@@ -35,6 +35,7 @@ use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\Messanger;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -91,7 +92,7 @@ class Game implements CooltimeAttachable {
         return $text;
     }
 
-    public function __construct(World $world, StageInfo $stageInfo, GameCreationOption $creationOption) {
+    public function __construct(World $world, StageInfo $stageInfo, GameOption $option) {
         $this->world = $world;
         $this->stageInfo = $stageInfo;
         foreach ($stageInfo->getIdentityGroup()->getAll() as $identity) {
@@ -121,7 +122,7 @@ class Game implements CooltimeAttachable {
         $this->lane2 = new Lane(Position::fromObject($stageInfo->getLane2(), $world), $this->centerPos);
         $this->lane3 = new Lane(Position::fromObject($stageInfo->getLane3(), $world), $this->centerPos);
         $this->lane4 = new Lane(Position::fromObject($stageInfo->getLane4(), $world), $this->centerPos);
-        $this->maxPlayers = $creationOption->getMaxPlayers();
+        $this->maxPlayers = $option->getMaxPlayers();
 
         $this->closed = false;
 
@@ -132,7 +133,6 @@ class Game implements CooltimeAttachable {
                 null,
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 2),
-                    new MonsterData(DefaultMonsters::ENDERMAN, 30)
                 ),
                 new WaveMonsters(
                     new MonsterData(DefaultMonsters::ZOMBIE, 1),
@@ -622,7 +622,7 @@ class Game implements CooltimeAttachable {
                 }
             }
 
-            (new SphereParticle($std->size, 8, 8, 360, -90, 0))->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:freeze_gas", ""));
+            ParticleUtil::send((new SphereParticle($std->size, 8, 8, 360, -90, 0)), $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:freeze_gas", ""));
 
             foreach ($this->getWorld()->getPlayers() as $player) {
                 $anchor = VectorUtil::getNearestSpherePosition($player->getPosition(), $pos, $std->size);

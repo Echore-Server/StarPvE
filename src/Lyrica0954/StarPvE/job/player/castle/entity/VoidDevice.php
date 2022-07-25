@@ -12,6 +12,7 @@ use Lyrica0954\StarPvE\entity\item\GhostItemEntity;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\EntityDataHelper;
@@ -75,14 +76,15 @@ class VoidDevice extends GhostItemEntity implements Listener {
 
 			if ($this->visTick >= 15) {
 				$this->visTick = 0;
-				(new CircleParticle($this->area, 6))->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:falling_dust_concrete_powder_particle", ""));
+				ParticleUtil::send(new CircleParticle($this->area, 6), $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:falling_dust_concrete_powder_particle", ""));
 			}
 
 			if ($this->tick >= $this->duration) {
 				$this->kill();
 			}
 		} else {
-			(new SingleParticle)->sendToPlayers(
+			ParticleUtil::send(
+				new SingleParticle,
 				$this->getWorld()->getPlayers(),
 				VectorUtil::insertWorld(
 					$this->getOffsetPosition(
@@ -117,7 +119,7 @@ class VoidDevice extends GhostItemEntity implements Listener {
 						if (Server::getInstance()->getTick() - $this->lastDamageVisTick >= 10) {
 							$this->lastDamageVisTick = Server::getInstance()->getTick();
 
-							(new CircleParticle($this->damageArea, 6))->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
+							ParticleUtil::send(new CircleParticle($this->damageArea, 6), $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
 						}
 						foreach (EntityUtil::getWithinRange($this->getPosition(), $this->damageArea) as $hent) {
 							if (MonsterData::isMonster($hent)) {

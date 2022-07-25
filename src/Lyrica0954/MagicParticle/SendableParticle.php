@@ -34,39 +34,4 @@ abstract class SendableParticle implements DrawableParticle {
 
         return $packets;
     }
-
-    public function sendToPlayer(Player $player, Position $pos, ParticleOption $option) {
-        foreach ($this->getPackets($pos, $option) as $packed) {
-            foreach ($packed as $pk) {
-                if ($this->filter($player, $pk->position)) {
-                    $player->getNetworkSession()->addToSendBuffer($pk);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param Player[] $players
-     * @param Position $pos
-     * @param string|Particle $particle
-     * 
-     * @return void
-     */
-    public function sendToPlayers(array $players, Position $pos, ParticleOption $option): void {
-        foreach ($this->getPackets($pos, $option) as $packed) {
-            foreach ($packed as $pk) {
-                foreach ($players as $player) {
-                    if ($player instanceof Player) {
-                        if ($this->filter($player, $pk->position)) {
-                            $player->getNetworkSession()->addToSendBuffer($pk);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected function filter(Player $player, Vector3 $pos, float $maxRange = 20): ?Vector3 {
-        return ($player->canInteract($pos, $maxRange, M_SQRT3 / 3)) ? $pos : null;
-    }
 }

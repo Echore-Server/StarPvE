@@ -17,13 +17,13 @@ class BossBar {
 	protected string $title;
 
 	protected int $color;
-	
+
 	/**
 	 * @var Player[]
 	 */
 	protected array $players;
 
-	public function __construct(string $title){
+	public function __construct(string $title) {
 		$this->healthPercent = 1.0;
 		$this->title = $title;
 		$this->color = BossBarColor::PURPLE;
@@ -34,78 +34,78 @@ class BossBar {
 		return $this->healthPercent;
 	}
 
-	public function getTitle(): string{
+	public function getTitle(): string {
 		return $this->title;
 	}
 
-	public function getColor(): int{
+	public function getColor(): int {
 		return $this->color;
 	}
 
-	public function setHealthPercent(float $healthPercent): void{
+	public function setHealthPercent(float $healthPercent): void {
 		$this->healthPercent = $healthPercent;
 	}
 
-	public function setTitle(string $title): void{
+	public function setTitle(string $title): void {
 		$this->title = $title;
 	}
 
-	public function setColor(int $color): void{
+	public function setColor(int $color): void {
 		$this->color = $color;
 	}
 
-	public function update(): void{
-		foreach($this->players as $player){
+	public function update(): void {
+		foreach ($this->players as $player) {
 			$session = $player->getNetworkSession();
 			$session->sendDataPacket($this->getPercentPacket($player, $this->healthPercent));
 			$session->sendDataPacket($this->getTitlePacket($player, $this->title));
 		}
 	}
 
-	private function getPercentPacket(Player $player, float $healthPercent): BossEventPacket{
+	private function getPercentPacket(Player $player, float $healthPercent): BossEventPacket {
 		return BossEventPacket::healthPercent($player->getId(), $healthPercent);
 	}
 
-	private function getTitlePacket(Player $player, string $title): BossEventPacket{
+	private function getTitlePacket(Player $player, string $title): BossEventPacket {
 		return BossEventPacket::title($player->getId(), $title);
 	}
 
-	private function getShowPacket(Player $player): BossEventPacket{
+	private function getShowPacket(Player $player): BossEventPacket {
 		$pk = BossEventPacket::show($player->getId(), $this->title, $this->healthPercent, 0, $this->color);
 		return $pk;
 	}
 
-	private function getHidePacket(Player $player): BossEventPacket{
+	private function getHidePacket(Player $player): BossEventPacket {
 		$pk = BossEventPacket::hide($player->getId());
 		return $pk;
 	}
 
-	public function showToWorld(World $world): void{
-		foreach($world->getPlayers() as $player){
-			if ($player->isOnline()){
+	public function showToWorld(World $world): void {
+		foreach ($world->getPlayers() as $player) {
+			if ($player->isOnline()) {
 				$this->showToPlayer($player);
 			}
 		}
 	}
 
-	public function showToPlayer(Player $player): void{
+	public function showToPlayer(Player $player): void {
 		$this->players[] = $player;
 		$player->getNetworkSession()->sendDataPacket($this->getShowPacket($player));
 	}
 
-	public function isShowed(Player $player): bool{
+	public function isShowed(Player $player): bool {
 		return array_search($player, $this->players) !== false;
 	}
 
-	public function hide(): void{
-		foreach($this->players as $player){
+	public function hide(): void {
+		foreach ($this->players as $player) {
 			$this->hideFromPlayer($player);
 		}
 	}
 
-	public function hideFromPlayer(Player $player): void{
+	public function hideFromPlayer(Player $player): void {
 		$key = array_search($player, $this->players);
-		if ($key !== false){
+		if ($key !== false) {
 			unset($this->players[$key]);
 		}
 		$player->getNetworkSession()->sendDataPacket($this->getHidePacket($player));

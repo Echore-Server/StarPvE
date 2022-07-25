@@ -19,6 +19,7 @@ use Lyrica0954\StarPvE\game\wave\WaveMonsters;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\RandomUtil;
 use pocketmine\entity\Entity;
@@ -60,7 +61,8 @@ class ZombieLord extends SmartZombie implements Listener {
 	protected function onDispose(): void {
 		parent::onDispose();
 
-		(new SaturatedLineworkEffect(10, 3, 0.1, 10, 360, -90, 0))->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
+
+		ParticleUtil::send((new SaturatedLineworkEffect(10, 3, 0.1, 10, 360, -90, 0)), $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
 
 		HandlerListManager::global()->unregisterAll($this);
 	}
@@ -99,7 +101,7 @@ class ZombieLord extends SmartZombie implements Listener {
 			}
 		}
 
-		(new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:knockback_roar_particle", ""));
+		ParticleUtil::send(new SingleParticle, $this->getWorld()->getPlayers(), $this->getPosition(), ParticleOption::spawnPacket("minecraft:knockback_roar_particle", ""));
 	}
 
 	protected function entityBaseTick(int $tickDiff = 1): bool {
@@ -127,7 +129,7 @@ class ZombieLord extends SmartZombie implements Listener {
 							$epos->y += 0.3;
 							$ev->setAttackCooldown(0);
 							$entity->attack($ev);
-							(new LineParticle($pos, 3))->sendToPlayers($this->getWorld()->getPlayers(), $epos, ParticleOption::spawnPacket("starpve:red_gas", ""));
+							ParticleUtil::send(new LineParticle($pos, 3), $this->getWorld()->getPlayers(), $epos, ParticleOption::spawnPacket("starpve:red_gas", ""));
 
 							PlayerUtil::broadcastSound($entity, "dig.nylium", 0.65, 0.8);
 
@@ -155,12 +157,12 @@ class ZombieLord extends SmartZombie implements Listener {
 
 					if ($pos->distance($epos) <= $this->defendArea) {
 						$players = $this->getWorld()->getPlayers();
-						(new LineParticle($pos, 3))->sendToPlayers($players, $epos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
+						ParticleUtil::send(new LineParticle($pos, 3), $players, $epos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
 
 						$diff = Server::getInstance()->getTick() - $this->lastParticle;
 						if ($diff >= 10) {
 							$this->lastParticle = Server::getInstance()->getTick();
-							(new CircleParticle($this->defendArea, 6))->sendToPlayers($players, $pos, ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
+							ParticleUtil::send(new CircleParticle($this->defendArea, 6), $players, $pos, ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
 						}
 
 						EntityUtil::multiplyFinalDamage($event, 0.65);

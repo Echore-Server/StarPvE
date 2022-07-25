@@ -10,11 +10,11 @@ class CustomWaveStart {
 
     private ?\Closure $closure;
 
-    public function __construct(?\Closure $closure = null){
+    public function __construct(?\Closure $closure = null) {
         $this->closure = $closure;
     }
 
-    public function getClosure(): ?\Closure{
+    public function getClosure(): ?\Closure {
         return $this->closure;
     }
 }

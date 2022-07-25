@@ -17,6 +17,7 @@ use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EffectGroup;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -72,7 +73,7 @@ class FreezeArrow extends SpecialArrow implements Listener {
 	protected function entityBaseTick(int $tickDiff = 1): bool {
 		$update = parent::entityBaseTick($tickDiff);
 		$players = $this->getWorld()->getPlayers();
-		(new SingleParticle)->sendToPlayers($players, $this->getPosition(), ParticleOption::spawnPacket("minecraft:ice_evaporation_emitter", ""));
+		ParticleUtil::send(new SingleParticle, $players, $this->getPosition(), ParticleOption::spawnPacket("minecraft:ice_evaporation_emitter", ""));
 
 		if ($this->activatedInternal) {
 			$vec = $this->activatePosition;
@@ -108,7 +109,7 @@ class FreezeArrow extends SpecialArrow implements Listener {
 									TaskUtil::reapeatingClosureCheck(function () use ($entity) {
 										$min = EntityUtil::getCollisionMin($entity);
 										$emitter = EmitterParticle::createEmitterForEntity($entity, 0.3, 3);
-										$emitter->sendToPlayers($entity->getWorld()->getPlayers(), VectorUtil::insertWorld($min, $entity->getWorld()), ParticleOption::spawnPacket("minecraft:magnesium_salts_emitter", ""));
+										ParticleUtil::send($emitter, $entity->getWorld()->getPlayers(), VectorUtil::insertWorld($min, $entity->getWorld()), ParticleOption::spawnPacket("minecraft:magnesium_salts_emitter", ""));
 									}, 6, function () use ($entity) {
 										return ($entity->isAlive() && !$entity->isClosed() && $entity->isFriend());
 									});
@@ -129,13 +130,13 @@ class FreezeArrow extends SpecialArrow implements Listener {
 					}
 				}
 
-				if ($this->particleTick >= 20) {
+				if ($this->particleTick >= 32) {
 					$this->particleTick = 0;
 
-					$spar = (new SphereParticle($this->areaC, 6, 6, 360, -90, 0));
+					$spar = (new SphereParticle($this->areaC, 12, 12, 360, -90, 0));
 					$eff = new PartDelayedEffect(new SaturatedLineworkEffect($this->areaC, 3, 0.0, 7, 360, -90, 0), 3, 1, true);
-					$spar->sendToPlayers($players, $pos, ParticleOption::spawnPacket("starpve:freeze_gas", ""));
-					$eff->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:magnesium_salts_emitter", ""));
+					ParticleUtil::send($spar, $players, $pos, ParticleOption::spawnPacket("starpve:freeze_gas", ""));
+					ParticleUtil::send($eff, $players, $pos, ParticleOption::spawnPacket("minecraft:magnesium_salts_emitter", ""));
 				}
 
 				if ($this->soundTick >= $this->soundPeriod) {
@@ -165,9 +166,10 @@ class FreezeArrow extends SpecialArrow implements Listener {
 							PlayerUtil::playSound($player, "respawn_anchor.set_spawn", 0.5, $std->volume);
 						}
 					}, 2, 4);
-					(new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
-					(new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
-					(new SingleParticle)->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
+					$p = new SingleParticle;
+					ParticleUtil::send($p, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
+					ParticleUtil::send($p, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
+					ParticleUtil::send($p, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
 
 					foreach (EntityUtil::getWithinRange($pos, PHP_INT_MAX) as $entity) {
 						if (MonsterData::isMonster($entity)) {

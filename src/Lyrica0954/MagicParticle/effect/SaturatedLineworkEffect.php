@@ -13,7 +13,7 @@ use pocketmine\world\Position;
 
 class SaturatedLineworkEffect extends ParticleEffect {
 
-	public function __construct( 
+	public function __construct(
 		private float $lineLength,
 		private float $linePpb,
 		private float $centerOffset, # 中心幅
@@ -21,17 +21,15 @@ class SaturatedLineworkEffect extends ParticleEffect {
 		private float $maxYaw = 360,
 		private float $minPitch = -90,
 		private float $maxPitch = 90
-	)
-	{
-		
+	) {
 	}
 
-	public function draw(Position $pos): array{
+	public function draw(Position $pos): array {
 		$particles = [];
-		for($i = 0; $i < $this->amount; $i++){
+		for ($i = 0; $i < $this->amount; $i++) {
 			$yaw = lcg_value() * $this->maxYaw;
 			$pitch = RandomUtil::rand_float($this->minPitch, $this->maxPitch);
-			
+
 			$dir = VectorUtil::getDirectionVector($yaw, $pitch);
 			$start = $pos->addVector($dir->multiply($this->centerOffset));
 			$lineDir = $dir->multiply($this->lineLength);

@@ -11,6 +11,7 @@ use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EffectGroup;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\block\Block;
@@ -198,9 +199,9 @@ class SpecialArrow extends Arrow {
 		$emitter = EmitterParticle::createEmitterForEntity($this, 0.1, 1);
 		$players = $this->getWorld()->getPlayers();
 		$pos = VectorUtil::insertWorld($min, $this->getWorld());
-		$emitter->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_red_sand_particle", ""));
-		$emitter->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_sand_particle", ""));
-		$emitter->sendToPlayers($players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
+		ParticleUtil::send($emitter, $players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_red_sand_particle", ""));
+		ParticleUtil::send($emitter, $players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_sand_particle", ""));
+		ParticleUtil::send($emitter, $players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
 
 		if ($this->activated) {
 			$vec = $this->activatePosition;
@@ -227,13 +228,13 @@ class SpecialArrow extends Arrow {
 					}
 				}
 
-				if ($this->particleTick >= 35) {
+				if ($this->particleTick >= 50) {
 					$this->particleTick = 0;
 
-					$par = (new CircleParticle($this->area, 10, 0));
+					$par = (new CircleParticle($this->area, 12, 0));
 					$pos = VectorUtil::insertWorld($vec, $this->getWorld());
-					$par->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:border_limit", ""));
-					$par->sendToPlayers($this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:villager_happy", ""));
+					ParticleUtil::send($par, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:border_limit", ""));
+					ParticleUtil::send($par, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:villager_happy", ""));
 				}
 			}
 		}

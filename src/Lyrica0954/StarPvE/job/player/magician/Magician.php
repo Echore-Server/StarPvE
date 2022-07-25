@@ -12,27 +12,27 @@ use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 
-class Magician extends PlayerJob{
+class Magician extends PlayerJob {
 
-    protected function getInitialAbility(): Ability{
+    protected function getInitialAbility(): Ability {
         return new ThunderboltAbility($this);
     }
 
-    protected function getInitialSkill(): Skill{
+    protected function getInitialSkill(): Skill {
         return new PowerBoostSkill($this);
     }
 
-    protected function getInitialIdentityGroup(): IdentityGroup{
+    protected function getInitialIdentityGroup(): IdentityGroup {
         return new IdentityGroup();
     }
 
-    public function getName(): string{
+    public function getName(): string {
         return "Magician";
     }
 
-    public function getDescription(): string{
-        return 
-"§7- §l§c戦闘§r
+    public function getDescription(): string {
+        return
+            "§7- §l§c戦闘§r
 
 雷を操るマジシャン。遠距離から敵を攻撃したり、集団の敵を殲滅するのが得意な職業。
 全ての職業の中でもかなり秒間攻撃力が高いこの職業だが、
@@ -40,8 +40,7 @@ class Magician extends PlayerJob{
 敵に狙われると少し危ない。";
     }
 
-    public function getSelectableCondition(): ?Condition{
+    public function getSelectableCondition(): ?Condition {
         return null;
     }
-
 }

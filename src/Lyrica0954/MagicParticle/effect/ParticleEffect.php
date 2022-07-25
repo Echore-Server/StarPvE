@@ -29,33 +29,4 @@ abstract class ParticleEffect {
 	public function drawAsDelayed(Position $pos): array {
 		return $this->draw($pos);
 	}
-
-	public function sendToPlayer(Player $player, Position $pos, ParticleOption $option) {
-		foreach ($this->draw($pos) as $coveredParticle) {
-			if ($coveredParticle instanceof PartDelayedParticle) {
-				$coveredParticle->sendToPlayer($player, $option);
-			} else {
-				$coveredParticle->getParticle()->sendToPlayer($player, $coveredParticle->getPosition(), $option);
-			}
-		}
-	}
-
-	/**
-	 * @param Player[] $players
-	 * @param Position $pos
-	 * @param string|Particle $particle
-	 * 
-	 * @return void
-	 */
-	public function sendToPlayers(array $players, Position $pos, ParticleOption $option): void {
-		foreach ($this->draw($pos) as $coveredParticle) {
-			if ($coveredParticle instanceof CoveredParticle) {
-				if ($coveredParticle instanceof PartDelayedParticle) {
-					$coveredParticle->sendToPlayers($players, $option);
-				} else {
-					$coveredParticle->getParticle()->sendToPlayers($players, $coveredParticle->getPosition(), $option);
-				}
-			}
-		}
-	}
 }

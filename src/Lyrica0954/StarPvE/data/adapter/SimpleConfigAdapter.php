@@ -10,17 +10,17 @@ class SimpleConfigAdapter {
 
 	protected Config $config;
 
-	public function __construct(Config $config){
+	public function __construct(Config $config) {
 		$this->config = $config;
 	}
 
-	public function getConfig(): Config{
+	public function getConfig(): Config {
 		return $this->config;
 	}
 
-	public function addFloat($k, float $add): float{
+	public function addFloat($k, float $add): float {
 		$v = $this->config->get($k);
-		if (is_int($v) || is_float($v)){
+		if (is_int($v) || is_float($v)) {
 			$v += $add;
 			$this->config->set($k, $v);
 
@@ -30,9 +30,9 @@ class SimpleConfigAdapter {
 		}
 	}
 
-	public function addInt($k, int $add): int{
+	public function addInt($k, int $add): int {
 		$v = $this->config->get($k);
-		if (is_int($v)){
+		if (is_int($v)) {
 			$v += $add;
 			$this->config->set($k, $v);
 
@@ -42,7 +42,7 @@ class SimpleConfigAdapter {
 		}
 	}
 
-	public function subtractFloat($k, float $subtract): float{
+	public function subtractFloat($k, float $subtract): float {
 		return $this->addFloat($k, -$subtract);
 	}
 }

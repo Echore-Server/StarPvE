@@ -12,7 +12,7 @@ use pocketmine\world\Position;
 
 class EmitterParticle extends SendableParticle {
 
-	public static function createEmitterForEntity(Entity $entity, float $expand, int $amount){
+	public static function createEmitterForEntity(Entity $entity, float $expand, int $amount) {
 		$aabb = $entity->getBoundingBox();
 		$size = $entity->size;
 		$expand = 0.3;
@@ -32,15 +32,14 @@ class EmitterParticle extends SendableParticle {
 		return $par;
 	}
 
-	public function __construct(private Vector3 $minRange, private Vector3 $maxRange, private int $amount){
-		
+	public function __construct(private Vector3 $minRange, private Vector3 $maxRange, private int $amount) {
 	}
 
-	public function draw(Position $pos): array{
+	public function draw(Position $pos): array {
 		$min = $this->minRange->abs();
 		$max = $this->maxRange->abs();
 		$positions = [];
-		for($i = 0; $i < $this->amount; $i++){
+		for ($i = 0; $i < $this->amount; $i++) {
 			$new = clone $pos;
 			$new->x += RandomUtil::rand_float(-$min->x, $max->x);
 			$new->y += RandomUtil::rand_float(-$min->y, $max->y);

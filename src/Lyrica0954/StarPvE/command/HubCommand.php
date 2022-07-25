@@ -11,14 +11,14 @@ use pocketmine\command\CommandSender;
 
 final class HubCommand extends PluginCommandNoAuth {
 
-    public function canRunBy(): int{
+    public function canRunBy(): int {
         return self::PLAYER;
     }
 
 
-    protected function run(CommandSender $sender, array $args): void{
+    protected function run(CommandSender $sender, array $args): void {
         $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($sender);
-        if ($gamePlayer instanceof GamePlayer){
+        if ($gamePlayer instanceof GamePlayer) {
             PlayerUtil::flee($sender);
             $gamePlayer->leaveGame();
         } else {

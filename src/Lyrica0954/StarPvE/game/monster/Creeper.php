@@ -22,61 +22,61 @@ use pocketmine\world\sound\ExplodeSound;
 class Creeper extends SmartCreeper {
     use HealthBarEntity;
 
-    public function getFuseLength(): int{
+    public function getFuseLength(): int {
         return 30;
     }
 
-    public function getFollowRange(): float{
+    public function getFollowRange(): float {
         return 50;
     }
 
-    public function explode(): void{
+    public function explode(): void {
         $this->spawnExplosion($this->getPosition(), $this->getExplosionRadius());
         $this->kill();
     }
 
-    protected function spawnExplosion(Position $pos, float $size) : bool{
+    protected function spawnExplosion(Position $pos, float $size): bool {
         $updateBlocks = [];
- 
+
         $source = $pos->floor();
         $yield = (1 / $size) * 100;
- 
+
         $ev = new EntityExplodeEvent($this, $pos, [], $yield);
         $ev->call();
-        if($ev->isCancelled()){
+        if ($ev->isCancelled()) {
             return false;
-        }else{
+        } else {
             $yield = $ev->getYield();
         }
- 
+
         $explosionSize = $size * 2;
         $minX = (int) floor($pos->x - $explosionSize - 1);
-        $maxX = (int) ceil ($pos->x + $explosionSize + 1);
+        $maxX = (int) ceil($pos->x + $explosionSize + 1);
         $minY = (int) floor($pos->y - $explosionSize - 1);
-        $maxY = (int) ceil ($pos->y + $explosionSize + 1);
+        $maxY = (int) ceil($pos->y + $explosionSize + 1);
         $minZ = (int) floor($pos->z - $explosionSize - 1);
-        $maxZ = (int) ceil ($pos->z + $explosionSize + 1);
- 
+        $maxZ = (int) ceil($pos->z + $explosionSize + 1);
+
         $explosionBB = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
- 
+
         $list = $this->getWorld()->getNearbyEntities($explosionBB, $this);
-        foreach($list as $entity){
-            if ($entity instanceof Player){
+        foreach ($list as $entity) {
+            if ($entity instanceof Player) {
                 $entityPos = $entity->getPosition();
                 $distance = $entityPos->distance($pos) / $explosionSize;
-     
-                if($distance <= 1){
+
+                if ($distance <= 1) {
                     $motion = $entityPos->subtractVector($pos)->normalize();
-     
+
                     $impact = (1 - $distance) * ($exposure = 1);
-     
+
                     $damage = (int) ((($impact * $impact + $impact) / 2) * 8 * $explosionSize + 1);
 
                     $ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, $damage);
-     
-                    
+
+
                     $entity->attack($ev);
-                    $motion = $motion->multiply($impact*2);
+                    $motion = $motion->multiply($impact * 2);
                     $motion->y += 0.4;
                     $motion->x *= 1.3;
                     $motion->z *= 1.3;
@@ -87,7 +87,7 @@ class Creeper extends SmartCreeper {
 
         $this->getWorld()->addParticle($source, new HugeExplodeSeedParticle());
         $this->getWorld()->addSound($source, new ExplodeSound());
- 
+
         return true;
     }
 }

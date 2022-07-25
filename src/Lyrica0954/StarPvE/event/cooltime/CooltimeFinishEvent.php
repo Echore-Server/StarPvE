@@ -8,7 +8,7 @@ use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 
 class CooltimeFinishEvent extends CooltimeEvent {
 
-	public function __construct(CooltimeHandler $handler){
+	public function __construct(CooltimeHandler $handler) {
 		$this->handler = $handler;
 	}
 }
