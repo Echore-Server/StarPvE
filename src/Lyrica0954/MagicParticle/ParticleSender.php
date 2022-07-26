@@ -51,8 +51,6 @@ class ParticleSender {
             }
 
             if ($tick - $lastSend >= 1) {
-
-                $player->sendActionBarMessage("ppt: {$ppt}");
                 $this->particleCount[$h] = 0;
 
                 $this->lastSend[$h] = $tick;

@@ -49,11 +49,11 @@ class DeathPulseSkill extends Skill {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(0.08);
+		$this->damage = new AbilityStatus(0.05);
 		$this->area = new AbilityStatus(10.0);
 		$this->speed = new AbilityStatus(0);
 		$this->duration = new AbilityStatus(120);
-		$this->amount = new AbilityStatus(11);
+		$this->amount = new AbilityStatus(10);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -85,7 +85,7 @@ class DeathPulseSkill extends Skill {
 		TaskUtil::delayed(new ClosureTask(function () {
 			TaskUtil::repeatingClosureLimit(function () {
 				$area = $this->area->get();
-				$par = (new CircleParticle($area, 5.5));
+				$par = (new CircleParticle($area, 9));
 				$pos = VectorUtil::keepAdd($this->player->getPosition(), 0, 0.9, 0);
 				ParticleUtil::send(
 					$par,
@@ -109,7 +109,7 @@ class DeathPulseSkill extends Skill {
 					)
 				);
 
-				$effect = (new SaturatedLineworkEffect($area, 3, 0, 12, 360, 0, 0));
+				$effect = (new SaturatedLineworkEffect($area, 2, 0, 8, 360, 0, 0));
 				ParticleUtil::send($effect, $this->player->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
 
 				PlayerUtil::broadcastSound($this->player, "mob.zombie.unfect", 1.0, 0.5);

@@ -36,15 +36,30 @@ class PerkIdentitiesForm implements Form {
 
         if ($playerJob instanceof PlayerJob) {
             $rand = [
-                new IncreaseDamageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 1.5),
-                new IncreaseAreaIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 1.5),
+                new IncreaseDamageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 2.5),
+                new IncreaseAreaIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 2.5),
                 new IncreaseDurationIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 100),
+                new IncreasePercentageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.2),
+                new IncreaseDamageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_SKILL, 5.5),
+                new IncreaseAreaIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_SKILL, 5.0),
+                new IncreaseDurationIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_SKILL, 200),
                 new IncreasePercentageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.2)
             ];
 
             for ($i = 0; $i <= 1; $i++) {
                 $ind = array_rand($rand);
-                $identities[] = $rand[$ind];
+                $identity = clone $rand[$ind];
+                if ($identity instanceof AttachAbilityIdentityBase) {
+                    $l = [
+                        AttachAbilityIdentityBase::ATTACH_ABILITY,
+                        AttachAbilityIdentityBase::ATTACH_SKILL
+                    ];
+
+                    $attachTo = $l[array_rand($l)];
+
+                    $identity->setAttach($attachTo);
+                }
+                $identities[] = $identity;
                 unset($rand[$ind]);
             }
         }

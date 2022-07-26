@@ -17,6 +17,7 @@ use Lyrica0954\StarPvE\job\player\swordman\ForceFieldSkill;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\MathUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -151,7 +152,7 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
                             if ($this->combo % 3 === 0) {
                                 $par = new SingleParticle;
                                 $pos = VectorUtil::keepAdd($entity->getPosition(), 0, 1.0, 0);
-                                $par->sendToPlayers($this->player->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:dragon_destroy_block", ""));
+                                ParticleUtil::send($par, $this->player->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:dragon_destroy_block", ""));
                                 PlayerUtil::broadcastSound($entity, "cauldron.explode", 1.3, 1.0); #スキルで聞こえにくくなるから　結局 0.75 になる
                                 foreach (EntityUtil::getWithinRange($pos, 1.5) as $exEntity) {
                                     if ($exEntity !== $entity) {

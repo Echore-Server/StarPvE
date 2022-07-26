@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\service\player;
 
+use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\service\ListenerService;
 use Lyrica0954\StarPvE\StarPvE;
@@ -34,8 +35,23 @@ class PlayerChatService extends ListenerService {
                     $event->setMessage(substr($event->getMessage(), 1));
                 }
 
+                $adapter = GenericConfigAdapter::fetch($player);
+                $level = 0;
 
-                $message = "§8[{$channel}] §f<{$player->getDisplayName()}> §r{$event->getMessage()}";
+                if ($adapter instanceof GenericConfigAdapter) {
+                    $level = $adapter->getConfig()->get(GenericConfigAdapter::LEVEL, 0);
+                }
+                $color = match (true) {
+                    $level >= 50 => "§l§9",
+                    $level >= 40 => "§b",
+                    $level >= 30 => "§6",
+                    $level >= 20 => "§a",
+                    $level >= 10 => "§7",
+                    $level >= 0 => "§8",
+                    default => "§8"
+                };
+
+                $message = "§8[{$channel}] §f<{$color}{$level} §r§f{$player->getDisplayName()}> §r{$event->getMessage()}";
 
                 foreach ($event->getRecipients() as $commandSender) {
                     $commandSender->sendMessage($message);

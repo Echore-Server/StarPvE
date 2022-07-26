@@ -62,6 +62,14 @@ class BossBar {
 		}
 	}
 
+	public function updateAll(): void {
+		foreach ($this->players as $player) {
+			$session = $player->getNetworkSession();
+			$session->sendDataPacket($this->getHidePacket($player));
+			$session->sendDataPacket($this->getShowPacket($player));
+		}
+	}
+
 	private function getPercentPacket(Player $player, float $healthPercent): BossEventPacket {
 		return BossEventPacket::healthPercent($player->getId(), $healthPercent);
 	}

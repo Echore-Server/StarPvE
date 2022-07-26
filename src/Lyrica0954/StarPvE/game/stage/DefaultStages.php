@@ -11,4 +11,6 @@ class DefaultStages {
 	const LABORATORY = "Laboratory";
 
 	const STAIR = "Stair";
+
+	const RUIN = "Ruin";
 }

@@ -10,6 +10,7 @@ use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
@@ -21,8 +22,14 @@ class BuffUtil implements Listener {
     const BUFF_DMG_REFLECTION = 3;
     const BUFF_DMG_REDUCTION_PERC = 4;
 
+    const BUFF_CONT_DMG_REDUCTION_PERC = 5;
+    const BUFF_MAGIC_DMG_REDUCTION_PERC = 6;
+
     const BUFF_FIRE_ASPECT_DURATION = 5;
     const BUFF_ARROW_POWER_PERC = 6;
+
+    const BUFF_CRITICAL_PERC = 7;
+    const BUFF_CRITICAL_DMG_PERC = 8;
 
     public static array $list;
 
@@ -42,6 +49,16 @@ class BuffUtil implements Listener {
             EntityUtil::addFinalDamage($event, self::get($damager, self::BUFF_ATK_DAMAGE));
             EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_ATK_PERCENTAGE)));
 
+            $criticalPerc = (0.0 + self::get($damager, self::BUFF_CRITICAL_PERC));
+
+            if (RandomUtil::percentage($criticalPerc)) {
+                EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_CRITICAL_DMG_PERC)));
+                if ($damager instanceof Player) {
+                    PlayerUtil::playSound($damager, "block.sweet_berry_bush.break", 0.6, 0.6);
+                }
+            }
+
+
             $fireAspectDuration = self::get($damager, self::BUFF_FIRE_ASPECT_DURATION);
             if ($fireAspectDuration > 0.0) {
                 $duration = (int) ceil($fireAspectDuration);
@@ -58,6 +75,11 @@ class BuffUtil implements Listener {
 
         EntityUtil::addFinalDamage($event, -self::get($entity, self::BUFF_DMG_REDUCTION));
         EntityUtil::multiplyFinalDamage($event, (1.0 - self::get($entity, self::BUFF_DMG_REDUCTION_PERC)));
+
+        if ($event->getCause() === EntityDamageEvent::CAUSE_MAGIC) {
+            EntityUtil::multiplyFinalDamage($event, (1.0 - self::get($entity, self::BUFF_MAGIC_DMG_REDUCTION_PERC)));
+        }
+
 
         if ($event instanceof EntityDamageByEntityEvent) {
             $damager = $event->getDamager();

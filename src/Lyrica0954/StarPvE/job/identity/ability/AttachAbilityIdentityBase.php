@@ -34,4 +34,8 @@ abstract class AttachAbilityIdentityBase extends JobIdentity {
 				break;
 		}
 	}
+
+	public function setAttach(int $attachTo): void {
+		$this->attachTo = $attachTo;
+	}
 }

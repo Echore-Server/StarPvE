@@ -86,6 +86,7 @@ class DownPulseAbility extends Ability implements Listener {
 
 				if ($this->s >= (M_PI_4) && !$this->effect) { #45
 					$this->effect = true;
+					PlayerUtil::broadcastSound($this->pos, "mob.wither.break_block", 1.2, 0.6);
 					foreach (EntityUtil::getWithinRangePlane(
 						new Vector2(
 							$this->pos->x,
@@ -100,17 +101,16 @@ class DownPulseAbility extends Ability implements Listener {
 							if (!isset($this->ability->effected[$h])) {
 								$this->ability->effected[$h] = $entity;
 
-								PlayerUtil::broadcastSound($entity, "mob.wither.break_block", 1.2, 0.6);
 								$par = (new SaturatedLineworkEffect(3, 4, 0.6, 7));
 								ParticleUtil::send($par, $entity->getWorld()->getPlayers(), VectorUtil::keepAdd($entity->getPosition(), 0, $entity->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
 
 								TaskUtil::reapeatingClosureCheck(function () use ($entity) {
 									if ($entity->isAlive() && !$entity->isClosed()) {
 										$min = EntityUtil::getCollisionMin($entity);
-										$par = EmitterParticle::createEmitterForEntity($entity, 0.5, 2);
+										$par = EmitterParticle::createEmitterForEntity($entity, 0.5, 1);
 										ParticleUtil::send($par, $entity->getWorld()->getPlayers(), VectorUtil::insertWorld($min, $entity->getWorld()), ParticleOption::spawnPacket("minecraft:basic_crit_particle", ""));
 									}
-								}, 3, function () use ($entity) {
+								}, 5, function () use ($entity) {
 									$result = ($entity->isAlive() && !$entity->isClosed());
 									if (!$result) {
 										unset($this->ability->effected[spl_object_hash($entity)]);

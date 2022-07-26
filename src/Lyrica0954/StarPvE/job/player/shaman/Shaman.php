@@ -67,7 +67,7 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 		return null;
 	}
 
-	protected function causeCollapse(Entity $entity): void {
+	protected function causeCollapse(Entity $entity, int $count = 0): void {
 		$pos = $entity->getPosition();
 		$pos->y += 0.75;
 		$players = $entity->getWorld()->getPlayers();
@@ -88,17 +88,19 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 
 		PlayerUtil::broadcastSound($pos, "dig.basalt", 0.8, 1.0);
 
-		foreach (EntityUtil::getWithinRange($pos, $range) as $target) {
-			if (MonsterData::isMonster($target)) {
-				if ($target !== $entity) {
-					if ($target->getHealth() > 0) {
-						$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
-						$source->setAttackCooldown(0);
-						if ($target->getHealth() <= $source->getFinalDamage()) {
-							$target->kill();
-							$this->causeCollapse($target);
-						} else {
-							$target->attack($source);
+		if ($count < 2) {
+			foreach (EntityUtil::getWithinRange($pos, $range) as $target) {
+				if (MonsterData::isMonster($target)) {
+					if ($target !== $entity) {
+						if ($target->getHealth() > 0) {
+							$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
+							$source->setAttackCooldown(0);
+							if ($target->getHealth() <= $source->getFinalDamage()) {
+								$target->kill();
+								$this->causeCollapse($target, $count + 1);
+							} else {
+								$target->attack($source);
+							}
 						}
 					}
 				}

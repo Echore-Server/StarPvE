@@ -145,7 +145,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::ENDERMAN,
-				new MonsterAttribute(12, 4, 0.4),
+				new MonsterAttribute(16, 4, 0.4),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(6)

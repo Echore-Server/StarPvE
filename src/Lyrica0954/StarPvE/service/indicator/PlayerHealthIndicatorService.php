@@ -26,7 +26,7 @@ class PlayerHealthIndicatorService extends ListenerService {
 		$health = min($health + $healthDiff, $maxHealth);
 		$absorption = $player->getAbsorption();
 		$health += $absorption;
-		return ($absorption > 0.0 ? "§e" : "§c") . round($health, 2) . "§f/§c" . $maxHealth . " HP";
+		return ($absorption > 0.0 ? "§e" : "§c") . round($health, 1) . "§f / §8" . $maxHealth . " §fHP";
 	}
 
 	/**

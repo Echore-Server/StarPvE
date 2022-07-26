@@ -56,7 +56,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
         ];
 
         $this->settingDefault = [
-            SettingVariables::PARTICLE_PER_TICK => 50,
+            SettingVariables::PARTICLE_PER_TICK => 250,
             SettingVariables::DEBUG_DAMAGE => false
         ];
 
@@ -106,6 +106,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
         foreach ($this->data as $config) {
             if ($config instanceof PlayerConfig) {
                 $config->getGeneric()->getConfig()->save();
+                $config->getSetting()->getConfig()->save();
                 foreach ($config->getJobs() as $job) {
                     $job->getConfig()->save();
                 }
@@ -117,6 +118,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
         foreach ($this->data as $config) {
             if ($config instanceof PlayerConfig) {
                 $config->getGeneric()->getConfig()->reload();
+                $config->getSetting()->getConfig()->reload();
                 foreach ($config->getJobs() as $job) {
                     $job->getConfig()->reload();
                 }

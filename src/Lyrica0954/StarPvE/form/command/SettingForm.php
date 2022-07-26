@@ -30,14 +30,14 @@ class SettingForm implements Form {
         $contents = [];
 
         $adapter = SettingVariables::fetch($this->player);
-        $ppt = 50;
+        $ppt = 250;
         $debugDamage = false;
         if ($adapter instanceof PlayerConfigAdapter) {
-            $ppt = $adapter->getConfig()->get(SettingVariables::PARTICLE_PER_TICK, 50);
+            $ppt = $adapter->getConfig()->get(SettingVariables::PARTICLE_PER_TICK, 250);
             $debugDamage = $adapter->getConfig()->get(SettingVariables::DEBUG_DAMAGE, false);
         }
 
-        $contents[] = FormUtil::slider("最大パーティクル数(1tick)", 0, 1000, 5, $ppt);
+        $contents[] = FormUtil::slider("最大パーティクル数(1tick)", 0, 400, 5, $ppt);
         $contents[] = FormUtil::toggle("与える/受けるダメージの詳細表示", $debugDamage);
 
         return [

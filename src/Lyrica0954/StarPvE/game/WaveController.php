@@ -486,8 +486,9 @@ class WaveController implements CooltimeAttachable, Listener {
                 }
             }
 
+            $this->game->getBossBar()->setColor(BossBarColor::YELLOW);
             $this->game->getBossBar()->setHealthPercent(0.0);
-            $this->game->getBossBar()->update();
+            $this->game->getBossBar()->updateAll();
 
             $this->cooltimeHandler->start(30 * 20);
         }
@@ -511,8 +512,9 @@ class WaveController implements CooltimeAttachable, Listener {
     public function cooltimeFinished(CooltimeHandler $cooltimeHandler): void {
         if ($cooltimeHandler->getId() === "Wave Tick") {
             $this->waveStart();
+            $this->game->getBossBar()->setColor(BossBarColor::RED);
             $this->game->getBossBar()->setHealthPercent(1.0);
-            $this->game->getBossBar()->update();
+            $this->game->getBossBar()->updateAll();
         }
     }
 }

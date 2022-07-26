@@ -68,6 +68,20 @@ class StageFactory {
 				$ident
 			)
 		);
+
+		$this->register(
+			new StageInfo(
+				DefaultStages::RUIN,
+				new Vector3(0.5, 63.6, 0.6),
+				new Vector3(13.5, 64, 0.5),
+				new Vector3(0.5, 64, 13.5),
+				new Vector3(-12.5, 64, 0.5),
+				new Vector3(0.5, 64, -12.5),
+				"map_3",
+				"Lyrica0954",
+				new IdentityGroup
+			)
+		);
 	}
 
 	public static function getInstance(): StageFactory {

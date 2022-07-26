@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\wave;
 
+use Closure;
+use Lyrica0954\SmartEntity\entity\LivingBase;
+use Lyrica0954\StarPvE\game\Game;
+use Lyrica0954\StarPvE\game\monster\Enderman;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\task\TaskHolder;
 use Lyrica0954\StarPvE\utils\ArmorSet;
+use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\Random;
 use Lyrica0954\StarPvE\utils\RandomUtil;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\entity\Location;
@@ -100,6 +106,22 @@ class WaveMonsters {
                                 $pos->x += RandomUtil::rand_float(-$d, $d);
                                 $pos->z += RandomUtil::rand_float(-$d, $d);
                                 $entity->teleport($pos);
+
+                                $world = $pos->getWorld();
+                                $game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($world);
+                                if ($game instanceof Game) {
+                                    if ($entity instanceof Enderman) {
+                                        $entity->teleport($game->getCenterPosition());
+                                        PlayerUtil::broadcastSound($game->getCenterPosition(), "mob.shulker.teleport", 1.2, 1.0);
+                                    }
+                                }
+                                if ($entity instanceof LivingBase) {
+                                    $entity->setImmune(true);
+
+                                    TaskUtil::delayed(new ClosureTask(function () use ($entity) {
+                                        $entity->setImmune(false);
+                                    }), 10);
+                                }
                             });
                             $animation = $this->monster->animation ?? $defAnimation;
                             $animation->spawn($entity);

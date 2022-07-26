@@ -42,13 +42,13 @@ class ThrowTrapAbility extends ThrowEntityAbilityBase {
 その敵に %2$s のダメージを与えて、§c6秒§f スタンさせる。
 一度トラップされた敵はトラップしない。
 
-§b効果: §f装置から %1$s 以内の敵の移動速度を §c30%%§f 低下させる。
+§b効果: §f装置から %1$s 以内の敵の移動速度を §c30%%%%§f 低下させる。
 
 効果は、効果が発動してから %4$s 経過するか、敵 %3$s 以上をトラップすることで消滅する。', $area, $damage, $amount, $duration);
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(19.0);
+		$this->damage = new AbilityStatus(30.0);
 		$this->speed = new AbilityStatus(0.9);
 		$this->area = new AbilityStatus(4.0);
 		$this->amount = new AbilityStatus(6.0);
