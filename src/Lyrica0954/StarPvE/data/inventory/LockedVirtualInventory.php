@@ -6,7 +6,9 @@ namespace Lyrica0954\StarPvE\data\inventory;
 
 use pocketmine\inventory\Inventory;
 use pocketmine\inventory\PlayerCursorInventory;
+use pocketmine\inventory\PlayerInventory;
 use pocketmine\inventory\transaction\action\InventoryAction;
+use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\item\Item;
 
 class LockedVirtualInventory extends VirtualInventory {
@@ -16,8 +18,8 @@ class LockedVirtualInventory extends VirtualInventory {
 	}
 
 	protected function onTransfer(int $fromSlot, int $toSlot, Item $fromItem, Item $toItem, Inventory $from, Inventory $to): bool {
-		print_r("From: " . $from::class . "\n");
-		print_r("To: " . $to::class . "\n");
+		#print_r("From: " . $from::class . "\n");
+		#print_r("To: " . $to::class . "\n");
 		if (($to instanceof PlayerCursorInventory) && $from == $this) {
 			return true;
 		}
@@ -30,6 +32,11 @@ class LockedVirtualInventory extends VirtualInventory {
 	}
 
 	protected function onRawAction(InventoryAction $action): bool {
+		if ($action instanceof SlotChangeAction) {
+			if ($action->getInventory() instanceof PlayerInventory) {
+				return false;
+			}
+		}
 		return true;
 	}
 }

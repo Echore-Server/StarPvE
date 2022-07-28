@@ -10,11 +10,15 @@ abstract class AbilityItem extends InvItem {
 
 	protected IdentityGroup $identityGroup;
 
-	public function __construct(int $id, string $name) {
-		parent::__construct($id, $name);
+	public function __construct(int $id) {
+		parent::__construct($id);
 
 		$this->identityGroup = new IdentityGroup;
+
+		$this->init();
 	}
+
+	abstract protected function init(): void;
 
 	public function getIdentityGroup(): IdentityGroup {
 		return $this->identityGroup;

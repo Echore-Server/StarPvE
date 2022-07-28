@@ -154,6 +154,18 @@ class MonsterFactory {
 			)
 		);
 
+		$this->register(
+			new MonsterOption(
+				DefaultMonsters::PIGLIN_BRUTE,
+				new MonsterAttribute(250, 30, 0.24),
+				ArmorSet::none(),
+				[
+					VanillaItems::EMERALD()->setCount(20)
+				],
+				80
+			)
+		);
+
 
 		$this->register(
 			new MonsterOption(

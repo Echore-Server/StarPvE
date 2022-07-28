@@ -8,6 +8,9 @@ use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIdentifier;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\StringTag;
 
 abstract class InvItem {
 
@@ -27,10 +30,9 @@ abstract class InvItem {
 	 */
 	protected ?ItemIdentifier $entryItemIdentifier = null;
 
-	public function __construct(int $id, string $name) {
+	public function __construct(int $id) {
 		$this->id = $id;
 		$this->count = 1;
-		$this->displayName = $name;
 	}
 
 	public function getId(): int {
@@ -39,6 +41,39 @@ abstract class InvItem {
 
 	public function getCount(): int {
 		return $this->count;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getLore(): array {
+		return $this->lore;
+	}
+
+	public function setLore(array $lore): void {
+		$this->lore = $lore;
+	}
+
+	public function addLore(string $text): void {
+		$this->lore[] = $text;
+	}
+
+	public function save(): array {
+		$base = [
+			"id" => $this->id,
+			"count" => $this->count,
+			"displayName" => $this->displayName,
+			"lore" => $this->lore
+		];
+
+		if ($this->entryItemIdentifier !== null) {
+			$base["entryItemIdentifier"] = [
+				"id" => $this->entryItemIdentifier->getId(),
+				"meta" => $this->entryItemIdentifier->getMeta()
+			];
+		}
+
+		return $base;
 	}
 
 	abstract public function getName(): string;
@@ -105,8 +140,12 @@ abstract class InvItem {
 			 */
 			$item = $f->get($this->entryItemIdentifier->getId(), $this->entryItemIdentifier->getMeta());
 			$item->setCustomName($this->displayName);
-			$item->setLore($this->lore);
+			$item->setLore(array_merge(["§7" . $this->getDescription()], $this->lore));
 			$item->setCount($this->count);
+			#$tag = $item->getNamedTag();
+			#$tag->setTag("hostId", new IntTag($this->id));
+			#$tag->setTag("hostName", new StringTag($this->getName()));
+			#$item->setNamedTag($tag);
 			return $item;
 		} else {
 			return null;

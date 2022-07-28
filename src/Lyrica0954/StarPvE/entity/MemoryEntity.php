@@ -43,6 +43,10 @@ class MemoryEntity extends Entity {
         return false;
     }
 
+    public function setKeepMovement(bool $keepMovement) {
+        $this->keepMovement = $keepMovement;
+    }
+
     public function getAge(): int {
         return $this->age;
     }
@@ -66,13 +70,13 @@ class MemoryEntity extends Entity {
     protected function entityBaseTick(int $tickDiff = 1): bool {
         $update = parent::entityBaseTick($tickDiff);
         $this->age += $tickDiff;
+        foreach ($this->tickHook as $hook) {
+            ($hook)($this);
+        }
         return $update;
     }
 
     public function onUpdate(int $currentTick): bool {
-        foreach ($this->tickHook as $hook) {
-            ($hook)($this);
-        }
         $hasUpdate = parent::onUpdate($currentTick);
 
         return $hasUpdate;

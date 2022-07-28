@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\utils\ArmorSet;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
+use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 
 class GamePlayer {
@@ -113,8 +114,18 @@ class GamePlayer {
         PlayerUtil::reset($this->player);
         $this->resetAll();
         $this->player->teleport($game->getCenterPosition());
+        if ($game->getStatus() == Game::STATUS_PLAYING) {
+            $game->giveEquipments($this->player);
+        }
 
         $this->setGame($game);
+    }
+
+    public function spectateGame(Game $game) {
+        if ($this->game === null) {
+            $this->player->teleport($game->getCenterPosition());
+            $this->player->setGamemode(GameMode::SPECTATOR());
+        }
     }
 
     public function leaveGame() {
@@ -122,6 +133,7 @@ class GamePlayer {
         PlayerUtil::teleportToLobby($this->player);
 
         $this->resetAll();
+        $this->player->setGamemode(GameMode::ADVENTURE());
         $this->setGame(null);
     }
 

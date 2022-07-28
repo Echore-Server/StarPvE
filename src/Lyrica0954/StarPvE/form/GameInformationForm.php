@@ -54,6 +54,9 @@ class GameInformationForm implements Form {
 					"text" => "§d参加する"
 				],
 				[
+					"text" => "§9観戦する"
+				],
+				[
 					"text" => "戻る"
 				]
 			]
@@ -72,6 +75,13 @@ class GameInformationForm implements Form {
 					}
 				} else {
 					$player->sendMessage("§cこのゲームには参加できません");
+				}
+			} elseif ($data == 1) {
+				$gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
+				if (($gamePlayer = $gamePlayerManager->getGamePlayer($player)) !== null) {
+					$gamePlayer->spectateGame($this->game);
+				} else {
+					$player->sendMessage("§cエラー: ゲームを観戦できませんでした");
 				}
 			} else {
 				TaskUtil::delayed(new ClosureTask(function () use ($player) {

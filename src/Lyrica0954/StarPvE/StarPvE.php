@@ -23,6 +23,7 @@ use Lyrica0954\StarPvE\game\monster\Defender;
 use Lyrica0954\StarPvE\game\monster\Enderman;
 use Lyrica0954\StarPvE\game\monster\Husk;
 use Lyrica0954\StarPvE\game\monster\Piglin;
+use Lyrica0954\StarPvE\game\monster\PiglinBrute;
 use Lyrica0954\StarPvE\game\monster\Skeleton;
 use Lyrica0954\StarPvE\game\monster\Spider;
 use Lyrica0954\StarPvE\game\monster\Zombie;
@@ -159,6 +160,10 @@ final class StarPvE extends PluginBase {
         $f->register(Enderman::class, function (World $world, CompoundTag $nbt): Enderman {
             return new Enderman(EntityDataHelper::parseLocation($nbt, $world), $nbt);
         }, ["starpve:enderman"], EntityLegacyIds::ENDERMAN);
+
+        $f->register(PiglinBrute::class, function (World $world, CompoundTag $nbt): PiglinBrute {
+            return new PiglinBrute(EntityDataHelper::parseLocation($nbt, $world), $nbt);
+        }, ["starpve:piglin_brute"], EntityLegacyIds::ZOMBIE_PIGMAN);
 
 
         $f->register(ZombieLord::class, function (World $world, CompoundTag $nbt): ZombieLord {

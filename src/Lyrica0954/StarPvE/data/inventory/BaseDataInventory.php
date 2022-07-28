@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\data\inventory;
 
 use Lyrica0954\StarPvE\data\inventory\item\InvItem;
+use pocketmine\inventory\Inventory;
 use pocketmine\item\Item;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\IntTag;
 
 abstract class BaseDataInventory implements DataInventory {
 
@@ -141,6 +144,22 @@ abstract class BaseDataInventory implements DataInventory {
 		}
 
 		return $returnSlots;
+	}
+
+	public function injectToInventory(Inventory $inventory): void {
+		$contents = [];
+		foreach ($this->getContents() as $k => $item) {
+			$entry = $item->createEntryItem();
+			if ($entry !== null) {
+				$tag = $entry->getCustomBlockData() ?? new CompoundTag();
+				$tag->setTag("hostInventoryIndex", new IntTag($k));
+				$entry->setCustomBlockData($tag);
+
+				$contents[$k] = $entry;
+			}
+		}
+
+		$inventory->setContents($contents);
 	}
 
 	private function internalAddItem(InvItem $slot): InvItem {

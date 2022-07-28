@@ -88,7 +88,7 @@ class ThunderboltAbility extends Ability implements Ticking {
     protected function onActivate(): ActionResult {
         $ep = $this->player->getEyePos();
         $epos = new Position($ep->x, $ep->y, $ep->z, $this->player->getWorld());
-        $par = new LineParticle($epos, 2);
+        $par = new LineParticle($epos, 1);
         $dir = $this->player->getDirectionVector()->multiply(14.0);
         $tpos = $ep->addVector($dir);
 

@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\data\inventory\item;
 
 final class InvItemIds {
 
-	const MATERIAL = 0;
-	const ARTIFACT = 1;
+	const SPEED_BOTTLE = 0;
+	const MATERIAL = 1;
+	const APPLE = 2;
 }

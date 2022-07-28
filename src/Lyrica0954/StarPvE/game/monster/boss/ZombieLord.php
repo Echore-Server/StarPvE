@@ -129,7 +129,7 @@ class ZombieLord extends SmartZombie implements Listener {
 							$epos->y += 0.3;
 							$ev->setAttackCooldown(0);
 							$entity->attack($ev);
-							ParticleUtil::send(new LineParticle($pos, 3), $this->getWorld()->getPlayers(), $epos, ParticleOption::spawnPacket("starpve:red_gas", ""));
+							ParticleUtil::send(new LineParticle($pos, 1), $this->getWorld()->getPlayers(), $epos, ParticleOption::spawnPacket("starpve:red_gas", ""));
 
 							PlayerUtil::broadcastSound($entity, "dig.nylium", 0.65, 0.8);
 
@@ -157,13 +157,7 @@ class ZombieLord extends SmartZombie implements Listener {
 
 					if ($pos->distance($epos) <= $this->defendArea) {
 						$players = $this->getWorld()->getPlayers();
-						ParticleUtil::send(new LineParticle($pos, 3), $players, $epos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
-
-						$diff = Server::getInstance()->getTick() - $this->lastParticle;
-						if ($diff >= 10) {
-							$this->lastParticle = Server::getInstance()->getTick();
-							ParticleUtil::send(new CircleParticle($this->defendArea, 6), $players, $pos, ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
-						}
+						ParticleUtil::send(new LineParticle($pos, 2), $players, $epos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
 
 						EntityUtil::multiplyFinalDamage($event, 0.65);
 

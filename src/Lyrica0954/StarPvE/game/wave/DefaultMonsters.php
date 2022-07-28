@@ -12,6 +12,7 @@ use Lyrica0954\StarPvE\game\monster\Defender;
 use Lyrica0954\StarPvE\game\monster\Enderman;
 use Lyrica0954\StarPvE\game\monster\Husk;
 use Lyrica0954\StarPvE\game\monster\Piglin;
+use Lyrica0954\StarPvE\game\monster\PiglinBrute;
 use Lyrica0954\StarPvE\game\monster\Skeleton;
 use Lyrica0954\StarPvE\game\monster\Spider;
 use Lyrica0954\StarPvE\game\monster\Zombie;
@@ -27,6 +28,7 @@ class DefaultMonsters {
 	const DEFENDER = Defender::class;
 	const PIGLIN = Piglin::class;
 	const ENDERMAN = Enderman::class;
+	const PIGLIN_BRUTE = PiglinBrute::class;
 
 	const ZOMBIE_LORD = ZombieLord::class;
 	const STRAY = Stray::class;

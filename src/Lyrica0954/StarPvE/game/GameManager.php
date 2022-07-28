@@ -65,6 +65,7 @@ class GameManager {
             $wm = Server::getInstance()->getWorldManager();
             $wm->loadWorld($id);
             $world = $wm->getWorldByName($id);
+            $world->setAutoSave(false);
             $world->setTime(13000);
             $world->stopTime();
             $game = new Game($world, $stageInfo, $option->getGameOption());

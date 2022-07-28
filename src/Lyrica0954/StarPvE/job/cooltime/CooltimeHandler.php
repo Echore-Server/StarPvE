@@ -110,7 +110,7 @@ class CooltimeHandler {
     }
 
     public function start(int $cooltime) {
-        $this->log("Started the Task");
+        #$this->log("Started the Task");
         $ev = new CooltimeStartEvent($this, $cooltime);
         $ev->call();
         if (!$ev->isCancelled()) {
@@ -175,7 +175,7 @@ class CooltimeHandler {
             $this->remain = 0;
             $this->attached?->cooltimeFinished($this);
             $this->task->getHandler()->cancel();
-            $this->log("Stopped the Task");
+            #$this->log("Stopped the Task");
             $this->active = false;
         }
     }

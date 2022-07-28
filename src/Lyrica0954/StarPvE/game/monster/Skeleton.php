@@ -24,6 +24,7 @@ use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\CameraPacket;
 use pocketmine\network\mcpe\protocol\CameraShakePacket;
+use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -40,7 +41,7 @@ class Skeleton extends SmartSkeleton {
     public function attackEntity(Entity $entity, float $range): bool {
         if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
             $this->broadcastAnimation(new ArmSwingAnimation($this));
-            $this->fireElectricSpark($entity, 25, 0.32);
+            $this->fireElectricSpark($entity, 30, 0.44);
             $this->attackCooldown = 10 + $this->getAddtionalAttackCooldown();
 
             $this->hitEntity($entity, $range);
@@ -79,8 +80,12 @@ class Skeleton extends SmartSkeleton {
                         PlayerUtil::playSound($player, "fireworks.blast", 2.4, 1.0);
                         $source = new EntityDamageByEntityEvent($entity, $player, EntityDamageByEntityEvent::CAUSE_MAGIC, $this->getAttackDamage(), [], 0);
                         $source->setAttackCooldown(0);
-                        EntityUtil::immobile($player, 25);
-                        $pk = CameraShakePacket::create(1.0, 0.4, CameraShakePacket::TYPE_POSITIONAL, CameraShakePacket::ACTION_ADD);
+                        EntityUtil::immobile($player, 12);
+                        $pl = $player->getLocation();
+                        $pos = $this->getPosition();
+                        $pk = MovePlayerPacket::simple($player->getId(), $this->getPosition()->add(0, $player->getEyeHeight(), 0), $pl->getPitch(), $pl->getYaw(), $pl->getYaw(), MovePlayerPacket::MODE_NORMAL, true, -1, 0);
+
+                        $player->setPosition($pos);
                         $player->getNetworkSession()->sendDataPacket($pk);
                         $player->attack($source);
                     }

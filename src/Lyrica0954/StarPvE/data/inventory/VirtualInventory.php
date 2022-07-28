@@ -15,6 +15,7 @@ use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\inventory\Inventory;
+use pocketmine\inventory\PlayerInventory;
 use pocketmine\inventory\SimpleInventory;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\action\InventoryAction;
@@ -30,6 +31,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\NormalTransactionData;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
+use pocketmine\utils\ObjectSet;
 use pocketmine\utils\Utils;
 use pocketmine\world\Position;
 
@@ -69,6 +71,26 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 
 	const TRANSFER_FLAG = 0;
 
+	/**
+	 * @var \Closure[]
+	 */
+	public array $closeListeners;
+
+	/**
+	 * @var \Closure[]
+	 */
+	public array $openListeners;
+
+	/**
+	 * @var \Closure[]
+	 */
+	public array $transferListeners;
+
+	/**
+	 * @var \Closure[]
+	 */
+	public array $rawListeners;
+
 	public function __construct(Player $player, int $size = self::CHEST_SIZE, string $title = "Virtual Inventory") {
 		assert(
 			$size == self::CHEST_SIZE || $size == self::CHEST_LARGE_SIZE,
@@ -83,6 +105,10 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 		$this->size = $size;
 		$this->prepareOpen = false;
 		$this->opened = false;
+
+		$this->closeListeners = [];
+		$this->openListeners = [];
+		$this->transferListeners = [];
 	}
 
 	public function __destruct() {
@@ -112,10 +138,16 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 		$actions = $trans->getActions();
 
 		foreach ($actions as $action) {
+			foreach ($this->rawListeners as $listener) {
+				$listener($action);
+			}
 			if (!$this->onRawAction($action)) {
 				$event->cancel();
 			}
 			if ($action instanceof SlotChangeAction) {
+				$targetItem = $action->getTargetItem();
+				$sourceItem = $action->getSourceItem();
+
 				if (!$action->getTargetItem()->isNull()) {
 					$slotChangeContent["to"] = $action;
 				} else {
@@ -137,6 +169,9 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 
 			$from = $slotChangeContent["from"];
 			$to = $slotChangeContent["to"];
+			foreach ($this->transferListeners as $listener) {
+				$listener($from->getSlot(), $to->getSlot(), $from->getTargetItem(), $to->getTargetItem(), $from->getInventory(), $to->getInventory());
+			}
 			if (!$this->onTransfer($from->getSlot(), $to->getSlot(), $from->getTargetItem(), $to->getTargetItem(), $from->getInventory(), $to->getInventory())) {
 				$event->cancel();
 			}
@@ -186,6 +221,10 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 		$this->virtualBlock = array_merge($this->virtualBlock, $virtualBlock);
 		TaskUtil::delayed(new ClosureTask(function () {
 			if ($this->prepareOpen) {
+				foreach ($this->openListeners as $listener) {
+					$listener($this->player);
+				}
+
 				$this->player->setCurrentWindow($this);
 				$this->opened = true;
 				$this->prepareOpen = false;
@@ -213,6 +252,10 @@ abstract class VirtualInventory extends SimpleInventory implements BlockInventor
 		}
 
 		HandlerListManager::global()->unregisterAll($this);
+
+		foreach ($this->closeListeners as $listener) {
+			$listener($this->player);
+		}
 
 		$this->virtualBlock = [];
 

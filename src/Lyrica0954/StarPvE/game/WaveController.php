@@ -151,7 +151,11 @@ class WaveController implements CooltimeAttachable, Listener {
         if ($entity->getWorld() === $this->game->getWorld()) {
             if ($entity instanceof Player) {
                 if ($this->game->getStatus() === Game::STATUS_PLAYING) {
-                    if ($entity->getHealth() <= $event->getFinalDamage()) {
+                    $forceKill = false;
+                    if ($event->getCause() === EntityDamageEvent::CAUSE_VOID) {
+                        $forceKill = true;
+                    }
+                    if ($entity->getHealth() <= $event->getFinalDamage() || $forceKill) {
                         $event->setModifier(PHP_INT_MIN, EntityDamageEvent::MODIFIER_PREVIOUS_DAMAGE_COOLDOWN);
                         $ev = new PlayerDeathOnGameEvent($entity);
                         $ev->call();
@@ -172,6 +176,11 @@ class WaveController implements CooltimeAttachable, Listener {
                     }
                 } else {
                     $event->cancel();
+                }
+            } else {
+
+                if ($event->getCause() === EntityDamageEvent::CAUSE_VOID) {
+                    $entity->kill();
                 }
             }
         }
@@ -368,7 +377,7 @@ class WaveController implements CooltimeAttachable, Listener {
             $reinforce = $this->getReinforceValue($this->wave);
             $percentage = (int) round(($reinforce - 1.0) * 100);
 
-            foreach ($this->game->getPlayers() as $player) {
+            foreach ($this->game->getWorld()->getPlayers() as $player) {
                 PlayerUtil::playSound($player, "mob.evocation_illager.prepare_attack");
                 $player->sendTitle($waveData->parseTitleFormat($this->wave), "§r ");
                 $player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
@@ -473,7 +482,7 @@ class WaveController implements CooltimeAttachable, Listener {
             $nextReinforce = $this->getReinforceValue($nextWave);
             $percentage = (int) round(($nextReinforce - 1.0) * 100);
 
-            foreach ($this->game->getPlayers() as $player) {
+            foreach ($this->game->getWorld()->getPlayers() as $player) {
                 PlayerUtil::playSound($player, "random.levelup", 1.0, 0.5);
                 $player->sendTitle("§eWave Clear!", "§7Next wave in 30 seconds...");
 
@@ -496,7 +505,7 @@ class WaveController implements CooltimeAttachable, Listener {
 
     public function cooltimeTick(CooltimeHandler $cooltimeHandler, int $remain): bool {
         if ($cooltimeHandler->getId() === "Wave Tick") {
-            foreach ($this->game->getPlayers() as $player) {
+            foreach ($this->game->getWorld()->getPlayers() as $player) {
                 PlayerUtil::playSound($player, "random.click", 1.5, 0.5);
                 $player->sendActionBarMessage("次のウェーブまで残り {$remain}秒");
             }
