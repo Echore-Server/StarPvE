@@ -24,6 +24,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
     private array $genericDefault;
     private array $jobDefault;
     private array $settingDefault;
+    private array $bagDefault;
 
     protected array $data;
 
@@ -60,6 +61,8 @@ class PlayerDataCenter extends DataCenter implements Listener {
             SettingVariables::DEBUG_DAMAGE => false
         ];
 
+        $this->bagDefault = [];
+
         $this->load($folder);
         StarPvE::getInstance()->getServer()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
     }
@@ -82,13 +85,15 @@ class PlayerDataCenter extends DataCenter implements Listener {
         foreach (glob($folder . "/*", GLOB_ONLYDIR) as $pdFolder) {
             $generic = new Config("{$pdFolder}/generic.yml", Config::YAML, $this->genericDefault);
             $setting = new Config("{$pdFolder}/setting.yml", Config::YAML, $this->settingDefault);
+            $bag = new Config("{$pdFolder}/bag.yml", Config::YAML, $this->bagDefault);
+            $artifact = new Config("{$pdFolder}/artifact.yml", Config::YAML, $this->bagDefault);
             $jobs = [];
             foreach (glob($pdFolder . ' /job/*.yml') as $jobFile) {
                 $jobs[basename($jobFile)] = new Config($jobFile, Config::YAML);
             }
             $xuid = basename($pdFolder);
             if (strlen($xuid) == 16) {
-                $this->data[$xuid] = new PlayerConfig($generic, $setting, $jobs, $xuid);
+                $this->data[$xuid] = new PlayerConfig($generic, $setting, $bag, $artifact, $jobs, $xuid);
                 $count++;
             } else {
                 $this->log("§eData Corrupt: {$xuid}");
@@ -107,6 +112,10 @@ class PlayerDataCenter extends DataCenter implements Listener {
             if ($config instanceof PlayerConfig) {
                 $config->getGeneric()->getConfig()->save();
                 $config->getSetting()->getConfig()->save();
+                $config->getArtifact()->save();
+                $config->getArtifact()->getConfig()->save();
+                $config->getBag()->save();
+                $config->getBag()->getConfig()->save();
                 foreach ($config->getJobs() as $job) {
                     $job->getConfig()->save();
                 }
@@ -119,6 +128,8 @@ class PlayerDataCenter extends DataCenter implements Listener {
             if ($config instanceof PlayerConfig) {
                 $config->getGeneric()->getConfig()->reload();
                 $config->getSetting()->getConfig()->reload();
+                $config->getArtifact()->getConfig()->reload();
+                $config->getBag()->getConfig()->reload();
                 foreach ($config->getJobs() as $job) {
                     $job->getConfig()->reload();
                 }
@@ -162,11 +173,35 @@ class PlayerDataCenter extends DataCenter implements Listener {
         return $setting;
     }
 
+    public function createBagConfig(Player $player) {
+        $info = [
+            "Username" => $player->getName()
+        ];
+
+        $default = array_merge($info, $this->bagDefault);
+        $dataFolder = StarPvE::getInstance()->getDataFolder();
+        $file = $dataFolder . "player_data/{$player->getXuid()}/bag.yml";
+        $setting = new Config($file, Config::YAML, $default);
+        return $setting;
+    }
+
+    public function createArtifactConfig(Player $player) {
+        $info = [
+            "Username" => $player->getName()
+        ];
+
+        $default = array_merge($info, $this->bagDefault);
+        $dataFolder = StarPvE::getInstance()->getDataFolder();
+        $file = $dataFolder . "player_data/{$player->getXuid()}/artifact.yml";
+        $setting = new Config($file, Config::YAML, $default);
+        return $setting;
+    }
+
 
     public function createFor(Player $player): void {
         $dataFolder = StarPvE::getInstance()->getDataFolder();
         @mkdir($dataFolder . "player_data/{$player->getXuid()}/job", 0777, true);
 
-        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), $this->createSettingConfig($player), [], $player->getXuid());
+        $this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), $this->createSettingConfig($player), $this->createBagConfig($player), $this->createArtifactConfig($player), [], $player->getXuid());
     }
 }

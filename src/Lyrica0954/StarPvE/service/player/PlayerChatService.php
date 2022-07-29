@@ -26,7 +26,7 @@ class PlayerChatService extends ListenerService {
                 $isForceGlobal = str_starts_with($event->getMessage(), "!");
                 if ($game !== null && !$isForceGlobal) {
                     $channel = "ゲーム";
-                    $event->setRecipients($game->getPlayers());
+                    $event->setRecipients($game->getWorld()->getPlayers());
                 } else {
                     $channel = "グローバル";
                 }

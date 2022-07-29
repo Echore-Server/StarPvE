@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\data\inventory;
 
+use Lyrica0954\StarPvE\data\inventory\item\InvItem;
 use Lyrica0954\StarPvE\service\PlayerCounterService;
 use pocketmine\inventory\Inventory;
 use pocketmine\inventory\PlayerCursorInventory;
@@ -21,39 +22,40 @@ class DataInventoryInstance {
 
     protected VirtualInventory $virtualInventory;
 
-    public function __construct(Player $player, BaseDataInventory $dataInventory, string $title) {
+    public function __construct(Player $player, BaseDataInventory $dataInventory, VirtualInventory $virtualInventory) {
         $this->player = $player;
 
         $this->dataInventory = $dataInventory;
 
-        $this->virtualInventory = new LockedVirtualInventory($player, VirtualInventory::CHEST_LARGE_SIZE, $title);
+        $this->virtualInventory = $virtualInventory;
         $this->virtualInventory->closeListeners[spl_object_hash($this)] = function (Player $player): void {
             $this->onClose($player);
         };
-        #$this->virtualInventory->rawListeners[spl_object_hash($this)] = function (InventoryAction $action): void {
-        #    if ($action instanceof SlotChangeAction) {
-        #        print_r("from: {$action->getSourceItem()->getName()}\n");
-        #        print_r("to: {$action->getTargetItem()->getName()}\n");
-        #        $src = $action->getSourceItem();
-        #        $tar = $action->getTargetItem();
-        #        $inv = $action->getInventory();
-        #        if ($inv instanceof PlayerCursorInventory) {
-        #            if ($src->equals($tar, true, false)) {
-        #                $count = $tar->getCount() + $src->getCount();
-        #                $remain = $count - 64;
-        #                if ($remain > 0) {
-        #                    $src->setCount($remain);
-        #                } else {
-        #                    $src->setCount(0);
-        #                }
-        #                $tar->setCount(min(64, $count));
-        #                foreach ($inv->getViewers() as $viewer) {
-        #                    $viewer->getNetworkSession()->getInvManager()->syncAll();
-        #                }
-        #            }
-        #        }
-        #    }
-        #};
+        $this->virtualInventory->rawListeners[spl_object_hash($this)] = function (InventoryAction $action): void {
+            return;
+            if ($action instanceof SlotChangeAction) {
+                print_r("from: {$action->getSourceItem()->getName()}\n");
+                print_r("to: {$action->getTargetItem()->getName()}\n");
+                $src = $action->getSourceItem();
+                $tar = $action->getTargetItem();
+                $inv = $action->getInventory();
+                if ($inv instanceof PlayerCursorInventory) {
+                    if ($src->equals($tar, false, false)) {
+                        $count = $tar->getCount() + $src->getCount();
+                        $remain = $count - 64;
+                        if ($remain > 0) {
+                            $src->setCount($remain);
+                        } else {
+                            $src->setCount(0);
+                        }
+                        $tar->setCount(min(64, $count));
+                        foreach ($inv->getViewers() as $viewer) {
+                            $viewer->getNetworkSession()->getInvManager()->syncAll();
+                        }
+                    }
+                }
+            }
+        };
     }
 
     public function open(): void {
@@ -81,6 +83,7 @@ class DataInventoryInstance {
 
     public function killInstance(): void {
         unset($this->virtualInventory->closeListeners[spl_object_hash($this)]);
+        unset($this->virtualInventory->rawListeners[spl_object_hash($this)]);
     }
 
     public function syncDataInventory(): void {
@@ -90,7 +93,8 @@ class DataInventoryInstance {
             $hostIndex = $entry->getCustomBlockData()->getTag("hostInventoryIndex")?->getValue() ?? -1;
 
             if ($hostIndex !== -1) {
-                $item = $this->dataInventory->getItem($hostIndex);
+                $item = clone $this->dataInventory->getItem($hostIndex);
+                $item->setCount($entry->getCount());
                 $new[$index] = $item;
             }
         }

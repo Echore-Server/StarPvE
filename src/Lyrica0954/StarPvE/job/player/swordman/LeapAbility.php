@@ -103,6 +103,7 @@ class LeapAbility extends Ability implements Ticking, Listener {
                             $cooltimeHandler->subtract($cooltimeHandler->calculate(30));
                         }
                         $motion = $this->player->getDirectionVector()->multiply(4);
+                        $motion->y = min(0.7, $motion->y);
                         $this->player->setMotion($motion);
                     }
                     $this->activeMotion = false;

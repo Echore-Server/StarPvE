@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\data\player;
 use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
 use Lyrica0954\StarPvE\data\adapter\SimpleConfigAdapter;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
+use Lyrica0954\StarPvE\data\player\adapter\ItemConfigAdapter;
 use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
 use pocketmine\block\Planks;
 use pocketmine\player\Player;
@@ -20,6 +21,11 @@ class PlayerConfig {
      */
     private array $jobs;
 
+    private PlayerConfigAdapter $setting;
+
+    private ItemConfigAdapter $bag;
+    private ItemConfigAdapter $artifact;
+
     private string $xuid;
 
     /**
@@ -27,9 +33,11 @@ class PlayerConfig {
      * @param Config[] $jobs
      * @param string $xuid
      */
-    public function __construct(Config $generic, Config $setting, array $jobs, string $xuid) {
+    public function __construct(Config $generic, Config $setting, Config $bag, Config $artifact, array $jobs, string $xuid) {
         $this->generic = new GenericConfigAdapter($xuid, $generic);
         $this->setting = new PlayerConfigAdapter($xuid, $setting);
+        $this->bag = new ItemConfigAdapter($xuid, $bag);
+        $this->artifact = new ItemConfigAdapter($xuid, $artifact, 6);
         $this->jobs = [];
         $this->xuid = $xuid;
         foreach ($jobs as $name => $jobConfig) {
@@ -43,6 +51,14 @@ class PlayerConfig {
 
     public function getSetting(): PlayerConfigAdapter {
         return $this->setting;
+    }
+
+    public function getBag(): ItemConfigAdapter {
+        return $this->bag;
+    }
+
+    public function getArtifact(): ItemConfigAdapter {
+        return $this->artifact;
     }
 
     /**

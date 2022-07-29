@@ -14,6 +14,8 @@ use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
+use pocketmine\entity\Entity;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\math\Vector3;
 
@@ -93,13 +95,19 @@ class TrapDevice extends GhostItemEntity {
 							if ($tick >= 60) {
 								$this->attackTick[$k][0] = -1;
 								$this->count++;
+								$owning = $this->getOwningEntity();
 
-								$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->damage);
+								if ($owning instanceof Entity) {
+									$source = new EntityDamageByEntityEvent($owning, $entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->damage);
+								} else {
+									$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->damage);
+								}
+
 								$source->setAttackCooldown(0);
 								$entity->attack($source);
 
 								EntityUtil::immobile($entity, 6 * 20);
-								PlayerUtil::broadcastSound($entity, "mob.allay.hurt", 1.5, 0.6);
+								PlayerUtil::broadcastSound($entity, "mob.allay.hurt", 1.5, 1.0);
 
 								if ($this->amount <= $this->count) {
 									break;

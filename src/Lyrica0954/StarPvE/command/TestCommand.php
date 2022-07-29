@@ -14,6 +14,8 @@ use Lyrica0954\StarPvE\data\inventory\SimpleDataInventory;
 use Lyrica0954\StarPvE\data\inventory\SourcedVirtualInventory;
 use Lyrica0954\StarPvE\data\inventory\VirtualBlock;
 use Lyrica0954\StarPvE\data\inventory\VirtualInventory;
+use Lyrica0954\StarPvE\data\player\adapter\ItemConfigAdapter;
+use Lyrica0954\StarPvE\data\player\BagVariables;
 use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
@@ -36,18 +38,21 @@ final class TestCommand extends PluginCommandNoAuth {
 
 	protected function run(CommandSender $sender, array $args): void {
 		if ($sender instanceof Player) {
-			if (!isset($this->instances[$sender->getXuid()])) {
-				$dataInventory = new SimpleDataInventory(VirtualInventory::CHEST_LARGE_SIZE);
-				$item = InvItemFactory::getInstance()->get(InvItemIds::APPLE);
-				$item->setDescription("すごい！");
-				$dataInventory->setContents(
-					array_fill(0, VirtualInventory::CHEST_LARGE_SIZE / 2, clone $item)
-				);
-				$this->instances[$sender->getXuid()] = new DataInventoryInstance($sender, $dataInventory, "New Inventory");
-			}
 
-			$instance = $this->instances[$sender->getXuid()];
-			$instance->open();
+			$bag = BagVariables::fetch($sender);
+			if ($bag instanceof ItemConfigAdapter) {
+				$dataInventory = $bag->getInventory();
+
+
+
+				if (!isset($this->instances[$sender->getXuid()])) {
+					$virtualInventory = new LockedVirtualInventory($sender, VirtualInventory::CHEST_LARGE_SIZE, "Super Strong Beatufiul Mega Inventory");
+					$this->instances[$sender->getXuid()] = new DataInventoryInstance($sender, $dataInventory, $virtualInventory);
+				}
+
+				$instance = $this->instances[$sender->getXuid()];
+				$instance->open();
+			}
 		}
 	}
 }

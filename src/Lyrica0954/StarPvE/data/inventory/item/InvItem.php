@@ -151,4 +151,8 @@ abstract class InvItem {
 			return null;
 		}
 	}
+
+	public function __clone() {
+		$this->entryItemIdentifier = clone $this->entryItemIdentifier;
+	}
 }

@@ -97,7 +97,6 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 							$source->setAttackCooldown(0);
 							if ($target->getHealth() <= $source->getFinalDamage()) {
 								$target->kill();
-								$this->causeCollapse($target, $count + 1);
 							} else {
 								$target->attack($source);
 							}

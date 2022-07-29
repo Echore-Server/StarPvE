@@ -8,7 +8,13 @@ use Lyrica0954\StarPvE\data\inventory\item\artifact\SpeedBottleArtifact;
 use pocketmine\utils\SingletonTrait;
 
 class InvItemFactory {
-    use SingletonTrait;
+    use SingletonTrait {
+        getInstance as S_getInstance;
+    }
+
+    public static function getInstance(): self {
+        return self::S_getInstance();
+    }
 
     /**
      * @var InvItem[]

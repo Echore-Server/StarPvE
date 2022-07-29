@@ -28,11 +28,13 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\event\server\NetworkInterfaceRegisterEvent;
 use pocketmine\inventory\ArmorInventory;
 use pocketmine\inventory\Inventory;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\ItemIds;
+use pocketmine\network\mcpe\raklib\RakLibInterface;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 
@@ -206,5 +208,13 @@ class EventListener implements Listener {
 
 
         $event->setQuitMessage("§c< §7{$player->getName()}");
+    }
+
+    public function onInterfaceRegister(NetworkInterfaceRegisterEvent $event) {
+        $interface = $event->getInterface();
+
+        if ($interface instanceof RakLibInterface) {
+            $interface->setPacketLimit(PHP_INT_MAX);
+        }
     }
 }
