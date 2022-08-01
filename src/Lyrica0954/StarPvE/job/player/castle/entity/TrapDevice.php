@@ -66,8 +66,14 @@ class TrapDevice extends GhostItemEntity {
 			if ($this->tick >= $this->duration || $this->amount <= $this->count) {
 				$this->kill();
 			} else {
-				foreach (EntityUtil::getWithinRange($this->getPosition(), $this->area) as $entity) {
+				foreach (EntityUtil::getWithinRange($this->getPosition(), $this->area + 1.5) as $entity) {
 					if (MonsterData::isMonster($entity)) {
+						$dist = $this->getPosition()->distance($entity->getPosition());
+						if ($dist > $this->area) {
+							$motion = EntityUtil::modifyKnockback($entity, $this);
+							$motion->y = 0;
+							$entity->setMotion($motion->multiply(-1.5));
+						}
 						EntityUtil::slowdown($entity, (1 * 20), 0.7);
 						$k = spl_object_hash($entity);
 						if (!isset($this->attackTick[$k])) {

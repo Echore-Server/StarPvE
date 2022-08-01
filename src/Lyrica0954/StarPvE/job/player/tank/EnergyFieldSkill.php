@@ -76,6 +76,9 @@ class EnergyFieldSkill extends Skill implements Listener {
 					return $result;
 				} else {
 					if ($this->isActive()) {
+						$this->active = false;
+						$this->tick = 0;
+						$this->cooltimeHandler->start($this->getCooltime());
 						foreach ($this->tasks as $taskHandler) {
 							if (!$taskHandler->isCancelled()) {
 								$taskHandler->cancel();
@@ -89,7 +92,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 							$job->setAbility(new RegrowthAbility($job));
 						}
 					}
-					return ActionResult::SUCCEEDED_SILENT();
+					return ActionResult::MISS();
 				}
 			} else {
 				return ActionResult::FAILED_BY_COOLTIME();

@@ -49,8 +49,7 @@ class HarmonyAbility extends Ability {
     protected function init(): void {
         $this->area = new AbilityStatus(12.0);
         $this->normalEffects = new EffectGroup(
-            new EffectInstance(VanillaEffects::ABSORPTION(), (12 * 20), 0),
-            new EffectInstance(VanillaEffects::REGENERATION(), (6 * 20), 2)
+            new EffectInstance(VanillaEffects::ABSORPTION(), (12 * 20), 4),
         );
         $this->fighterEffects = new EffectGroup(
             new EffectInstance(VanillaEffects::STRENGTH(), (9 * 20), 0)
@@ -60,8 +59,8 @@ class HarmonyAbility extends Ability {
     protected function onActivate(): ActionResult {
 
         $par = (new SingleParticle);
-        $linePar = (new LineParticle(VectorUtil::keepAdd($this->player->getPosition(), 0, 0.5, 0), 3));
-        $circlePar = (new CircleParticle($this->area->get(), 6));
+        $linePar = (new LineParticle(VectorUtil::keepAdd($this->player->getPosition(), 0, 0.5, 0), 1));
+        $circlePar = (new CircleParticle($this->area->get(), 12));
         $players = $this->player->getWorld()->getPlayers();
         foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
             if ($entity instanceof Player) {

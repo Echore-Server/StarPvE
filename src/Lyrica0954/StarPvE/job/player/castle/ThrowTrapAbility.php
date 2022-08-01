@@ -43,6 +43,7 @@ class ThrowTrapAbility extends ThrowEntityAbilityBase {
 一度トラップされた敵はトラップしない。
 
 §b効果: §f装置から %1$s 以内の敵の移動速度を §c30%%%%§f 低下させる。
+§b効果: §f一度効果範囲内に入った敵を範囲内から出れなくする。
 
 効果は、効果が発動してから %4$s 経過するか、敵 %3$s 以上をトラップすることで消滅する。', $area, $damage, $amount, $duration);
 	}

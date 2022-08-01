@@ -89,6 +89,8 @@ class WaveController implements CooltimeAttachable, Listener {
 
     protected string $killCounterHash;
 
+    protected string $damageCounterHash;
+
     /**
      * @var TaskHandler[]
      */
@@ -110,8 +112,11 @@ class WaveController implements CooltimeAttachable, Listener {
         $this->createCooltimeHandler("Wave Tick", CooltimeHandler::BASE_SECOND, 1);
         $this->serviceSession = new ServiceSession(StarPvE::getInstance());
         $killCounter = new PlayerCounterService($this->serviceSession);
+        $damageCounter = new PlayerCounterService($this->serviceSession);
         $this->killCounterHash = spl_object_hash($killCounter);
+        $this->damageCounterHash = spl_object_hash($damageCounter);
         $this->serviceSession->add($killCounter);
+        $this->serviceSession->add($damageCounter);
         $this->serviceSession->start();
 
         $this->spawnTasks = [];
@@ -121,10 +126,21 @@ class WaveController implements CooltimeAttachable, Listener {
         return $this->serviceSession->getServices()[$this->killCounterHash] ?? null;
     }
 
+    public function getDamageCounter(): ?PlayerCounterService {
+        return $this->serviceSession->getServices()[$this->damageCounterHash] ?? null;
+    }
+
     public function getGame(): Game {
         return $this->game;
     }
 
+    /**
+     * @param EntityDamageByEntityEvent $event
+     * 
+     * @return [type]
+     * 
+     * 
+     */
     public function onEntityDamageByEntity(EntityDamageByEntityEvent $event) {
         $entity = $event->getEntity();
         $damager = $event->getDamager();
@@ -139,6 +155,22 @@ class WaveController implements CooltimeAttachable, Listener {
                     $event->setKnockBack(0);
                 }
             }
+        }
+    }
+
+
+    /**
+     * @param EntityDamageByEntityEvent $event
+     * 
+     * @return void
+     * 
+     * @priority MONITOR
+     */
+    public function monitorEntityDamageByEntity(EntityDamageByEntityEvent $event): void {
+        $damager = $event->getDamager();
+        if ($damager instanceof Player) {
+            $counter = $this->getDamageCounter();
+            $counter->add($damager, (int) $event->getFinalDamage());
         }
     }
 
@@ -162,7 +194,7 @@ class WaveController implements CooltimeAttachable, Listener {
                         if (!$ev->isCancelled()) {
                             $this->getGame()->broadcastMessage("§7{$entity->getName()} §fは モンスターに やられてしまった");
                             $entity->setGamemode(GameMode::fromString("3"));
-                            $entity->sendTitle("死んでしまった...", "10秒後にリスポーンします");
+                            $entity->sendTitle("死んでしまった...", "20秒後にリスポーンします");
                             PlayerUtil::flee($entity);
                             StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($entity) {
                                 if (!$this->game->isClosed()) {
@@ -171,7 +203,7 @@ class WaveController implements CooltimeAttachable, Listener {
                                     $entity->sendTitle("復活しました！");
                                     $entity->getEffects()->add(new EffectInstance(VanillaEffects::RESISTANCE(), (6 * 20), 255, false, true));
                                 }
-                            }), (10 * 20));
+                            }), (20 * 20));
                         }
                     }
                 } else {
@@ -202,6 +234,9 @@ class WaveController implements CooltimeAttachable, Listener {
                 $ldcI = $entity->getLastDamageCause();
                 if ($ldcI?->getCause() !== EntityDamageEvent::CAUSE_SUICIDE) {
                     $dropEntities = [];
+                    /**
+                     * @var MonsterDropItem[] $dropEntities
+                     */
                     $option = $this->monsterOptions[$entity::class] ?? null;
                     if ($option instanceof MonsterOption) {
                         foreach ($option->getDrop() as $item) {
@@ -492,6 +527,15 @@ class WaveController implements CooltimeAttachable, Listener {
                         $player->sendMessage("§7モンスターの攻撃力、体力 §c+5%");
                         $player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
                     }), 20);
+                }
+            }
+
+            foreach ($this->game->getWorld()->getEntities() as $entity) {
+                if ($entity instanceof MonsterDropItem) {
+                    $owning = $entity->getOwningEntity();
+                    if ($owning instanceof Player) {
+                        $entity->kill();
+                    }
                 }
             }
 

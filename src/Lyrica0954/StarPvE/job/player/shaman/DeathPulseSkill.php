@@ -36,7 +36,7 @@ class DeathPulseSkill extends Skill {
 	public function getDescription(): string {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$duration = DescriptionTranslator::second($this->duration);
-		$damagePer = DescriptionTranslator::percentage($this->damage);
+		$damagePer = DescriptionTranslator::percentage($this->percentage);
 		$amount = DescriptionTranslator::number($this->amount, "回");
 		$speedFake = new AbilityStatus(30);
 		$speedFake->subtract($this->speed->getDiff());
@@ -49,7 +49,7 @@ class DeathPulseSkill extends Skill {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(0.05);
+		$this->percentage = new AbilityStatus(0.05);
 		$this->area = new AbilityStatus(10.0);
 		$this->speed = new AbilityStatus(0);
 		$this->duration = new AbilityStatus(120);
@@ -116,7 +116,7 @@ class DeathPulseSkill extends Skill {
 
 				foreach (EntityUtil::getWithinRange($pos, $area) as $entity) {
 					if (MonsterData::isMonster($entity)) {
-						$damage = ($entity->getMaxHealth() * $this->damage->get());
+						$damage = ($entity->getMaxHealth() * $this->percentage->get());
 						$source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
 						$source->setAttackCooldown(0);
 						$entity->attack($source);

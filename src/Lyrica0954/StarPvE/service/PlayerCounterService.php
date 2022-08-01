@@ -47,4 +47,17 @@ class PlayerCounterService extends Service {
     public function getAll(): array {
         return $this->list;
     }
+
+    public function createRanking(string $format = "§e%d位 §c%s §f- §c%d§f"): string {
+        $list = $this->list;
+        arsort($list, SORT_NUMERIC);
+        $n = 0;
+        $text = "";
+        foreach ($list as $name => $count) {
+            $n++;
+            $text .= sprintf($format, $n, $name, $count) . "\n";
+        }
+
+        return $text;
+    }
 }

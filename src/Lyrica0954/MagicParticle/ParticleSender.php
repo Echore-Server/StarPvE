@@ -32,7 +32,7 @@ class ParticleSender {
         $this->lastSend = [];
     }
 
-    public function check(Player $player, Vector3 $pos, int $maxRange = 20): ?Vector3 {
+    public function check(Player $player, Vector3 $pos, int $maxRange = 16): ?Vector3 {
         return ($player->canInteract($pos, $maxRange, M_SQRT3 / 3)) ? $pos : null;
     }
 

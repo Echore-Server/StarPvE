@@ -693,13 +693,9 @@ class Game implements CooltimeAttachable {
         $this->stageInfo->getIdentityGroup()->close();
 
         $this->broadcastMessage("§6>> §eモンスターキル数");
-        $list = $this->waveController->getKillCounter()->getAll();
-        arsort($list, SORT_NUMERIC);
-        $n = 0;
-        foreach ($list as $name => $count) {
-            $n++;
-            $this->broadcastMessage("§e{$n}位 §c{$name} §f- §c{$count}§f");
-        }
+        $this->broadcastMessage($this->waveController->getKillCounter()->createRanking());
+        $this->broadcastMessage("§6>> §eダメージ");
+        $this->broadcastMessage($this->waveController->getDamageCounter()->createRanking());
 
         StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
             $this->closeEntities();
