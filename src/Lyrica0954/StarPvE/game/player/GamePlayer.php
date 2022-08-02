@@ -29,6 +29,11 @@ class GamePlayer {
 
     protected int $perkAvailable;
 
+    /**
+     * @var Identity[]
+     */
+    protected array $perkIdentities;
+
     public function __construct(Player $player) {
         $this->player = $player;
         $this->game = null;
@@ -37,6 +42,7 @@ class GamePlayer {
         $this->armorEquipment = new ArmorEquipment($this);
 
         $this->identityGroup = new IdentityGroup();
+        $this->perkIdentities = [];
 
         $this->perkAvailable = 0;
     }
@@ -45,12 +51,15 @@ class GamePlayer {
         return $this->perkAvailable;
     }
 
-    public function sendPerkForm(): void {
+    public function sendPerkForm(bool $internal = true): void {
         if ($this->game !== null) {
-            $identities = PerkIdentitiesForm::generateIdentities($this, $this->game->getWaveController()->getWave());
-            $form = new PerkIdentitiesForm($this, $identities);
+            $form = new PerkIdentitiesForm($this, $this->perkIdentities, $internal);
             $this->player->sendForm($form);
         }
+    }
+
+    public function rollPerkIdentities(): void {
+        $this->perkIdentities = PerkIdentitiesForm::generateIdentities($this, $this->game->getWaveController()->getWave());
     }
 
     public function setPerkAvailable(int $count): void {

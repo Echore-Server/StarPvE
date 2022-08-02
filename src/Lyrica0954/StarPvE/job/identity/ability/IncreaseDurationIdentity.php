@@ -37,4 +37,8 @@ class IncreaseDurationIdentity extends AttachAbilityIdentityBase {
 	public function reset(): void {
 		$this->getAttaching()->getDuration()->subtract($this->add);
 	}
+
+	public function isAppicableForAbility(Ability $ability) {
+		return ($ability->getDuration()->getOriginal() !== 0.0);
+	}
 }

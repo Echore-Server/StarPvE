@@ -36,4 +36,8 @@ class IncreaseAreaIdentity extends AttachAbilityIdentityBase {
 	public function reset(): void {
 		$this->getAttaching()->getArea()->subtract($this->add);
 	}
+
+	public function isAppicableForAbility(Ability $ability) {
+		return ($ability->getArea()->getOriginal() !== 0.0);
+	}
 }

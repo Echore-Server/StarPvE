@@ -77,15 +77,9 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
 最高レベルに達した状態で攻撃した場合、§c3§fコンボに一回小さな爆発を起こす。
 小さな爆発は半径§c1.5m§f以内の敵に剣での攻撃と同じダメージを与える。
 コンボを§c4秒§f以内につなげないと、コンボがリセットされてしまうので注意。
-§7レベルごとの攻撃速度
-デフォルトの攻撃速度: 10
-レベル0: 11(デフォルトより1遅い)
-レベル1: 10
-レベル2: 9
-レベル3: 8
-レベル4: 7
-レベル5: 6
-レベル6: 5";
+
+また、最大レベルの時は受けるダメージが §c20%%§f 減少する。
+";
     }
 
     public function getSelectableCondition(): ?Condition {
@@ -117,6 +111,12 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
     public function onEntityDamageByEntity(EntityDamageByEntityEvent $event) {
         $entity = $event->getEntity();
         $damager = $event->getDamager();
+
+        if ($entity === $this->player) {
+            if ($this->comboLevel == 6) {
+                EntityUtil::multiplyFinalDamage($event, 0.8);
+            }
+        }
 
         if (!$event->isCancelled()) {
             if ($damager === $this->player) {

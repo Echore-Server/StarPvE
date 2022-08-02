@@ -21,6 +21,7 @@ use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\RandomUtil;
 use Lyrica0954\StarPvE\utils\RayTraceEntityResult;
 use Lyrica0954\StarPvE\utils\VectorUtil;
+use pocketmine\block\Block;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
@@ -30,6 +31,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\math\Facing;
 use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
+use pocketmine\math\VoxelRayTrace;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\network\mcpe\protocol\types\ParticleIds;
@@ -86,24 +88,33 @@ class ThunderboltAbility extends Ability implements Ticking {
     }
 
     protected function onActivate(): ActionResult {
+        $length = 14;
+
         $ep = $this->player->getEyePos();
         $epos = new Position($ep->x, $ep->y, $ep->z, $this->player->getWorld());
         $par = new LineParticle($epos, 1);
-        $dir = $this->player->getDirectionVector()->multiply(14.0);
-        $tpos = $ep->addVector($dir);
+        $dir = $this->player->getDirectionVector();
+
+        $length = VectorUtil::calculateLengthBlock(
+            $ep,
+            $ep->addVector($dir->multiply($length)),
+            $this->player->getWorld(),
+            $length,
+            function (Block $block): bool {
+                return $block->isSolid();
+            }
+        );
+
+        $tpos = $ep->addVector($dir->multiply($length));
 
         ParticleUtil::send(
             $par,
             $this->player->getWorld()->getPlayers(),
-            new Position(
-                $tpos->x,
-                $tpos->y,
-                $tpos->z,
-                $this->player->getWorld()
-            ),
+            Position::fromObject($tpos, $this->player->getWorld()),
             ParticleOption::spawnPacket("starpve:magician_gas", "")
         );
-        $results = EntityUtil::getLineOfSight($this->player, 14.0, new Vector3(0.5, 0.5, 0.5));
+
+        $results = EntityUtil::getLineOfSight($this->player, $length, new Vector3(0.5, 0.5, 0.5));
         if (count($results) > 0) {
             $result = $results[array_key_first($results)] ?? null;
             if ($result instanceof RayTraceEntityResult) {

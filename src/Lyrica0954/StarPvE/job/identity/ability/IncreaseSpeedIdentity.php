@@ -36,4 +36,8 @@ class IncreaseSpeedIdentity extends AttachAbilityIdentityBase {
 	public function reset(): void {
 		$this->getAttaching()->getSpeed()->subtract($this->add);
 	}
+
+	public function isAppicableForAbility(Ability $ability) {
+		return ($ability->getSpeed()->getOriginal() !== 0.0);
+	}
 }

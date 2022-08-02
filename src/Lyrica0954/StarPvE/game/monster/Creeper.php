@@ -13,6 +13,7 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityExplodeEvent;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\player\Player;
 use pocketmine\world\Explosion;
 use pocketmine\world\particle\HugeExplodeSeedParticle;
@@ -21,6 +22,8 @@ use pocketmine\world\sound\ExplodeSound;
 
 class Creeper extends SmartCreeper {
     use HealthBarEntity;
+
+    protected float $reach = 3.0;
 
     public function getFuseLength(): int {
         return 30;

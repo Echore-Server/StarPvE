@@ -33,8 +33,7 @@ class PerkContent extends ShopContent {
 
     protected function onBought(Player $player): bool {
         $gamePlayer = $this->getGamePlayer($player);
-        $gamePlayer->sendPerkForm();
-        $gamePlayer->setPerkAvailable($gamePlayer->getPerkAvailable() - 1);
+        $gamePlayer->sendPerkForm(false);
         return true;
     }
 

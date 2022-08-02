@@ -49,10 +49,10 @@ class ThrowTrapAbility extends ThrowEntityAbilityBase {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(30.0);
+		$this->damage = new AbilityStatus(26.0);
 		$this->speed = new AbilityStatus(0.9);
 		$this->area = new AbilityStatus(4.0);
-		$this->amount = new AbilityStatus(6.0);
+		$this->amount = new AbilityStatus(5.0);
 		$this->duration = new AbilityStatus(19 * 20);
 	}
 

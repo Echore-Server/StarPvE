@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\utils;
 
+use pocketmine\block\Block;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
+use pocketmine\math\VoxelRayTrace;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 
@@ -121,6 +123,36 @@ class VectorUtil {
         $v->y += $y;
         $v->z += $z;
         return $v;
+    }
+
+    public static function calculateLengthBlock(Vector3 $start, Vector3 $end, World $world, float $length, ?\Closure $checker = null): float {
+        $nearestBlockedDist = PHP_INT_MAX;
+
+        if ($checker === null) {
+            $checker = function (Block $block): bool {
+                return true;
+            };
+        }
+
+
+        foreach (VoxelRayTrace::betweenPoints($start, $end) as $vec) {
+            $block = $world->getBlock($vec);
+
+            $check = ($checker)($block);
+            if ($check) {
+                $dist = $start->distance($block->getPosition());
+                if ($nearestBlockedDist > $dist) {
+                    $nearestBlockedDist = $dist;
+                }
+            }
+        }
+
+        if ($nearestBlockedDist === PHP_INT_MAX) {
+            $nearestBlockedDist = $length;
+        }
+
+
+        return $nearestBlockedDist;
     }
 
     public static function getAngleRelative(Vector3 $base, Vector3 $relative, float $yaw): Vector3 { #相対座標

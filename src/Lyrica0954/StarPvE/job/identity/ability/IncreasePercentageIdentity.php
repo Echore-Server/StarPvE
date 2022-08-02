@@ -37,4 +37,8 @@ class IncreasePercentageIdentity extends AttachAbilityIdentityBase {
 	public function reset(): void {
 		$this->getAttaching()->getPercentage()->subtract($this->add);
 	}
+
+	public function isAppicableForAbility(Ability $ability) {
+		return ($ability->getPercentage()->getOriginal() !== 0.0);
+	}
 }

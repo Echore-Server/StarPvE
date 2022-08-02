@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job;
 
 use Exception;
+use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\player\PlayerJob;

@@ -58,8 +58,10 @@ use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
+use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
@@ -198,6 +200,11 @@ class WaveController implements CooltimeAttachable, Listener {
                             PlayerUtil::flee($entity);
                             StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($entity) {
                                 if (!$this->game->isClosed()) {
+                                    $id = $entity->getNetworkSession()->getInvManager()->getWindowId($entity->getInventory());
+                                    if ($id !== null) {
+                                        $pk = ContainerClosePacket::create($id, true);
+                                        $entity->getNetworkSession()->sendDataPacket($pk);
+                                    }
                                     $entity->teleport($this->game->getCenterPosition());
                                     $entity->setGamemode(GameMode::fromString("2"));
                                     $entity->sendTitle("復活しました！");
@@ -501,6 +508,7 @@ class WaveController implements CooltimeAttachable, Listener {
                 $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
                 if ($gamePlayer instanceof GamePlayer) {
                     $gamePlayer->setPerkAvailable($gamePlayer->getPerkAvailable() + 1);
+                    $gamePlayer->rollPerkIdentities();
                     TaskUtil::delayed(new ClosureTask(function () use ($player) {
                         PlayerUtil::playSound($player, "conduit.activate", 1.0, 0.8);
                         $player->sendTitle("§r ", "§7ショップでパークを獲得できます！");

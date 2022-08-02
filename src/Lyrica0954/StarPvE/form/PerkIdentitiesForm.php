@@ -67,7 +67,7 @@ class PerkIdentitiesForm implements Form {
         return $identities;
     }
 
-    public function __construct(private GamePlayer $gamePlayer, private array $identities) {
+    public function __construct(private GamePlayer $gamePlayer, private array $identities, private bool $internal = true) {
     }
 
     public function jsonSerialize(): mixed {
@@ -102,6 +102,10 @@ class PerkIdentitiesForm implements Form {
                 }
                 $ig->add($ci);
                 $ig->apply();
+
+                if (!$this->internal) {
+                    $this->gamePlayer->setPerkAvailable($this->gamePlayer->getPerkAvailable() - 1);
+                }
                 Messanger::talk($player, "特性", "§d{$identity->getName()} §7を習得しました！");
             } else {
                 Messanger::error($player, "Invalid Key", Messanger::getIdFromObject($this, "handleResponse"));
