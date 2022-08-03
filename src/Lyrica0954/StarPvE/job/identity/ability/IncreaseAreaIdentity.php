@@ -29,12 +29,12 @@ class IncreaseAreaIdentity extends AttachAbilityIdentityBase {
 		return "{$name}の範囲が {$this->add} 増加";
 	}
 
-	public function apply(): void {
-		$this->getAttaching()->getArea()->add($this->add);
+	public function applyAbility(Ability $ability): void {
+		$ability->getArea()->add($this->add);
 	}
 
-	public function reset(): void {
-		$this->getAttaching()->getArea()->subtract($this->add);
+	public function resetAbility(Ability $ability): void {
+		$ability->getArea()->subtract($this->add);
 	}
 
 	public function isAppicableForAbility(Ability $ability) {

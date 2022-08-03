@@ -30,12 +30,12 @@ class IncreaseDurationIdentity extends AttachAbilityIdentityBase {
 		return "{$name}の効果時間が {$sec}秒 増加";
 	}
 
-	public function apply(): void {
-		$this->getAttaching()->getDuration()->add($this->add);
+	public function applyAbility(Ability $ability): void {
+		$ability->getDuration()->add($this->add);
 	}
 
-	public function reset(): void {
-		$this->getAttaching()->getDuration()->subtract($this->add);
+	public function resetAbility(Ability $ability): void {
+		$ability->getDuration()->subtract($this->add);
 	}
 
 	public function isAppicableForAbility(Ability $ability) {

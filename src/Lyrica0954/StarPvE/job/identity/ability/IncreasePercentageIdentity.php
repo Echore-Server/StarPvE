@@ -30,12 +30,12 @@ class IncreasePercentageIdentity extends AttachAbilityIdentityBase {
 		return "{$name}の倍率/確率が {$percentage} 増加";
 	}
 
-	public function apply(): void {
-		$this->getAttaching()->getPercentage()->add($this->add);
+	public function applyAbility(Ability $ability): void {
+		$ability->getPercentage()->add($this->add);
 	}
 
-	public function reset(): void {
-		$this->getAttaching()->getPercentage()->subtract($this->add);
+	public function resetAbility(Ability $ability): void {
+		$ability->getPercentage()->subtract($this->add);
 	}
 
 	public function isAppicableForAbility(Ability $ability) {

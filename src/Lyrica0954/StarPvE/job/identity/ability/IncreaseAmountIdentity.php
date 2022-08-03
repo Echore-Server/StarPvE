@@ -29,12 +29,12 @@ class IncreaseDamageIdentity extends AttachAbilityIdentityBase {
 		return "{$name}の量/回数が {$this->add} 増加";
 	}
 
-	public function apply(): void {
-		$this->getAttaching()->getAmount()->add($this->add);
+	public function applyAbility(Ability $ability): void {
+		$ability->getAmount()->add($this->add);
 	}
 
-	public function reset(): void {
-		$this->getAttaching()->getAmount()->subtract($this->add);
+	public function resetAbility(Ability $ability): void {
+		$ability->getAmount()->subtract($this->add);
 	}
 
 	public function isAppicableForAbility(Ability $ability) {

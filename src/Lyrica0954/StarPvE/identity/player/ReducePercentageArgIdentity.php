@@ -27,7 +27,7 @@ class ReducePercentageArgIdentity extends PlayerArgIdentity {
 
     public function getDescription(): string {
         $p = $this->percentage * 100;
-        return "受けるダメージが {$p}% 減少";
+        return "受けるダメージ §9-{$p}%";
     }
 
     public function apply(): void {

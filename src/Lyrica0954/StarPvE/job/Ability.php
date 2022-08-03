@@ -184,4 +184,15 @@ abstract class Ability {
     }
 
     abstract protected function onActivate(): ActionResult;
+
+    public function __clone() {
+        $this->damage = clone $this->damage;
+        $this->area = clone $this->area;
+        $this->speed = clone $this->speed;
+        $this->duration = clone $this->duration;
+        $this->amount = clone $this->amount;
+        $this->percentage = clone $this->percentage;
+
+        #$this->cooltimeHandler = clone $this->cooltimeHandler;
+    }
 }

@@ -24,7 +24,7 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 class Attacker extends FightingEntity implements Neutral {
     use HealthBarEntity;
 
-    protected float $reach = 1.2;
+    protected float $reach = 1.5;
 
     public static function getNetworkTypeId(): string {
         return EntityIds::WITCH;
@@ -84,7 +84,7 @@ class Attacker extends FightingEntity implements Neutral {
     }
 
     protected function onTick(int $currentTick, int $tickDiff = 1): void {
-        if ($this->isInAttackRange($this->target)) {
+        if ($this->getPosition()->distance($this->target->getPosition()) <= 1.2) {
             $this->setImmobile(true);
         } else {
             $this->setImmobile(false);

@@ -35,6 +35,18 @@ abstract class AttachAbilityIdentityBase extends JobIdentity {
 		}
 	}
 
+	public function apply(): void {
+		$this->applyAbility($this->getAttaching());
+	}
+
+	public function reset(): void {
+		$this->resetAbility($this->getAttaching());
+	}
+
+	abstract public function applyAbility(Ability $ability): void;
+
+	abstract public function resetAbility(Ability $ability): void;
+
 	public function setAttach(int $attachTo): void {
 		$this->attachTo = $attachTo;
 	}

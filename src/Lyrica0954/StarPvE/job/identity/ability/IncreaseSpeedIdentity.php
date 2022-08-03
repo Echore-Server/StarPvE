@@ -29,12 +29,12 @@ class IncreaseSpeedIdentity extends AttachAbilityIdentityBase {
 		return "{$name}のスピードが {$this->add} 増加";
 	}
 
-	public function apply(): void {
-		$this->getAttaching()->getSpeed()->add($this->add);
+	public function applyAbility(Ability $ability): void {
+		$ability->getSpeed()->add($this->add);
 	}
 
-	public function reset(): void {
-		$this->getAttaching()->getSpeed()->subtract($this->add);
+	public function resetAbility(Ability $ability): void {
+		$ability->getSpeed()->subtract($this->add);
 	}
 
 	public function isAppicableForAbility(Ability $ability) {

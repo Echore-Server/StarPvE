@@ -29,7 +29,7 @@ use pocketmine\world\particle\ExplodeParticle;
 class ForceFieldSkill extends Skill {
 
     public function getCooltime(): int {
-        return (20 * 20);
+        return (18 * 20);
     }
 
     public function getName(): String {
@@ -56,11 +56,11 @@ class ForceFieldSkill extends Skill {
 
         foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
             if (MonsterData::isMonster($entity)) {
-                $xz = 6.0;
+                $xz = 5.0;
                 $y = 2.0;
                 if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-                    $xz = 2.0;
-                    $y = 1.0;
+                    $xz = 0.75;
+                    $y = 0.8;
                 }
 
                 $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->damage->get());

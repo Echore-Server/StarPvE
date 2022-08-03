@@ -76,8 +76,15 @@ class PerkIdentitiesForm implements Form {
 
         foreach ($this->identities as $identity) {
             $fixed = str_replace("%", "%%", $identity->getDescription());
+            $compatibility = true;
+
+            if ($identity instanceof AttachAbilityIdentityBase) {
+                $compatibility = $identity->isAppicableForAbility($identity->getAttaching());
+            }
+
+            $color = $compatibility ? "§a" : "§c";
             $buttons[] = [
-                "text" => "§l§6{$identity->getName()}\n§r§7{$fixed}"
+                "text" => "§l{$color}{$identity->getName()}\n§r§7{$fixed}"
             ];
             $this->identities[] = $identity;
         }
@@ -94,19 +101,50 @@ class PerkIdentitiesForm implements Form {
         if ($data !== null) {
             $identity = $this->identities[$data] ?? null;
             if ($identity instanceof Identity) {
-                $ig = $this->gamePlayer->getIdentityGroup();
-                $ig->reset();
-                $ci = clone $identity;
-                if ($ci instanceof PlayerArgIdentity) {
-                    $ci->setPlayer($this->gamePlayer->getPlayer());
+                $compatibility = true;
+                if ($identity instanceof AttachAbilityIdentityBase) {
+                    $compatibility = $identity->isAppicableForAbility($identity->getAttaching());
                 }
-                $ig->add($ci);
-                $ig->apply();
 
-                if (!$this->internal) {
-                    $this->gamePlayer->setPerkAvailable($this->gamePlayer->getPerkAvailable() - 1);
+                if (!$compatibility) {
+                    Messanger::talk($player, "特性", "§7この特性は取得しても効果がありません！");
+                    return;
                 }
-                Messanger::talk($player, "特性", "§d{$identity->getName()} §7を習得しました！");
+
+                $fn = function (Player $player, Identity $identity): void {
+                    $ig = $this->gamePlayer->getIdentityGroup();
+                    $ig->reset();
+                    $ci = clone $identity;
+                    if ($ci instanceof PlayerArgIdentity) {
+                        $ci->setPlayer($this->gamePlayer->getPlayer());
+                    }
+                    $ig->add($ci);
+                    $ig->apply();
+
+                    if (!$this->internal) {
+                        $this->gamePlayer->setPerkAvailable($this->gamePlayer->getPerkAvailable() - 1);
+                    }
+                    Messanger::talk($player, "特性", "§d{$identity->getName()} §7を習得しました！");
+                };
+
+                if ($identity instanceof AttachAbilityIdentityBase) {
+                    $ability = clone $identity->getAttaching();
+
+                    $identity->applyAbility($ability);
+                    $content = "選択すると、アビリティが以下になります。\n\n{$ability->getDescription()}";
+
+                    $form = new YesNoForm($content, function (Player $player, $data) use ($fn, $identity): void {
+                        if ($data !== null) {
+                            if ($data === 0) {
+                                ($fn)($player, $identity);
+                            }
+                        }
+                    });
+
+                    $player->sendForm($form);
+                } else {
+                    $fn($player, $identity);
+                }
             } else {
                 Messanger::error($player, "Invalid Key", Messanger::getIdFromObject($this, "handleResponse"));
             }

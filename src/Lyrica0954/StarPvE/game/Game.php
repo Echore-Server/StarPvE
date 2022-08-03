@@ -468,22 +468,22 @@ class Game implements CooltimeAttachable {
                     $wc->getGame()->broadcastMessage("§l§9クリーパーとエンダーマンの群れが接近中です！");
                 }),
                 new WaveMonsters(
-                    new MonsterData(DefaultMonsters::CREEPER, 24),
-                    new MonsterData(DefaultMonsters::ATTACKER, 5),
-                    new MonsterData(DefaultMonsters::ENDERMAN, 10)
+                    new MonsterData(DefaultMonsters::CREEPER, 40),
+                    new MonsterData(DefaultMonsters::ATTACKER, 6),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 18)
                 ),
                 new WaveMonsters(
-                    new MonsterData(DefaultMonsters::CREEPER, 24),
-                    new MonsterData(DefaultMonsters::ATTACKER, 5),
-                    new MonsterData(DefaultMonsters::ENDERMAN, 10)
+                    new MonsterData(DefaultMonsters::CREEPER, 40),
+                    new MonsterData(DefaultMonsters::ATTACKER, 6),
+                    new MonsterData(DefaultMonsters::ENDERMAN, 18)
                 ),
                 new WaveMonsters(
-                    new MonsterData(DefaultMonsters::CREEPER, 24),
-                    new MonsterData(DefaultMonsters::ATTACKER, 5)
+                    new MonsterData(DefaultMonsters::CREEPER, 40),
+                    new MonsterData(DefaultMonsters::ATTACKER, 6)
                 ),
                 new WaveMonsters(
-                    new MonsterData(DefaultMonsters::CREEPER, 24),
-                    new MonsterData(DefaultMonsters::ATTACKER, 5),
+                    new MonsterData(DefaultMonsters::CREEPER, 40),
+                    new MonsterData(DefaultMonsters::ATTACKER, 6),
                 )
             ),
         ]);
