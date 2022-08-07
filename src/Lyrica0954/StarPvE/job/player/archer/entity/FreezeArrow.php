@@ -24,6 +24,7 @@ use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\HandlerListManager;
 use pocketmine\event\Listener;
@@ -35,27 +36,19 @@ use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
+use pocketmine\world\Position;
 use Ramsey\Uuid\Type\Integer;
 
 class FreezeArrow extends SpecialArrow implements Listener {
 
-	/**
-	 * @var EffectGroup|null
-	 */
-	public ?EffectGroup $playerEffects = null;
-
-	/**
-	 * @var EffectGroup|null
-	 */
-	public ?EffectGroup $explodeEffects = null;
-
 	protected int $explodeTick = 0;
 
 	protected float $particleCTick = 0;
-	protected float $areaC = 0;
 
 	protected int $soundTick = 0;
 	protected int $soundPeriod = 20;
+
+	protected float $originalArea = 0;
 
 	private bool $activatedInternal = false;
 
@@ -65,9 +58,27 @@ class FreezeArrow extends SpecialArrow implements Listener {
 		$pos->y = $blockHit->getPosition()->getY();
 		$this->activatedPosition = $pos;
 		$this->activated = false;
-
-		$this->areaC = $this->area;
 		$this->activatedInternal = true;
+
+		$this->originalArea = $this->area;
+
+		$pos = Position::fromObject($pos, $this->getWorld());
+
+		$entities = EntityUtil::getWithinRange($pos, $this->area);
+
+		$par = (new SphereParticle($this->area, 12, 12, 360, -90, 0));
+		ParticleUtil::send($par, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:freeze_gas", ""));
+
+		foreach ($entities as $entity) {
+			if (MonsterData::isMonster($entity) && $entity instanceof Living) {
+				$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_MAGIC, $this->damage);
+				$entity->attack($source);
+			}
+		}
+
+
+
+		#$this->setMotion(new Vector3(0, 0.01, 0));
 	}
 
 	protected function entityBaseTick(int $tickDiff = 1): bool {
@@ -85,47 +96,22 @@ class FreezeArrow extends SpecialArrow implements Listener {
 				$this->particleCTick += $tickDiff;
 				$this->soundTick += $tickDiff;
 
-				$pos = VectorUtil::insertWorld($vec, $this->getWorld());
+				$per = ($this->originalArea - 2.5) / $this->duration;
+				$this->area -= $per * $tickDiff;
+
+				$pos = Position::fromObject($vec, $this->getWorld());
 				$players = $this->getWorld()->getPlayers();
 
 				if ($this->activeTick >= $this->period) {
 					$this->activeTick = 0;
-					$ecount = 0;
-					$entities = EntityUtil::getWithinRange($pos, $this->areaC);
-					$this->areaC = $this->area;
+
+					$entities = EntityUtil::getWithin($pos, $this->area - 1.5, $this->area + 0.5);
 
 					foreach ($entities as $entity) {
 						if (MonsterData::isMonster($entity) && $entity instanceof Living) {
-							$ecount += 1;
-							if ($ecount <= 14) {
-								$this->areaC += (1 * 0.5);
-							}
-							$effects = ($this->areaEffects ?? (new EffectGroup()));
-							$effects->apply($entity);
-							if ($entity instanceof FightingEntity && !MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-								if (!$entity->isFriend()) {
-									$entity->setFriend(true);
-									$beforeTarget = $entity->getTarget();
-									TaskUtil::reapeatingClosureCheck(function () use ($entity) {
-										$min = EntityUtil::getCollisionMin($entity);
-										$emitter = EmitterParticle::createEmitterForEntity($entity, 0.3, 3);
-										ParticleUtil::send($emitter, $entity->getWorld()->getPlayers(), VectorUtil::insertWorld($min, $entity->getWorld()), ParticleOption::spawnPacket("minecraft:magnesium_salts_emitter", ""));
-									}, 6, function () use ($entity) {
-										return ($entity->isAlive() && !$entity->isClosed() && $entity->isFriend());
-									});
-
-									TaskUtil::delayed(new ClosureTask(function () use ($entity, $beforeTarget) {
-										$entity->setFriend(false);
-										$entity->setTarget($beforeTarget);
-									}), $this->duration);
-								}
-							}
-						} elseif ($entity instanceof Player) {
-							$effects = ($this->playerEffects ?? (new EffectGroup()));
-							$effects->apply($entity);
-
-							#$pk = CameraShakePacket::create(5.0, 1.0, CameraShakePacket::TYPE_POSITIONAL, CameraShakePacket::ACTION_ADD);
-							#$entity->getNetworkSession()->sendDataPacket($pk);
+							$motion = EntityUtil::modifyKnockback($entity, $this, 1.0, 0.0);
+							$motion = $motion->multiply(-0.9);
+							$entity->setMotion($motion);
 						}
 					}
 				}
@@ -133,10 +119,8 @@ class FreezeArrow extends SpecialArrow implements Listener {
 				if ($this->particleTick >= 32) {
 					$this->particleTick = 0;
 
-					$spar = (new SphereParticle($this->areaC, 12, 12, 360, -90, 0));
-					$eff = new PartDelayedEffect(new SaturatedLineworkEffect($this->areaC, 3, 0.0, 7, 360, -90, 0), 3, 1, true);
+					$spar = (new SphereParticle($this->area, 12, 12, 360, -90, 0));
 					ParticleUtil::send($spar, $players, $pos, ParticleOption::spawnPacket("starpve:freeze_gas", ""));
-					ParticleUtil::send($eff, $players, $pos, ParticleOption::spawnPacket("minecraft:magnesium_salts_emitter", ""));
 				}
 
 				if ($this->soundTick >= $this->soundPeriod) {
@@ -145,7 +129,7 @@ class FreezeArrow extends SpecialArrow implements Listener {
 					PlayerUtil::broadcastSound($this, "respawn_anchor.ambient", 1.5, 1.0);
 					PlayerUtil::broadcastSound($this, "respawn_anchor.charge", 0.5, 1.0);
 
-					$sec = 2;
+					$sec = 4;
 					$p = ($this->duration - ($sec * 20));
 					if ($this->explodeTick >= $p) {
 						$diff = ($this->explodeTick - $p);
@@ -157,30 +141,6 @@ class FreezeArrow extends SpecialArrow implements Listener {
 				}
 
 				if ($this->explodeTick >= $this->duration) {
-					$std = new \stdClass;
-					$std->volume = 0.2;
-					PlayerUtil::broadcastSound($this, "random.explode", 1.0, 0.6);
-					TaskUtil::repeatingClosureLimit(function () use ($std) {
-						$std->volume += 0.2;
-						foreach ($this->getWorld()->getPlayers() as $player) {
-							PlayerUtil::playSound($player, "respawn_anchor.set_spawn", 0.5, $std->volume);
-						}
-					}, 2, 4);
-					$p = new SingleParticle;
-					ParticleUtil::send($p, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
-					ParticleUtil::send($p, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
-					ParticleUtil::send($p, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:smoke_explosion", ""));
-
-					foreach (EntityUtil::getWithinRange($pos, PHP_INT_MAX) as $entity) {
-						if (MonsterData::isMonster($entity)) {
-							$effects = ($this->explodeEffects ?? (new EffectGroup()));
-							$effects->apply($entity);
-							if (!MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-								$motion = EntityUtil::modifyKnockback($entity, $this, 3.5, 1.0);
-								$entity->setMotion($motion);
-							}
-						}
-					}
 					$this->kill();
 				}
 			}

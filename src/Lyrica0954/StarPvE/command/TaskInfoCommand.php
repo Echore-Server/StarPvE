@@ -10,6 +10,7 @@ use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\command\CommandSender;
+use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
 use pocketmine\scheduler\TaskHandler;
 
@@ -23,6 +24,7 @@ final class TaskInfoCommand extends PluginCommandNoAuth {
 	protected function init(): void {
 
 		$this->setDescription("実行中タスクの確認");
+		$this->setPermission(DefaultPermissions::ROOT_OPERATOR);
 	}
 
 	protected function run(CommandSender $sender, array $args): void {

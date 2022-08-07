@@ -52,7 +52,7 @@ class SpecialArrow extends Arrow {
 		$base = parent::getResultDamage();
 
 		if ($this->isCritical()) {
-			return ($base * 1.5);
+			return ($base * 1.2);
 		} else {
 			return $base;
 		}

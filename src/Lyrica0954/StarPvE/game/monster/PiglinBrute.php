@@ -271,8 +271,8 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 
         if ($this->healTick >= $period) {
             $this->healTick = 0;
-            $source = new EntityRegainHealthEvent($this, $amount, EntityRegainHealthEvent::CAUSE_CUSTOM);
-            $this->heal($source);
+            #$source = new EntityRegainHealthEvent($this, $amount, EntityRegainHealthEvent::CAUSE_CUSTOM);
+            #$this->heal($source);
         }
     }
 

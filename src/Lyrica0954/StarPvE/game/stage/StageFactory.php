@@ -50,7 +50,7 @@ class StageFactory {
 
 		$ident = new IdentityGroup;
 		$list = [
-			new AmpMonsterHealthArgIdentity(1.2)
+			new AmpMonsterHealthArgIdentity(1.3)
 		];
 
 		$ident->addAll($list);
@@ -80,6 +80,27 @@ class StageFactory {
 				"map_3",
 				"Lyrica0954",
 				new IdentityGroup
+			)
+		);
+
+		$ident = new IdentityGroup;
+		$list = [
+			new AmpMonsterHealthArgIdentity(0.5)
+		];
+
+		$ident->addAll($list);
+
+		$this->register(
+			new StageInfo(
+				DefaultStages::COLOR_RUSH,
+				new Vector3(0.5, 101, 0.5),
+				new Vector3(-8.5, 101, 0.5),
+				new Vector3(0.5, 101, -8.5),
+				new Vector3(9.5, 101, 0.5),
+				new Vector3(0.5, 101, 9.5),
+				"map_4",
+				"Lyrica0954",
+				$ident
 			)
 		);
 	}

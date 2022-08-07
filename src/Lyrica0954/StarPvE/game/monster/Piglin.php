@@ -16,9 +16,14 @@ use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\entity\animation\ArmSwingAnimation;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
+use pocketmine\entity\Location;
+use pocketmine\entity\projectile\Arrow;
 use pocketmine\entity\projectile\ProjectileSource;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
 use pocketmine\player\Player;
 
 class Piglin extends FightingEntity implements Hostile, ProjectileSource {
@@ -48,6 +53,29 @@ class Piglin extends FightingEntity implements Hostile, ProjectileSource {
 
     public function getAddtionalAttackCooldown(): int {
         return 14;
+    }
+
+    public function attack(EntityDamageEvent $source): void {
+        if ($source instanceof EntityDamageByChildEntityEvent) {
+            $child = $source->getChild();
+            $damager = $source->getDamager();
+            if ($damager instanceof Player) {
+                $vec = $this->getEyePos();
+                $loc = $this->getLocation();
+                $loc->y = $vec->y;
+
+                $tloc = $damager->getLocation();
+                $tloc->y += $damager->getEyeHeight();
+
+                $d = $tloc->subtractVector($loc)->normalize();
+                $projectile = new Arrow($loc, $this, true);
+                $projectile->setMotion($d->multiply(5));
+                $projectile->spawnToAll();
+                $source->setBaseDamage($source->getBaseDamage() / 2);
+            }
+        }
+
+        parent::attack($source);
     }
 
     protected function onTick(int $currentTick, int $tickDiff = 1): void {

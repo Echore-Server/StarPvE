@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\form;
 
 use Lyrica0954\StarPvE\identity\Identity;
+use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\utils\Messanger;
@@ -28,10 +29,16 @@ class JobIdentityForm implements Form {
 		$identityCount = count($identityGroup->getAll());
 		foreach ($identityGroup->getAll() as $identity) {
 			$activateable = $identity->isApplicable();
+
+			if ($identity instanceof PlayerArgIdentity || $identity instanceof JobIdentity) {
+				$activateable = $identity->isApplicableFor($this->player);
+			}
+
 			$activateableIdentity[] = $identity;
 			$desc = $activateable ? "§a有効" : "§c無効";
+			$fixed = str_replace("%", "%%", $identity->getDescription());
 			$buttons[] = [
-				"text" => "§l§6{$identity->getName()}\n§r{$desc} §f/ §7{$identity->getDescription()}"
+				"text" => "§l§6{$identity->getName()}\n§r{$desc} §f/ §7{$fixed}"
 			];
 			$this->identities[] = $identity;
 		}
@@ -48,10 +55,8 @@ class JobIdentityForm implements Form {
 	public function handleResponse(Player $player, $data): void {
 		if ($data !== null) {
 			$identity = $this->identities[$data] ?? null;
-			if ($identity instanceof JobIdentity) {
-				Messanger::talk($player, "職業", "§cこの特性を有効するには以下の条件を満たす必要があります");
-				Messanger::condition($player, $identity->getCondition());
-			}
+			Messanger::talk($player, "職業", "§cこの特性を有効するには以下の条件を満たす必要があります");
+			Messanger::condition($player, $identity->getCondition());
 		}
 	}
 }

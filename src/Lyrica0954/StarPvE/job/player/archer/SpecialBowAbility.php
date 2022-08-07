@@ -54,7 +54,7 @@ class SpecialBowAbility extends Ability implements Listener {
 	protected Item $bow;
 
 	public function getCooltime(): int {
-		return (1 * 20);
+		return (int) (1.0 * 20);
 	}
 
 	public function getName(): string {
@@ -75,10 +75,10 @@ class SpecialBowAbility extends Ability implements Listener {
 	}
 
 	protected function init(): void {
-		$this->area = new AbilityStatus(4.0);
-		$this->duration = new AbilityStatus(7 * 20);
+		$this->area = new AbilityStatus(2.6);
+		$this->duration = new AbilityStatus(1 * 20);
 		$this->damage = new AbilityStatus(6.0);
-		$this->areaDamage = new AbilityStatus(1.0);
+		$this->areaDamage = new AbilityStatus(2.0);
 		$this->bow = ItemFactory::getInstance()->get(ItemIds::BOW);
 		if ($this->bow instanceof Bow) {
 			$this->bow->setUnbreakable(true);

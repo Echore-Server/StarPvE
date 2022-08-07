@@ -503,7 +503,7 @@ class WaveController implements CooltimeAttachable, Listener {
 
     public function waveClear() {
         $nextWave = $this->wave + 1;
-        if ($nextWave % 4 === 0) {
+        if ($nextWave % 2 === 0) {
             foreach ($this->game->getPlayers() as $player) {
                 $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
                 if ($gamePlayer instanceof GamePlayer) {

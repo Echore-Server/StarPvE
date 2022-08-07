@@ -13,4 +13,6 @@ class DefaultStages {
 	const STAIR = "Stair";
 
 	const RUIN = "Ruin";
+
+	const COLOR_RUSH = "Color Rush";
 }

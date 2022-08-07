@@ -88,9 +88,10 @@ class PlayerDataCenter extends DataCenter implements Listener {
             $bag = new Config("{$pdFolder}/bag.yml", Config::YAML, $this->bagDefault);
             $artifact = new Config("{$pdFolder}/artifact.yml", Config::YAML, $this->bagDefault);
             $jobs = [];
-            foreach (glob($pdFolder . ' /job/*.yml') as $jobFile) {
-                $jobs[basename($jobFile)] = new Config($jobFile, Config::YAML);
+            foreach (glob($pdFolder . '/job/*.yml') as $jobFile) {
+                $jobs[pathinfo(basename($jobFile), PATHINFO_FILENAME)] = new Config($jobFile, Config::YAML);
             }
+            #print_r($jobs);
             $xuid = basename($pdFolder);
             if (strlen($xuid) == 16) {
                 $this->data[$xuid] = new PlayerConfig($generic, $setting, $bag, $artifact, $jobs, $xuid);

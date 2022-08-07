@@ -27,7 +27,7 @@ class Engineer extends PlayerJob {
     }
 
     protected function getInitialAbility(): Ability {
-        return new ThrowGravityBallAbility($this);
+        return new EMPAbility($this);
     }
 
     protected function getInitialSkill(): Skill {

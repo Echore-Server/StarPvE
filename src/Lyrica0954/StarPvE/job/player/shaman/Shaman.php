@@ -94,7 +94,7 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 					if ($target !== $entity) {
 						if ($target->getHealth() > 0) {
 							$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
-							$source->setAttackCooldown(0);
+							#$source->setAttackCooldown(10);
 							if ($target->getHealth() <= $source->getFinalDamage()) {
 								$target->kill();
 							} else {

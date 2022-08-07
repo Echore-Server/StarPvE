@@ -41,7 +41,7 @@ class PlayerConfig {
         $this->jobs = [];
         $this->xuid = $xuid;
         foreach ($jobs as $name => $jobConfig) {
-            $this->jobs[$name] = new JobConfigAdapter($xuid, $jobConfig);
+            $this->jobs[strtolower($name)] = new JobConfigAdapter($xuid, $jobConfig);
         }
     }
 
@@ -69,10 +69,10 @@ class PlayerConfig {
     }
 
     public function getJob(string $name): ?JobConfigAdapter {
-        return $this->jobs[$name] ?? null;
+        return $this->jobs[strtolower($name)] ?? null;
     }
 
     public function addJob(string $name, Config $job): void {
-        $this->jobs[$name] = new JobConfigAdapter($this->xuid, $job);
+        $this->jobs[strtolower($name)] = new JobConfigAdapter($this->xuid, $job);
     }
 }

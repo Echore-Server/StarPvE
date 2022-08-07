@@ -89,7 +89,7 @@ class RageSkill extends Skill implements Listener {
                 VectorUtil::insertWorld($min, $this->player->getWorld()),
                 ParticleOption::spawnPacket("minecraft:villager_angry", "")
             );
-        }, $period, $limit);
+        }, (int) $period, (int) $limit);
 
 
         return ActionResult::SUCCEEDED();

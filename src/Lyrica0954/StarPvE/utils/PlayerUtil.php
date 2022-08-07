@@ -87,6 +87,7 @@ class PlayerUtil {
         $player->getHungerManager()->setSaturation(20);
         $player->getHungerManager()->setFood(20);
         $player->setHealth($player->getMaxHealth());
+        $player->setImmobile(false);
     }
 
     public static function reset(Player $player) {
@@ -94,6 +95,7 @@ class PlayerUtil {
         $player->getArmorInventory()->clearAll();
         $player->getInventory()->clearAll();
         $player->getCraftingGrid()->clearAll();
+        $player->getOffHandInventory()->clearAll();
     }
 
     public static function teleportToLobby(Player $player) {

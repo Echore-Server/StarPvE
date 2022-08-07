@@ -17,9 +17,11 @@ use Lyrica0954\StarPvE\utils\HealthBarEntity;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\player\Player;
 
 class Attacker extends FightingEntity implements Neutral {
     use HealthBarEntity;
@@ -39,6 +41,14 @@ class Attacker extends FightingEntity implements Neutral {
     }
 
     public function attack(EntityDamageEvent $source): void {
+
+        if ($source instanceof EntityDamageByChildEntityEvent) {
+            $damager = $source->getDamager();
+            if ($damager instanceof Player) {
+                $source->setBaseDamage($source->getBaseDamage() / 2);
+            }
+        }
+
         parent::attack($source);
 
         $game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($this->getWorld());

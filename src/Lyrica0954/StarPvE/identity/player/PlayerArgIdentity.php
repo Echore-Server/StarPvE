@@ -36,4 +36,8 @@ abstract class PlayerArgIdentity extends Identity {
 
 		return $result;
 	}
+
+	public function isApplicableFor(Player $player): bool {
+		return $this->condition?->check($player) ?? true;
+	}
 }

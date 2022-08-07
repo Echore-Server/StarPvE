@@ -91,6 +91,12 @@ class GamePlayer {
         $this->identityGroup = new IdentityGroup();
         $this->perkAvailable = 0;
 
+        $job = StarPvE::getInstance()->getJobManager()->getJob($this->getPlayer());
+        if ($job !== null) {
+            $class = $job::class;
+            StarPvE::getInstance()->getJobManager()->setJob($this->player, $class);
+        }
+
         $this->resetEquipment();
     }
 

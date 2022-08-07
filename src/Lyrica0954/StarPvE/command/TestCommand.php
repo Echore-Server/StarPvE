@@ -22,6 +22,7 @@ use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\command\CommandSender;
 use pocketmine\item\VanillaItems;
+use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 
@@ -34,6 +35,11 @@ final class TestCommand extends PluginCommandNoAuth {
 
 	public function canRunBy(): int {
 		return self::PLAYER;
+	}
+
+	protected function init(): void {
+		$this->setDescription("バッグ");
+		$this->setPermission(DefaultPermissions::ROOT_OPERATOR);
 	}
 
 	protected function run(CommandSender $sender, array $args): void {

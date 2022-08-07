@@ -7,18 +7,16 @@ namespace Lyrica0954\StarPvE\form;
 
 use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\identity\Identity;
-use Lyrica0954\StarPvE\identity\player\AddAttackDamageArgIdentity;
 use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\identity\player\AttackPercentageArgIdentity;
 use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\identity\player\ReducePercentageArgIdentity;
-use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
-use Lyrica0954\StarPvE\job\identity\ability\IncreaseAreaIdentity;
-use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
-use Lyrica0954\StarPvE\job\identity\ability\IncreaseDurationIdentity;
-use Lyrica0954\StarPvE\job\identity\ability\IncreasePercentageIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase as AAIB;
+use Lyrica0954\StarPvE\job\identity\ability\IncreaseStatusIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
 use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
 use pocketmine\form\Form;
@@ -29,30 +27,28 @@ class PerkIdentitiesForm implements Form {
     public static function generateIdentities(GamePlayer $gamePlayer, int $wave): array {
         $playerJob = StarPvE::getInstance()->getJobManager()->getJob($gamePlayer->getPlayer());
         $identities = [
-            new AttackPercentageArgIdentity(null, 0.1),
-            new ReducePercentageArgIdentity(null, 0.1),
+            new AttackPercentageArgIdentity(null, 0.08),
+            new ReducePercentageArgIdentity(null, 0.06),
             new AddMaxHealthArgIdentity(null, 4)
         ];
 
         if ($playerJob instanceof PlayerJob) {
             $rand = [
-                new IncreaseDamageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 2.5),
-                new IncreaseAreaIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 2.5),
-                new IncreaseDurationIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 100),
-                new IncreasePercentageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.2),
-                new IncreaseDamageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_SKILL, 5.5),
-                new IncreaseAreaIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_SKILL, 5.0),
-                new IncreaseDurationIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_SKILL, 200),
-                new IncreasePercentageIdentity($playerJob, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.2)
+                new IncreaseStatusIdentity($playerJob, null, AAIB::ATTACH_ABILITY, StatusTranslate::STATUS_AMOUNT, 2),
+                new PercentageStatusIdentity($playerJob, null, AAIB::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.34),
+                new PercentageStatusIdentity($playerJob, null, AAIB::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 1.26),
+                new PercentageStatusIdentity($playerJob, null, AAIB::ATTACH_ABILITY, StatusTranslate::STATUS_DURATION, 1.34),
+                new PercentageStatusIdentity($playerJob, null, AAIB::ATTACH_ABILITY, StatusTranslate::STATUS_PERCENTAGE, 1.24),
+                new PercentageStatusIdentity($playerJob, null, AAIB::ATTACH_ABILITY, StatusTranslate::STATUS_SPEED, 1.4)
             ];
 
-            for ($i = 0; $i <= 1; $i++) {
+            for ($i = 0; $i < 4; $i++) {
                 $ind = array_rand($rand);
                 $identity = clone $rand[$ind];
-                if ($identity instanceof AttachAbilityIdentityBase) {
+                if ($identity instanceof AAIB) {
                     $l = [
-                        AttachAbilityIdentityBase::ATTACH_ABILITY,
-                        AttachAbilityIdentityBase::ATTACH_SKILL
+                        AAIB::ATTACH_ABILITY,
+                        AAIB::ATTACH_SKILL
                     ];
 
                     $attachTo = $l[array_rand($l)];
@@ -78,7 +74,7 @@ class PerkIdentitiesForm implements Form {
             $fixed = str_replace("%", "%%", $identity->getDescription());
             $compatibility = true;
 
-            if ($identity instanceof AttachAbilityIdentityBase) {
+            if ($identity instanceof AAIB) {
                 $compatibility = $identity->isAppicableForAbility($identity->getAttaching());
             }
 
@@ -102,7 +98,7 @@ class PerkIdentitiesForm implements Form {
             $identity = $this->identities[$data] ?? null;
             if ($identity instanceof Identity) {
                 $compatibility = true;
-                if ($identity instanceof AttachAbilityIdentityBase) {
+                if ($identity instanceof AAIB) {
                     $compatibility = $identity->isAppicableForAbility($identity->getAttaching());
                 }
 
@@ -127,7 +123,7 @@ class PerkIdentitiesForm implements Form {
                     Messanger::talk($player, "特性", "§d{$identity->getName()} §7を習得しました！");
                 };
 
-                if ($identity instanceof AttachAbilityIdentityBase) {
+                if ($identity instanceof AAIB) {
                     $ability = clone $identity->getAttaching();
 
                     $identity->applyAbility($ability);

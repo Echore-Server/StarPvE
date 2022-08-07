@@ -19,8 +19,9 @@ abstract class JobIdentity extends Identity {
 
     protected PlayerJob $playerJob;
 
-    public function __construct(PlayerJob $playerJob) {
+    public function __construct(PlayerJob $playerJob, ?Condition $condition) {
         $this->playerJob = $playerJob;
+        $this->setCondition($condition);
         parent::__construct();
     }
 
@@ -33,5 +34,9 @@ abstract class JobIdentity extends Identity {
         }
 
         return $result;
+    }
+
+    public function isApplicableFor(Player $player): bool {
+        return $this->condition?->check($player) ?? true;
     }
 }

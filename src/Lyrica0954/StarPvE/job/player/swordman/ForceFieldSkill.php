@@ -45,7 +45,7 @@ class ForceFieldSkill extends Skill {
 
     protected function init(): void {
         $this->damage = new AbilityStatus(6.0);
-        $this->area = new AbilityStatus(9.0);
+        $this->area = new AbilityStatus(8.0);
     }
 
     protected function onActivate(): ActionResult {

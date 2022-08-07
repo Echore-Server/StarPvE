@@ -14,9 +14,11 @@ use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseAreaIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\IncreaseStatusIdentity;
 use Lyrica0954\StarPvE\job\player\healer\identity\FastFeedIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
@@ -31,7 +33,6 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener {
         $g = new IdentityGroup();
         $list = [
             new AddMaxHealthArgIdentity(null, 2),
-            new IncreaseAreaIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, 0.5),
             new FastFeedIdentity(null, 30)
         ];
         $g->addAllSafe($list);

@@ -44,7 +44,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::ATTACKER,
-				new MonsterAttribute(100, 6.0, 0.031),
+				new MonsterAttribute(100, 6.0, 0.046),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(4)
