@@ -14,6 +14,7 @@ use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\world\Position;
 
+#注意: 適当に作ったので正確な四角ではありません
 class SquareEffect extends ParticleEffect {
 
 	private float $pitch;

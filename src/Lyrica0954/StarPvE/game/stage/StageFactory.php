@@ -90,19 +90,19 @@ class StageFactory {
 
 		$ident->addAll($list);
 
-		$this->register(
-			new StageInfo(
-				DefaultStages::COLOR_RUSH,
-				new Vector3(0.5, 101, 0.5),
-				new Vector3(-8.5, 101, 0.5),
-				new Vector3(0.5, 101, -8.5),
-				new Vector3(9.5, 101, 0.5),
-				new Vector3(0.5, 101, 9.5),
-				"map_4",
-				"Lyrica0954",
-				$ident
-			)
-		);
+		#$this->register(
+		#	new StageInfo(
+		#		DefaultStages::COLOR_RUSH,
+		#		new Vector3(0.5, 101, 0.5),
+		#		new Vector3(-8.5, 101, 0.5),
+		#		new Vector3(0.5, 101, -8.5),
+		#		new Vector3(9.5, 101, 0.5),
+		#		new Vector3(0.5, 101, 9.5),
+		#		"map_4",
+		#		"Lyrica0954",
+		#		$ident
+		#	)
+		#);
 	}
 
 	public static function getInstance(): StageFactory {

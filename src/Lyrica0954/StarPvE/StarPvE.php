@@ -250,7 +250,7 @@ final class StarPvE extends PluginBase {
         $this->serviceHost = new ServiceHost($this);
 
         $this->log("Starting Particle Host...");
-        $this->particleHost = new ParticleHost($this, new ParticleSender());
+        $this->particleHost = new ParticleHost($this, new LiteParticleSender($this));
 
         $this->log("Opening Service Session...");
         $session = $this->serviceHost->open();

@@ -16,7 +16,7 @@ class CircleParticle extends SendableParticle {
 
     public function draw(Position $pos): array {
         $pitchDe = ($this->pitch / 90);
-        #$xz = cos(deg2rad($this->yaw));
+        #$xz = cos(deg2rad($this->yaw)); pitchを実装しようとした
         #$deXs = abs((abs($xz) - 1));
         $deX = (abs($pitchDe) - 1);
         #$deZ = 1 - $deXs;

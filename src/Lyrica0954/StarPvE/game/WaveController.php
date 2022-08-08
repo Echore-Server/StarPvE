@@ -508,7 +508,6 @@ class WaveController implements CooltimeAttachable, Listener {
                 $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
                 if ($gamePlayer instanceof GamePlayer) {
                     $gamePlayer->setPerkAvailable($gamePlayer->getPerkAvailable() + 1);
-                    $gamePlayer->rollPerkIdentities();
                     TaskUtil::delayed(new ClosureTask(function () use ($player) {
                         PlayerUtil::playSound($player, "conduit.activate", 1.0, 0.8);
                         $player->sendTitle("§r ", "§7ショップでパークを獲得できます！");

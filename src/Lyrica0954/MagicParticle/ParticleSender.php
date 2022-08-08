@@ -5,67 +5,35 @@ declare(strict_types=1);
 namespace Lyrica0954\MagicParticle;
 
 use Lyrica0954\MagicParticle\effect\ParticleEffect;
-use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
-use Lyrica0954\StarPvE\data\player\SettingVariables;
-use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\Packet;
 use pocketmine\player\Player;
+use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\Task;
 use pocketmine\Server;
 use pocketmine\world\Position;
 
 class ParticleSender {
 
-    /**
-     * @var int[]
-     */
-    protected array $particleCount;
+    protected PluginBase $plugin;
 
-    /**
-     * @var int[]
-     */
-    protected array $lastSend;
-
-    public function __construct() {
-        $this->particleCount = [];
-        $this->lastSend = [];
+    public function __construct(PluginBase $plugin) {
+        $this->plugin = $plugin;
     }
 
-    public function check(Player $player, Vector3 $pos, int $maxRange = 16): ?Vector3 {
-        return ($player->canInteract($pos, $maxRange, M_SQRT3 / 3)) ? $pos : null;
+    public function check(Player $player, Vector3 $pos): ?bool {
+        return true;
     }
 
     public function send(Player $player, Vector3 $pos, ClientboundPacket $packet) {
         if ($this->check($player, $pos)) {
-            $h = spl_object_hash($player);
-            $lastSend = $this->lastSend[$h] ?? 0;
-            $tick = Server::getInstance()->getTick();
-
-            $ppt = $this->particleCount[$h] ?? 0;
-            $adapter = SettingVariables::fetch($player);
-            if ($adapter instanceof PlayerConfigAdapter) {
-                $limit = $adapter->getConfig()->get(SettingVariables::PARTICLE_PER_TICK, 0);
-            } else {
-                $limit = 0;
-            }
-
-            if ($tick - $lastSend >= 1) {
-                $this->particleCount[$h] = 0;
-
-                $this->lastSend[$h] = $tick;
-            }
-
-            if ($ppt >= $limit) {
-                return;
-            }
-
-            $this->particleCount[$h] ?? $this->particleCount[$h] = 0;
-            $this->particleCount[$h]++;
-
-
+            $this->onSend($player, $pos, $packet);
             $player->getNetworkSession()->addToSendBuffer($packet);
         }
+    }
+
+    protected function onSend(Player $player, Vector3 $pos, ClientboundPacket $packet) {
     }
 
     public function sendParticle(SendableParticle $particle, array $players, Position $pos, ParticleOption $option) {
@@ -104,7 +72,8 @@ class ParticleSender {
         $progress->offset = $particle->getOffset();
 
         $limit = (int) floor(count($parts) / $particle->getPartLength());
-        TaskUtil::repeatingClosureLimit(function () use ($players, $parts, $particle, $progress) {
+
+        $closure = function () use ($players, $parts, $particle, $progress) {
             $partLength = $particle->getPartLength();
 
             $progress->offset += $partLength;
@@ -124,6 +93,29 @@ class ParticleSender {
                     }
                 }
             }
-        }, $particle->getPeriod(), $limit);
+        };
+        $task = new class($closure, $limit) extends Task {
+
+            private \Closure $closure;
+            private int $limit;
+            private int $count;
+
+            public function __construct(\Closure $closure, int $limit) {
+                $this->closure = $closure;
+                $this->limit = $limit;
+                $this->count = 0;
+            }
+
+            public function onRun(): void {
+                $this->count++;
+                ($this->closure)();
+
+                if ($this->count >= $this->limit) {
+                    $this->getHandler()->cancel();
+                }
+            }
+        };
+
+        $this->plugin->getScheduler()->scheduleRepeatingTask($task, $particle->getPeriod());
     }
 }

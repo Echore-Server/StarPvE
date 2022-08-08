@@ -24,12 +24,12 @@ use pocketmine\player\Player;
 
 class PerkIdentitiesForm implements Form {
 
-    public static function generateIdentities(GamePlayer $gamePlayer, int $wave): array {
+    public static function generateIdentities(GamePlayer $gamePlayer): array {
         $playerJob = StarPvE::getInstance()->getJobManager()->getJob($gamePlayer->getPlayer());
         $identities = [
             new AttackPercentageArgIdentity(null, 0.08),
             new ReducePercentageArgIdentity(null, 0.06),
-            new AddMaxHealthArgIdentity(null, 4)
+            new AddMaxHealthArgIdentity(null, 6)
         ];
 
         if ($playerJob instanceof PlayerJob) {
@@ -119,6 +119,7 @@ class PerkIdentitiesForm implements Form {
 
                     if (!$this->internal) {
                         $this->gamePlayer->setPerkAvailable($this->gamePlayer->getPerkAvailable() - 1);
+                        $this->gamePlayer->rollPerkIdentities();
                     }
                     Messanger::talk($player, "特性", "§d{$identity->getName()} §7を習得しました！");
                 };

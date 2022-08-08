@@ -43,6 +43,7 @@ class GamePlayer {
 
         $this->identityGroup = new IdentityGroup();
         $this->perkIdentities = [];
+        $this->rollPerkIdentities();
 
         $this->perkAvailable = 0;
     }
@@ -59,7 +60,7 @@ class GamePlayer {
     }
 
     public function rollPerkIdentities(): void {
-        $this->perkIdentities = PerkIdentitiesForm::generateIdentities($this, $this->game->getWaveController()->getWave());
+        $this->perkIdentities = PerkIdentitiesForm::generateIdentities($this);
     }
 
     public function setPerkAvailable(int $count): void {
@@ -96,6 +97,8 @@ class GamePlayer {
             $class = $job::class;
             StarPvE::getInstance()->getJobManager()->setJob($this->player, $class);
         }
+
+        $this->rollPerkIdentities();
 
         $this->resetEquipment();
     }
