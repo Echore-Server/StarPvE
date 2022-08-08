@@ -274,6 +274,6 @@ final class StarPvE extends PluginBase {
     }
 
     public function log(string $message) {
-        $this->getServer()->getLogger()->info("§c[StarPvE] §7{$message}");
+        $this->getServer()->getLogger()->info("§6[StarPvE] §7{$message}");
     }
 }
