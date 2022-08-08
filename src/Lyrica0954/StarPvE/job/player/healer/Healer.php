@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\job\player\healer;
 
 use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\data\condition\FalseCondition;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
@@ -68,7 +69,7 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener {
     }
 
     public function getSelectableCondition(): ?Condition {
-        return null;
+        return new FalseCondition();
     }
 
     public function onEntityDamage(EntityDamageEvent $event) {

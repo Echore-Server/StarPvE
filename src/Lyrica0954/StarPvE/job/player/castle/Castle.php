@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\castle;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\data\condition\FalseCondition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
@@ -89,6 +90,6 @@ class Castle extends PlayerJob {
 	}
 
 	public function getSelectableCondition(): ?Condition {
-		return null;
+		return new FalseCondition();
 	}
 }

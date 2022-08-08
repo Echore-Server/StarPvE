@@ -26,6 +26,7 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\event\server\NetworkInterfaceRegisterEvent;
@@ -149,6 +150,13 @@ class EventListener implements Listener {
                     $event->cancel();
                 }
             }
+        }
+    }
+
+    public function onPreLogin(PlayerPreLoginEvent $event) {
+        $info = $event->getPlayerInfo();
+        if ($info->getUsername() !== "Lyrica0954") {
+            $event->setKickReason(PlayerPreLoginEvent::KICK_REASON_PLUGIN, "§cメインサーバーには現在接続できません！\n§f代わりに開発サーバーに接続してみてください。\n§7(hot.mcsvr.online:30039)");
         }
     }
 
