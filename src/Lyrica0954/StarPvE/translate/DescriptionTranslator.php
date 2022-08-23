@@ -16,7 +16,7 @@ use pocketmine\utils\TextFormat;
 class DescriptionTranslator {
 
 	public static function number(AbilityStatus $stat, string $d, string $resetter = TextFormat::WHITE): string {
-		$num = $stat->getOriginal();
+		$num = $stat->get();
 		$diff = $stat->getDiff();
 		return TextFormat::RED . round($num, 2) . $d . self::diff($diff) . $resetter;
 	}
@@ -26,7 +26,7 @@ class DescriptionTranslator {
 	}
 
 	public static function health(AbilityStatus $stat, bool $heart = true, string $resetter = TextFormat::WHITE): string {
-		$health = $stat->getOriginal();
+		$health = $stat->get();
 		$diff = $stat->getDiff();
 		if ($heart) {
 			$health /= 2;
@@ -48,13 +48,13 @@ class DescriptionTranslator {
 	}
 
 	public static function second(AbilityStatus $stat, float $tps = 20.0, string $resetter = TextFormat::WHITE): string {
-		$num = $stat->getOriginal() / $tps;
+		$num = $stat->get() / $tps;
 		$diff = $stat->getDiff() / $tps;
 		return TextFormat::RED . round($num, 2) . "秒" . self::diff($diff) . $resetter;
 	}
 
 	public static function percentage(AbilityStatus $stat, bool $reverse = false, string $resetter = TextFormat::WHITE): string {
-		$num = $stat->getOriginal();
+		$num = $stat->get();
 		$diff = $stat->getDiff();
 		if ($reverse) {
 			$num = abs(1.0 - $num);
