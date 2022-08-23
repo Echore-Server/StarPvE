@@ -29,163 +29,164 @@ use pocketmine\Server;
 
 abstract class PlayerJob extends Job {
 
-    protected ?Player $player = null;
+	protected ?Player $player = null;
 
-    protected Ability $ability;
-    protected Skill $skill;
+	protected Ability $ability;
+	protected Skill $skill;
 
-    protected IdentityGroup $identityGroup;
+	protected IdentityGroup $identityGroup;
 
-    protected CooltimeNotifier $cooltimeNotifier;
+	protected CooltimeNotifier $cooltimeNotifier;
 
-    protected ActionListManager $action;
-    protected int $lastActionUpdate;
+	protected ActionListManager $action;
+	protected int $lastActionUpdate;
 
-    protected ?TaskHandler $actionTask;
+	protected ?TaskHandler $actionTask;
 
-    public function __construct(?Player $player = null) {
+	public function __construct(?Player $player = null) {
 
-        if ($player instanceof Player) { #JobManager への登録を簡単にするため
-            $this->player = $player;
+		if ($player instanceof Player) { #JobManager への登録を簡単にするため
+			$this->player = $player;
 
-            $this->log("§dCreated for {$player->getName()}");
+			$this->log("§dCreated for {$player->getName()}");
 
-            if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
-        } else {
-            $this->player = null;
+			if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
+		} else {
+			$this->player = null;
 
-            #$this->log("§dCreated for none");
-        }
-        $this->ability = $this->getInitialAbility();
-        $this->skill = $this->getInitialSkill();
-        $this->identityGroup = $this->getInitialIdentityGroup();
-        foreach ($this->identityGroup->getAll() as $identity) {
-            if ($identity instanceof PlayerArgIdentity) {
-                $identity->setPlayer($player);
-            }
-        }
-        $this->identityGroup->apply();
-        $this->action = new ActionListManager();
-        $this->lastActionUpdate = 0;
-        if ($player instanceof Player) {
-            $this->cooltimeNotifier = new CooltimeNotifier($player);
-            $this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
-            $this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
-            $this->cooltimeNotifier->start();
+			#$this->log("§dCreated for none");
+		}
+		$this->ability = $this->getInitialAbility();
+		$this->skill = $this->getInitialSkill();
+		$this->identityGroup = $this->getInitialIdentityGroup();
+		$this->action = new ActionListManager();
+		$this->lastActionUpdate = 0;
+		if ($player instanceof Player) {
+			foreach ($this->identityGroup->getAll() as $identity) {
+				if ($identity instanceof PlayerArgIdentity) {
+					$identity->setPlayer($player);
+				}
+			}
+			$this->identityGroup->apply();
 
-            $this->actionTask = TaskUtil::repeatingClosure(function () use ($player) {
-                if ($player instanceof Player) {
-                    $changed = $this->action->hasChanged();
-                    $this->action->update(1);
-                    #print_r($this->action->getSorted());
-                    if ($changed || Server::getInstance()->getTick() - $this->lastActionUpdate >= 40) {
-                        $this->lastActionUpdate = Server::getInstance()->getTick();
+			$this->cooltimeNotifier = new CooltimeNotifier($player);
+			$this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
+			$this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
+			$this->cooltimeNotifier->start();
 
-                        $player->sendTip($this->action->getText());
-                    }
+			$this->actionTask = TaskUtil::repeatingClosure(function () use ($player) {
+				if ($player instanceof Player) {
+					$changed = $this->action->hasChanged();
+					$this->action->update(1);
+					#print_r($this->action->getSorted());
+					if ($changed || Server::getInstance()->getTick() - $this->lastActionUpdate >= 40) {
+						$this->lastActionUpdate = Server::getInstance()->getTick();
 
-                    #$player->sendMessage($this->action->hasChanged() ? "true" : "false");
-                }
-            }, 1);
-        }
-    }
+						$player->sendTip($this->action->getText());
+					}
 
-    public function close() {
-        $this->ability->close();
-        $this->skill->close();
-        $this->cooltimeNotifier->stop();
+					#$player->sendMessage($this->action->hasChanged() ? "true" : "false");
+				}
+			}, 1);
+		}
+	}
 
-        $this->identityGroup->reset();
+	public function close() {
+		$this->ability->close();
+		$this->skill->close();
+		$this->cooltimeNotifier->stop();
 
-        $this->identityGroup->close();
+		$this->identityGroup->reset();
 
-        $this->player = null;
-        $this->actionTask?->cancel();
-        $this->log("§dClosed");
+		$this->identityGroup->close();
 
-        if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
-    }
+		$this->player = null;
+		$this->actionTask?->cancel();
+		$this->log("§dClosed");
 
-    public function onItemUse(Item $item) {
-        if ($item->getId() === ItemIds::BOOK) {
-            $activated = null;
-            if ($this->player->isSneaking()) {
-                $result = $this->skill->activate();
-                $activated = $this->skill;
-            } else {
-                $result = $this->ability->activate();
-                $activated = $this->ability;
-            }
+		if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
+	}
 
-            $name = $activated->getCooltimeHandler()->getId();
-            #$this->log("Activated {$name}");
-            if ($result->isFailedByCooltime()) {
-                $this->action->push(new LineOption("§c現在{$name}はクールタイム中です！"));
-            } elseif ($result->isFailedAlreadyActive()) {
-                $this->action->push(new LineOption("§c{$name}は既にアクティブです！"));
-            } elseif ($result->isSucceeded()) {
-                $this->action->push(new LineOption("§a{$name}を発動しました！"));
-            } elseif ($result->isFailed()) {
-                $this->action->push(new LineOption("§c{$name}を発動できません！"));
-            } elseif ($result->isAbandoned()) {
-                #bomb!
-            }
-        }
-    }
+	public function onItemUse(Item $item) {
+		if ($item->getId() === ItemIds::BOOK) {
+			$activated = null;
+			if ($this->player->isSneaking()) {
+				$result = $this->skill->activate();
+				$activated = $this->skill;
+			} else {
+				$result = $this->ability->activate();
+				$activated = $this->ability;
+			}
 
-    public function getPlayer(): ?Player {
-        return $this->player;
-    }
+			$name = $activated->getCooltimeHandler()->getId();
+			#$this->log("Activated {$name}");
+			if ($result->isFailedByCooltime()) {
+				$this->action->push(new LineOption("§c現在{$name}はクールタイム中です！"));
+			} elseif ($result->isFailedAlreadyActive()) {
+				$this->action->push(new LineOption("§c{$name}は既にアクティブです！"));
+			} elseif ($result->isSucceeded()) {
+				$this->action->push(new LineOption("§a{$name}を発動しました！"));
+			} elseif ($result->isFailed()) {
+				$this->action->push(new LineOption("§c{$name}を発動できません！"));
+			} elseif ($result->isAbandoned()) {
+				#bomb!
+			}
+		}
+	}
 
-    public function getCooltimeNotifier(): CooltimeNotifier {
-        return $this->cooltimeNotifier;
-    }
+	public function getPlayer(): ?Player {
+		return $this->player;
+	}
 
-    public function getActionListManager(): ActionListManager {
-        return $this->action;
-    }
+	public function getCooltimeNotifier(): CooltimeNotifier {
+		return $this->cooltimeNotifier;
+	}
 
-    public function getAbility(): Ability {
-        return $this->ability;
-    }
+	public function getActionListManager(): ActionListManager {
+		return $this->action;
+	}
 
-    public function getSkill(): Skill {
-        return $this->skill;
-    }
+	public function getAbility(): Ability {
+		return $this->ability;
+	}
 
-    public function setAbility(Ability $ability): void {
-        $this->cooltimeNotifier->removeCooltimeHandler($this->ability->getCooltimeHandler());
-        $this->ability->close();
-        $this->ability = $ability;
-        $this->cooltimeNotifier->addCooltimeHandler($ability->getCooltimeHandler());
-    }
+	public function getSkill(): Skill {
+		return $this->skill;
+	}
 
-    public function setSkill(Skill $skill): void {
-        $this->cooltimeNotifier->removeCooltimeHandler($this->skill->getCooltimeHandler());
-        $this->skill->close();
-        $this->skill = $skill;
-        $this->cooltimeNotifier->addCooltimeHandler($skill->getCooltimeHandler());
-    }
+	public function setAbility(Ability $ability): void {
+		$this->cooltimeNotifier->removeCooltimeHandler($this->ability->getCooltimeHandler());
+		$this->ability->close();
+		$this->ability = $ability;
+		$this->cooltimeNotifier->addCooltimeHandler($ability->getCooltimeHandler());
+	}
 
-    public function getIdentityGroup(): IdentityGroup {
-        return $this->identityGroup;
-    }
+	public function setSkill(Skill $skill): void {
+		$this->cooltimeNotifier->removeCooltimeHandler($this->skill->getCooltimeHandler());
+		$this->skill->close();
+		$this->skill = $skill;
+		$this->cooltimeNotifier->addCooltimeHandler($skill->getCooltimeHandler());
+	}
 
-    abstract protected function getInitialAbility(): Ability;
+	public function getIdentityGroup(): IdentityGroup {
+		return $this->identityGroup;
+	}
 
-    abstract protected function getInitialSkill(): Skill;
+	abstract protected function getInitialAbility(): Ability;
 
-    abstract protected function getInitialIdentityGroup(): IdentityGroup;
+	abstract protected function getInitialSkill(): Skill;
 
-    public function canActivateAbility(): bool {
-        return !$this->ability->getCooltimeHandler()->isActive();
-    }
+	abstract protected function getInitialIdentityGroup(): IdentityGroup;
 
-    public function canActivateSkill(): bool {
-        return !$this->skill->getCooltimeHandler()->isActive();
-    }
+	public function canActivateAbility(): bool {
+		return !$this->ability->getCooltimeHandler()->isActive();
+	}
 
-    public function log(string $message) {
-        StarPvE::getInstance()->log("§7[PlayerJob - {$this->getName()}] {$message}");
-    }
+	public function canActivateSkill(): bool {
+		return !$this->skill->getCooltimeHandler()->isActive();
+	}
+
+	public function log(string $message) {
+		StarPvE::getInstance()->log("§7[PlayerJob - {$this->getName()}] {$message}");
+	}
 }

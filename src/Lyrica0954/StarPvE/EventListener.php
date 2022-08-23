@@ -168,7 +168,7 @@ class EventListener implements Listener {
         #$pk = ChunkRadiusUpdatedPacket::create(10000);
         #$player->getNetworkSession()->sendDataPacket($pk);
 
-        $player->sendTitle("§eStar PvE", "");
+        $player->sendTitle("§eStar PvE", "§6Development Server");
         PlayerUtil::reset($player);
         PlayerUtil::teleportToLobby($player);
         $player->setGamemode(GameMode::fromString("2"));
