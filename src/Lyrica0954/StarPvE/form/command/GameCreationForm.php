@@ -19,45 +19,45 @@ use pocketmine\Server;
 
 class GameCreationForm implements Form {
 
-    public function __construct() {
-    }
+	public function __construct() {
+	}
 
-    public function jsonSerialize(): mixed {
+	public function jsonSerialize(): mixed {
 
-        $contents = [];
+		$contents = [];
 
-        $stageNames = array_keys(StageFactory::getInstance()->getList());
+		$stageNames = array_keys(StageFactory::getInstance()->getList());
 
-        $contents[] = FormUtil::input("ゲームID (windowsで予約されているものは使用しないでください)", "デフォルト: ランダム");
-        $contents[] = FormUtil::dropdown("ステージ", $stageNames);
-        $contents[] = FormUtil::slider("ゲームの最大参加人数", 1, 32, 1, 6);
+		$contents[] = FormUtil::input("ゲームID (windowsで予約されているものは使用しないでください)", "デフォルト: ランダム");
+		$contents[] = FormUtil::dropdown("ステージ", $stageNames);
+		$contents[] = FormUtil::slider("ゲームの最大参加人数", 1, 32, 1, 6);
 
-        return [
-            "type" => "custom_form",
-            "title" => "ゲームサービス >> ゲームの作成",
-            "content" => $contents,
-        ];
-    }
+		return [
+			"type" => "custom_form",
+			"title" => "ゲームサービス >> ゲームの作成",
+			"content" => $contents,
+		];
+	}
 
-    public function handleResponse(Player $player, $data): void {
-        if ($data !== null) {
-            $gameId = (string) $data[0];
-            $stageNameIndex = (string) $data[1];
-            $stageNames = array_keys(StageFactory::getInstance()->getList());
-            $stageName = $stageNames[$stageNameIndex] ?? null;
-            if ($stageName === null) {
-                Messanger::error($player, "Invalid Stage Index", Messanger::getIdFromObject($this, "handleResponse"));
-                return;
-            }
-            $maxPlayers = (int) $data[2];
+	public function handleResponse(Player $player, $data): void {
+		if ($data !== null) {
+			$gameId = (string) $data[0];
+			$stageNameIndex = (string) $data[1];
+			$stageNames = array_keys(StageFactory::getInstance()->getList());
+			$stageName = $stageNames[$stageNameIndex] ?? null;
+			if ($stageName === null) {
+				Messanger::error($player, "Invalid Stage Index", Messanger::getIdFromObject($this, "handleResponse"));
+				return;
+			}
+			$maxPlayers = (int) $data[2];
 
-            if ($gameId === null || $gameId === "") {
-                $gameId = GameCreationOption::genId(10);
-            }
-            #print_r($data);
-            $option = new GameCreationOption($gameId, $stageName, new GameOption($maxPlayers));
-            StarPvE::getInstance()->getGameManager()->createNewGame($option);
-            $player->sendMessage("§aゲームを作成しました！");
-        }
-    }
+			if ($gameId === null || $gameId === "") {
+				$gameId = GameCreationOption::genId(10);
+			}
+			#print_r($data);
+			$option = new GameCreationOption($gameId, $stageName, new GameOption($maxPlayers));
+			StarPvE::getInstance()->getGameManager()->createNewGame($option);
+			$player->sendMessage("§aゲームを作成しました！");
+		}
+	}
 }

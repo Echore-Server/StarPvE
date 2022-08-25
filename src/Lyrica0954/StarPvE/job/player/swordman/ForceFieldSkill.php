@@ -28,47 +28,52 @@ use pocketmine\world\particle\ExplodeParticle;
 
 class ForceFieldSkill extends Skill {
 
-    public function getCooltime(): int {
-        return (18 * 20);
-    }
+	public function getCooltime(): int {
+		return (18 * 20);
+	}
 
-    public function getName(): String {
-        return "フォースフィールド";
-    }
+	public function getName(): String {
+		return "フォースフィールド";
+	}
 
-    public function getDescription(): String {
-        $area = DescriptionTranslator::number($this->area, "m");
-        $damage = DescriptionTranslator::health($this->damage);
-        return
-            sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。', $area, $damage);
-    }
+	public function getDescription(): String {
+		$area = DescriptionTranslator::number($this->area, "m");
+		$damage = DescriptionTranslator::health($this->damage);
+		$percentage = DescriptionTranslator::percentage($this->percentage, true);
+		return
+			sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。(ノックバック §c+%3$s)', $area, $damage, $percentage);
+	}
 
-    protected function init(): void {
-        $this->damage = new AbilityStatus(6.0);
-        $this->area = new AbilityStatus(8.0);
-    }
+	protected function init(): void {
+		$this->damage = new AbilityStatus(6.0);
+		$this->area = new AbilityStatus(8.0);
+		$this->percentage = new AbilityStatus(1.0);
+	}
 
-    protected function onActivate(): ActionResult {
-        $particle = new SphereParticle($this->area->get(), 8.5, 8.5);
-        ParticleUtil::send($particle, $this->player->getWorld()->getPlayers(), $this->player->getPosition(), ParticleOption::spawnPacket("minecraft:basic_flame_particle", ""));
+	protected function onActivate(): ActionResult {
+		$particle = new SphereParticle($this->area->get(), 8.5, 8.5);
+		ParticleUtil::send($particle, $this->player->getWorld()->getPlayers(), $this->player->getPosition(), ParticleOption::spawnPacket("minecraft:basic_flame_particle", ""));
 
-        PlayerUtil::broadcastSound($this->player->getPosition(), "block.false_permissions", 0.5);
+		PlayerUtil::broadcastSound($this->player->getPosition(), "block.false_permissions", 0.5);
 
-        foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
-            if (MonsterData::isMonster($entity)) {
-                $xz = 5.0;
-                $y = 2.0;
-                if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-                    $xz = 0.75;
-                    $y = 0.8;
-                }
+		foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
+			if (MonsterData::isMonster($entity)) {
+				$xz = 5.0;
+				$y = 2.0;
+				if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
+					$xz = 0.75;
+					$y = 0.8;
+				}
 
-                $source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->damage->get());
+				$xz *= $this->percentage->get();
+				$y *= $this->percentage->get();
 
-                EntityUtil::attackEntity($source, $xz, $y);
-            }
-        }
+				$source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->damage->get());
 
-        return ActionResult::SUCCEEDED();
-    }
+				EntityUtil::attackEntity($source, $xz, $y);
+			}
+		}
+
+		return ActionResult::SUCCEEDED();
+	}
 }

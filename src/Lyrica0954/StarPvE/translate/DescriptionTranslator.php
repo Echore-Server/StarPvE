@@ -53,13 +53,15 @@ class DescriptionTranslator {
 		return TextFormat::RED . round($num, 2) . "秒" . self::diff($diff) . $resetter;
 	}
 
-	public static function percentage(AbilityStatus $stat, bool $reverse = false, string $resetter = TextFormat::WHITE): string {
+	public static function percentage(AbilityStatus $stat, bool $reverse = false, float $final = 0.0, string $resetter = TextFormat::WHITE): string {
 		$num = $stat->get();
 		$diff = $stat->getDiff();
 		if ($reverse) {
 			$num = abs(1.0 - $num);
 			$diff = -$diff;
 		}
+
+		$num += $final;
 		return TextFormat::RED . round($num * 100, 1) . "%%" . self::diff($diff * 100, 1) . $resetter;
 	}
 

@@ -11,18 +11,18 @@ use pocketmine\command\CommandSender;
 
 final class HubCommand extends PluginCommandNoAuth {
 
-    public function canRunBy(): int {
-        return self::PLAYER;
-    }
+	public function canRunBy(): int {
+		return self::PLAYER;
+	}
 
 
-    protected function run(CommandSender $sender, array $args): void {
-        $gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($sender);
-        if ($gamePlayer instanceof GamePlayer) {
-            PlayerUtil::flee($sender);
-            $gamePlayer->leaveGame();
-        } else {
-            $sender->sendMessage("§cエラー: hubコマンドを実行できませんでした (error code: gameplayer)");
-        }
-    }
+	protected function run(CommandSender $sender, array $args): void {
+		$gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($sender);
+		if ($gamePlayer instanceof GamePlayer) {
+			PlayerUtil::flee($sender);
+			$gamePlayer->leaveGame();
+		} else {
+			$sender->sendMessage("§cエラー: hubコマンドを実行できませんでした (error code: gameplayer)");
+		}
+	}
 }

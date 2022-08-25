@@ -12,22 +12,22 @@ use pocketmine\player\Player;
 
 class JobLevelCondition implements Condition {
 
-    public int $min;
+	public int $min;
 
-    public string $jobName;
+	public string $jobName;
 
-    public function __construct(int $min, string $jobName) {
-        $this->min = $min;
-        $this->jobName = $jobName;
-    }
+	public function __construct(int $min, string $jobName) {
+		$this->min = $min;
+		$this->jobName = $jobName;
+	}
 
-    public function check(Player $player): bool {
-        $adapter = JobConfigAdapter::fetch($player, $this->jobName);
-        $level = $adapter?->getConfig()->get(JobConfigAdapter::LEVEL, null) ?? 0;
-        return $level >= $this->min;
-    }
+	public function check(Player $player): bool {
+		$adapter = JobConfigAdapter::fetch($player, $this->jobName);
+		$level = $adapter?->getConfig()->get(JobConfigAdapter::LEVEL, null) ?? 0;
+		return $level >= $this->min;
+	}
 
-    public function asText(): string {
-        return "{$this->jobName} の職業レベル {$this->min} 以上";
-    }
+	public function asText(): string {
+		return "{$this->jobName} の職業レベル {$this->min} 以上";
+	}
 }

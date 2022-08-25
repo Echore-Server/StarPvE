@@ -8,13 +8,13 @@ use Lyrica0954\StarPvE\game\Game;
 
 class CustomWaveStart {
 
-    private ?\Closure $closure;
+	private ?\Closure $closure;
 
-    public function __construct(?\Closure $closure = null) {
-        $this->closure = $closure;
-    }
+	public function __construct(?\Closure $closure = null) {
+		$this->closure = $closure;
+	}
 
-    public function getClosure(): ?\Closure {
-        return $this->closure;
-    }
+	public function getClosure(): ?\Closure {
+		return $this->closure;
+	}
 }

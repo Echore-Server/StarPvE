@@ -12,14 +12,14 @@ use pocketmine\player\Player;
 
 class FalseCondition implements Condition {
 
-    public function __construct() {
-    }
+	public function __construct() {
+	}
 
-    public function check(Player $player): bool {
-        return false;
-    }
+	public function check(Player $player): bool {
+		return false;
+	}
 
-    public function asText(): string {
-        return "選択/有効不可";
-    }
+	public function asText(): string {
+		return "選択/有効不可";
+	}
 }

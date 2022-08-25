@@ -76,7 +76,7 @@ class DeathPulseSkill extends Skill {
 
 			$max = ($std->size + $step);
 			$min = ($std->size - $step);
-			foreach (EntityUtil::getWithin($pos, $min, $max) as $entity) {
+			foreach (EntityUtil::getWithinPlane($pos, $min, $max) as $entity) {
 				if (MonsterData::isMonster($entity)) {
 					EntityUtil::immobile($entity, (int) $this->duration->get());
 				}

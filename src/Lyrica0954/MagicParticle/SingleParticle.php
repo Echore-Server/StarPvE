@@ -9,10 +9,10 @@ use pocketmine\world\Position;
 
 class SingleParticle extends SendableParticle {
 
-    public function __construct() {
-    }
+	public function __construct() {
+	}
 
-    public function draw(Position $pos): array {
-        return [$pos];
-    }
+	public function draw(Position $pos): array {
+		return [$pos];
+	}
 }

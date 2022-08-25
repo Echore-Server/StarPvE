@@ -10,10 +10,10 @@ use pocketmine\player\Player;
 
 final class SettingVariables {
 
-    public static function fetch(Player $player): ?PlayerConfigAdapter {
-        return PlayerDataCenter::getInstance()?->get($player)?->getSetting();
-    }
+	public static function fetch(Player $player): ?PlayerConfigAdapter {
+		return PlayerDataCenter::getInstance()?->get($player)?->getSetting();
+	}
 
-    const PARTICLE_PER_TICK = "ParticlePerTick";
-    const DEBUG_DAMAGE = "DebugDamage";
+	const PARTICLE_PER_TICK = "ParticlePerTick";
+	const DEBUG_DAMAGE = "DebugDamage";
 }

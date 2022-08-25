@@ -9,15 +9,15 @@ use Lyrica0954\StarPvE\identity\player\SpeedPercentageArgIdentity;
 
 class SpeedBottleArtifact extends ArtifactItem {
 
-    public function getName(): string {
-        return "スピード瓶";
-    }
+	public function getName(): string {
+		return "スピード瓶";
+	}
 
-    public function getDescription(): string {
-        return "スピードが上昇する";
-    }
+	public function getDescription(): string {
+		return "スピードが上昇する";
+	}
 
-    protected function init(): void {
-        $this->identityGroup->add(new SpeedPercentageArgIdentity(null, 1.05));
-    }
+	protected function init(): void {
+		$this->identityGroup->add(new SpeedPercentageArgIdentity(null, 1.05));
+	}
 }

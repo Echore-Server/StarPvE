@@ -29,39 +29,39 @@ use pocketmine\world\particle\ExplodeParticle;
 
 class PowerBoostSkill extends Skill {
 
-    protected EffectInstance $effect;
+	protected EffectInstance $effect;
 
-    public function getCooltime(): int {
-        return (80 * 20);
-    }
+	public function getCooltime(): int {
+		return (80 * 20);
+	}
 
-    public function getName(): String {
-        return "パワーブースト";
-    }
+	public function getName(): String {
+		return "パワーブースト";
+	}
 
-    public function getDescription(): String {
-        $duration = DescriptionTranslator::second($this->duration);
-        $effect = DescriptionTranslator::effect($this->effect);
-        return
-            sprintf('§b効果時間:§f %1$s
+	public function getDescription(): String {
+		$duration = DescriptionTranslator::second($this->duration);
+		$effect = DescriptionTranslator::effect($this->effect);
+		return
+			sprintf('§b効果時間:§f %1$s
 §b発動時:§f 花火が発射される音とともに、%2$s が付与される。
 さらに発動中はアビリティのクールタイムが §c0.35秒§f にスピードアップする。', $duration, $effect);
-    }
+	}
 
-    protected function init(): void {
-        $this->duration = new AbilityStatus(12 * 20);
-        $this->effect = new EffectInstance(VanillaEffects::SPEED(), 12 * 20, 1);
-    }
+	protected function init(): void {
+		$this->duration = new AbilityStatus(12 * 20);
+		$this->effect = new EffectInstance(VanillaEffects::SPEED(), 12 * 20, 1);
+	}
 
-    protected function onActivate(): ActionResult {
-        PlayerUtil::playSound($this->player, "firework.launch");
-        $this->player->getEffects()->add(clone $this->effect);
-        $this->active = true;
-        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
-            PlayerUtil::playSound($this->player, "random.fizz", 0.5);
-            $this->active = false;
-        }), (int) $this->duration->get());
+	protected function onActivate(): ActionResult {
+		PlayerUtil::playSound($this->player, "firework.launch");
+		$this->player->getEffects()->add(clone $this->effect);
+		$this->active = true;
+		StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
+			PlayerUtil::playSound($this->player, "random.fizz", 0.5);
+			$this->active = false;
+		}), (int) $this->duration->get());
 
-        return ActionResult::SUCCEEDED();
-    }
+		return ActionResult::SUCCEEDED();
+	}
 }

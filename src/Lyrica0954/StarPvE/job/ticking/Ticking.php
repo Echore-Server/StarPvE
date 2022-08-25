@@ -6,5 +6,5 @@ namespace Lyrica0954\StarPvE\job\ticking;
 
 interface Ticking {
 
-    public function onTick(string $id, int $tick): void;
+	public function onTick(string $id, int $tick): void;
 }

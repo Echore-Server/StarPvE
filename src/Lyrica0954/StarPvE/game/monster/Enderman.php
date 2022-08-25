@@ -37,182 +37,182 @@ use pocketmine\Server;
 
 
 class Enderman extends FightingEntity implements Hostile, Listener {
-    use HealthBarEntity;
+	use HealthBarEntity;
 
-    protected ?Player $holding = null;
+	protected ?Player $holding = null;
 
-    protected int $holdDamageTick = 0;
-    protected int $holdTick = 0;
+	protected int $holdDamageTick = 0;
+	protected int $holdTick = 0;
 
-    protected int $holdRemain = 1;
+	protected int $holdRemain = 1;
 
-    public static function getNetworkTypeId(): string {
-        return EntityIds::ENDERMAN;
-    }
+	public static function getNetworkTypeId(): string {
+		return EntityIds::ENDERMAN;
+	}
 
-    protected float $reach = 1.5;
+	protected float $reach = 1.5;
 
-    public function getFollowRange(): float {
-        return 50;
-    }
+	public function getFollowRange(): float {
+		return 50;
+	}
 
-    public function getName(): string {
-        return "Enderman";
-    }
+	public function getName(): string {
+		return "Enderman";
+	}
 
-    public function getHolding(): ?Player {
-        return $this->holding;
-    }
+	public function getHolding(): ?Player {
+		return $this->holding;
+	}
 
-    protected function getInitialSizeInfo(): EntitySizeInfo {
-        return new EntitySizeInfo(2.9, 0.6);
-    }
+	protected function getInitialSizeInfo(): EntitySizeInfo {
+		return new EntitySizeInfo(2.9, 0.6);
+	}
 
-    protected function getInitialFightStyle(): Style {
-        return new MeleeStyle($this);
-    }
+	protected function getInitialFightStyle(): Style {
+		return new MeleeStyle($this);
+	}
 
-    public function getAddtionalAttackCooldown(): int {
-        return 14;
-    }
+	public function getAddtionalAttackCooldown(): int {
+		return 14;
+	}
 
-    public function onPlayerDeath(PlayerDeathOnGameEvent $event) {
-        $player = $event->getPlayer();
+	public function onPlayerDeath(PlayerDeathOnGameEvent $event) {
+		$player = $event->getPlayer();
 
-        if ($player === $this->holding) {
-            $this->release();
-        }
-    }
+		if ($player === $this->holding) {
+			$this->release();
+		}
+	}
 
-    protected function onTick(int $currentTick, int $tickDiff = 1): void {
-        if ($this->holding !== null) {
-            #$this->motion = new Vector3(0, 0, 0);
-            $this->holdDamageTick += $tickDiff;
-            $this->holdTick += $tickDiff;
-            if ($this->holdTick >= (15 * 20)) {
-                $this->release();
-                return;
-            }
-            if ($this->holdDamageTick >= 20) {
-                $effect = new SaturatedLineworkEffect(3, 2, 1, 6);
-                ParticleUtil::send($effect, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->holding->getPosition(), 0, 1.0, 0), ParticleOption::spawnPacket("minecraft:villager_angry", ""));
-                $this->holdDamageTick = 0;
-                PlayerUtil::broadcastSound($this->holding, "mob.irongolem.crack", 0.8, 1.0);
-                $source = new EntityDamageEvent($this->holding, EntityDamageEvent::CAUSE_MAGIC, $this->getAttackDamage());
-                $source->setAttackCooldown(0);
-                $this->holding->attack($source);
-            }
-        } else {
-            $this->holdDamageTick = 0;
-            $this->holdTick = 0;
-        }
-    }
+	protected function onTick(int $currentTick, int $tickDiff = 1): void {
+		if ($this->holding !== null) {
+			#$this->motion = new Vector3(0, 0, 0);
+			$this->holdDamageTick += $tickDiff;
+			$this->holdTick += $tickDiff;
+			if ($this->holdTick >= (15 * 20)) {
+				$this->release();
+				return;
+			}
+			if ($this->holdDamageTick >= 20) {
+				$effect = new SaturatedLineworkEffect(3, 2, 1, 6);
+				ParticleUtil::send($effect, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->holding->getPosition(), 0, 1.0, 0), ParticleOption::spawnPacket("minecraft:villager_angry", ""));
+				$this->holdDamageTick = 0;
+				PlayerUtil::broadcastSound($this->holding, "mob.irongolem.crack", 0.8, 1.0);
+				$source = new EntityDamageEvent($this->holding, EntityDamageEvent::CAUSE_MAGIC, $this->getAttackDamage());
+				$source->setAttackCooldown(0);
+				$this->holding->attack($source);
+			}
+		} else {
+			$this->holdDamageTick = 0;
+			$this->holdTick = 0;
+		}
+	}
 
-    public function hitEntity(Entity $entity, float $range): void {
-        parent::hitEntity($entity, $range);
+	public function hitEntity(Entity $entity, float $range): void {
+		parent::hitEntity($entity, $range);
 
-        if ($entity instanceof Player) {
-            PlayerUtil::playSound($entity, "mob.endermen.scream", 1.0, 0.6);
+		if ($entity instanceof Player) {
+			PlayerUtil::playSound($entity, "mob.endermen.scream", 1.0, 0.6);
 
-            $this->hold($entity);
-        }
-    }
+			$this->hold($entity);
+		}
+	}
 
-    public function attackEntity(Entity $entity, float $range): bool {
-        if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
-            $this->broadcastAnimation(new ArmSwingAnimation($this));
-            if ($this->holdRemain <= 0) {
-                $source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
-                $entity->attack($source);
-                $this->attackCooldown = $source->getAttackCooldown() + $this->getAddtionalAttackCooldown();
-            } else {
-                $this->hitEntity($entity, $range);
-                $this->attackCooldown = $this->getAddtionalAttackCooldown();
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
+	public function attackEntity(Entity $entity, float $range): bool {
+		if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
+			$this->broadcastAnimation(new ArmSwingAnimation($this));
+			if ($this->holdRemain <= 0) {
+				$source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
+				$entity->attack($source);
+				$this->attackCooldown = $source->getAttackCooldown() + $this->getAddtionalAttackCooldown();
+			} else {
+				$this->hitEntity($entity, $range);
+				$this->attackCooldown = $this->getAddtionalAttackCooldown();
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    /**
-     * @param EntityDamageEvent $source
-     * 
-     * @return void
-     * 
-     * @notHandler
-     */
-    public function attack(EntityDamageEvent $source): void {
-        parent::attack($source);
+	/**
+	 * @param EntityDamageEvent $source
+	 * 
+	 * @return void
+	 * 
+	 * @notHandler
+	 */
+	public function attack(EntityDamageEvent $source): void {
+		parent::attack($source);
 
-        $revenge = false;
-        if ($source instanceof EntityDamageByEntityEvent) {
-            if ($this->holding !== null) {
-                if ($source->getDamager() === $this->holding) {
-                    $revenge = true;
-                }
+		$revenge = false;
+		if ($source instanceof EntityDamageByEntityEvent) {
+			if ($this->holding !== null) {
+				if ($source->getDamager() === $this->holding) {
+					$revenge = true;
+				}
 
-                $source->setKnockBack(0);
-            }
-        }
+				$source->setKnockBack(0);
+			}
+		}
 
-        if (!$source->isCancelled() && !$revenge) {
-            $this->release();
-        }
-    }
+		if (!$source->isCancelled() && !$revenge) {
+			$this->release();
+		}
+	}
 
-    public function onMotion(EntityMotionEvent $event) {
-        $entity = $event->getEntity();
-        if ($entity === $this) {
-            $event->cancel();
-        }
-    }
+	public function onMotion(EntityMotionEvent $event) {
+		$entity = $event->getEntity();
+		if ($entity === $this) {
+			$event->cancel();
+		}
+	}
 
-    public function release(): void {
-        if ($this->holding !== null) {
-            $this->holding->setImmobile(false);
-            $this->setImmobile(false);
-        }
+	public function release(): void {
+		if ($this->holding !== null) {
+			$this->holding->setImmobile(false);
+			$this->setImmobile(false);
+		}
 
-        $this->holding = null;
-    }
+		$this->holding = null;
+	}
 
-    public function hold(Player $player): void {
-        if ($this->holdRemain <= 0) {
-            return;
-        }
-        $this->holdRemain--;
-        $this->holding = $player;
-        $this->setImmobile(true);
+	public function hold(Player $player): void {
+		if ($this->holdRemain <= 0) {
+			return;
+		}
+		$this->holdRemain--;
+		$this->holding = $player;
+		$this->setImmobile(true);
 
-        $player->setImmobile(true);
+		$player->setImmobile(true);
 
-        $pos = $this->getPosition();
-        $dir = $this->getDirectionPlane();
-        $holdPos = $pos->addVector(new Vector3($dir->x, 1.5, $dir->y));
-        $player->teleport($holdPos);
-    }
+		$pos = $this->getPosition();
+		$dir = $this->getDirectionPlane();
+		$holdPos = $pos->addVector(new Vector3($dir->x, 1.5, $dir->y));
+		$player->teleport($holdPos);
+	}
 
-    protected function onDispose(): void {
-        parent::onDispose();
+	protected function onDispose(): void {
+		parent::onDispose();
 
-        HandlerListManager::global()->unregisterAll($this);
-    }
+		HandlerListManager::global()->unregisterAll($this);
+	}
 
-    protected function onDeath(): void {
-        parent::onDeath();
+	protected function onDeath(): void {
+		parent::onDeath();
 
-        $this->release();
-    }
+		$this->release();
+	}
 
-    protected function initEntity(CompoundTag $nbt): void {
-        parent::initEntity($nbt);
+	protected function initEntity(CompoundTag $nbt): void {
+		parent::initEntity($nbt);
 
-        $game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($this->getWorld());
-        if ($game !== null) {
-            $this->teleport($game->getCenterPosition());
-        }
+		$game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($this->getWorld());
+		if ($game !== null) {
+			$this->teleport($game->getCenterPosition());
+		}
 
-        Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
-    }
+		Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
+	}
 }

@@ -10,26 +10,26 @@ use pocketmine\player\Player;
 
 class ItemContent extends ShopContent {
 
-    private Item $item;
-    private Item $costItem;
+	private Item $item;
+	private Item $costItem;
 
-    public function __construct(string $name, Item $item, Item $costItem) {
-        $this->item = $item;
-        $this->costItem = $costItem;
+	public function __construct(string $name, Item $item, Item $costItem) {
+		$this->item = $item;
+		$this->costItem = $costItem;
 
-        parent::__construct($name);
-    }
+		parent::__construct($name);
+	}
 
-    public function getCost(Player $player): ?Item {
-        return clone $this->costItem;
-    }
+	public function getCost(Player $player): ?Item {
+		return clone $this->costItem;
+	}
 
-    protected function onBought(Player $player): bool {
-        $item = clone $this->item;
-        if ($player->getInventory()->canAddItem($item)) {
-            $player->getInventory()->addItem($item);
-            return true;
-        }
-        return false;
-    }
+	protected function onBought(Player $player): bool {
+		$item = clone $this->item;
+		if ($player->getInventory()->canAddItem($item)) {
+			$player->getInventory()->addItem($item);
+			return true;
+		}
+		return false;
+	}
 }

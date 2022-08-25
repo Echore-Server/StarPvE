@@ -11,18 +11,18 @@ use pocketmine\player\Player;
 
 class LevelCondition implements Condition {
 
-    public int $min;
+	public int $min;
 
-    public function __construct(int $min) {
-        $this->min = $min;
-    }
+	public function __construct(int $min) {
+		$this->min = $min;
+	}
 
-    public function check(Player $player): bool {
-        $level = GenericConfigAdapter::fetch($player)?->getConfig()->get(GenericConfigAdapter::LEVEL, null) ?? 0;
-        return $level >= $this->min;
-    }
+	public function check(Player $player): bool {
+		$level = GenericConfigAdapter::fetch($player)?->getConfig()->get(GenericConfigAdapter::LEVEL, null) ?? 0;
+		return $level >= $this->min;
+	}
 
-    public function asText(): string {
-        return "プレイヤーレベル {$this->min} 以上";
-    }
+	public function asText(): string {
+		return "プレイヤーレベル {$this->min} 以上";
+	}
 }

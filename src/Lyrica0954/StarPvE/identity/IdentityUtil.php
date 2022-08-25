@@ -10,15 +10,15 @@ use pocketmine\player\Player;
 
 class IdentityUtil {
 
-    public static function playerArg(Identity $identity, Player $player): Identity {
-        if ($identity instanceof PlayerArgIdentity) {
-            $identity->setPlayer($player);
-        }
+	public static function playerArg(Identity $identity, Player $player): Identity {
+		if ($identity instanceof PlayerArgIdentity) {
+			$identity->setPlayer($player);
+		}
 
-        return $identity;
-    }
+		return $identity;
+	}
 
-    public static function argAdd(IdentityGroup $identityGroup, Identity $identity, Player $player) {
-        $identityGroup->add(self::playerArg($identity, $player));
-    }
+	public static function argAdd(IdentityGroup $identityGroup, Identity $identity, Player $player) {
+		$identityGroup->add(self::playerArg($identity, $player));
+	}
 }

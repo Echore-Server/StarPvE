@@ -14,19 +14,19 @@ use pocketmine\world\Position;
 
 class ParticleUtil {
 
-    public static function send(PartDelayedParticle|PartDelayedEffect|SendableParticle|ParticleEffect $particle, array $players, ?Position $pos = null, ParticleOption $option) {
-        $sender = StarPvE::getInstance()->getParticleHost()->getSender();
+	public static function send(PartDelayedParticle|PartDelayedEffect|SendableParticle|ParticleEffect $particle, array $players, ?Position $pos = null, ParticleOption $option) {
+		$sender = StarPvE::getInstance()->getParticleHost()->getSender();
 
-        if (!$particle instanceof PartDelayedParticle && $pos === null) {
-            throw new \Exception("pos null not allowed");
-        }
+		if (!$particle instanceof PartDelayedParticle && $pos === null) {
+			throw new \Exception("pos null not allowed");
+		}
 
-        if ($particle instanceof ParticleEffect) { #PartDelayedEffect, ParticleEffect
-            $sender->sendEffect($particle, $players, $pos, $option);
-        } elseif ($particle instanceof PartDelayedParticle) {
-            $sender->sendPartDelayed($particle, $players, $option);
-        } elseif ($particle instanceof SendableParticle) {
-            $sender->sendParticle($particle, $players, $pos, $option);
-        }
-    }
+		if ($particle instanceof ParticleEffect) { #PartDelayedEffect, ParticleEffect
+			$sender->sendEffect($particle, $players, $pos, $option);
+		} elseif ($particle instanceof PartDelayedParticle) {
+			$sender->sendPartDelayed($particle, $players, $option);
+		} elseif ($particle instanceof SendableParticle) {
+			$sender->sendParticle($particle, $players, $pos, $option);
+		}
+	}
 }

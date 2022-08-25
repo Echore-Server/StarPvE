@@ -16,6 +16,7 @@ use Lyrica0954\StarPvE\job\cooltime\CooltimeNotifier;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\JobIdentityGroup;
 use Lyrica0954\StarPvE\job\LineOption;
+use Lyrica0954\StarPvE\job\Spell;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\Skin;
@@ -33,6 +34,11 @@ abstract class PlayerJob extends Job {
 
 	protected Ability $ability;
 	protected Skill $skill;
+
+	/**
+	 * @var Spell[]
+	 */
+	protected array $spells;
 
 	protected IdentityGroup $identityGroup;
 
@@ -58,6 +64,7 @@ abstract class PlayerJob extends Job {
 		}
 		$this->ability = $this->getInitialAbility();
 		$this->skill = $this->getInitialSkill();
+		$this->spells = [];
 		$this->identityGroup = $this->getInitialIdentityGroup();
 		$this->action = new ActionListManager();
 		$this->lastActionUpdate = 0;
@@ -70,8 +77,6 @@ abstract class PlayerJob extends Job {
 			$this->identityGroup->apply();
 
 			$this->cooltimeNotifier = new CooltimeNotifier($player);
-			$this->cooltimeNotifier->addCooltimeHandler($this->ability->getCooltimeHandler());
-			$this->cooltimeNotifier->addCooltimeHandler($this->skill->getCooltimeHandler());
 			$this->cooltimeNotifier->start();
 
 			$this->actionTask = TaskUtil::repeatingClosure(function () use ($player) {
@@ -88,12 +93,34 @@ abstract class PlayerJob extends Job {
 					#$player->sendMessage($this->action->hasChanged() ? "true" : "false");
 				}
 			}, 1);
+
+			$this->init();
+
+			$this->sortCooltimeNotifier();
 		}
+	}
+
+	protected function init(): void {
+	}
+
+	protected function sortCooltimeNotifier(): void {
+		$all = [
+			$this->ability->getCooltimeHandler(),
+			$this->skill->getCooltimeHandler()
+		];
+		$spells = array_map(function (Spell $spell) {
+			return $spell->getCooltimeHandler();
+		}, $this->spells);
+		$this->cooltimeNotifier->setAll(array_merge($all, $spells));
 	}
 
 	public function close() {
 		$this->ability->close();
 		$this->skill->close();
+		foreach ($this->spells as $spell) {
+			$spell->close();
+		}
+
 		$this->cooltimeNotifier->stop();
 
 		$this->identityGroup->reset();
@@ -132,6 +159,26 @@ abstract class PlayerJob extends Job {
 				#bomb!
 			}
 		}
+
+		foreach ($this->spells as $spell) {
+			$spellItem = $spell->getActivateItem();
+			if ($spellItem->equals($item, false, false)) {
+				$result = $spell->activate();
+
+				$name = $spell->getName();
+
+				if ($result->isFailedByCooltime()) {
+					$this->action->push(new LineOption("§c現在{$name}はクールタイム中です！"));
+				} elseif ($result->isFailedAlreadyActive()) {
+					$this->action->push(new LineOption("§c{$name}は既にアクティブです！"));
+				} elseif ($result->isSucceeded()) {
+					$this->action->push(new LineOption("§a{$name}を発動しました！"));
+				} elseif ($result->isFailed()) {
+					$this->action->push(new LineOption("§c{$name}を発動できません！"));
+				} elseif ($result->isAbandoned()) {
+				}
+			}
+		}
 	}
 
 	public function getPlayer(): ?Player {
@@ -155,17 +202,37 @@ abstract class PlayerJob extends Job {
 	}
 
 	public function setAbility(Ability $ability): void {
-		$this->cooltimeNotifier->removeCooltimeHandler($this->ability->getCooltimeHandler());
 		$this->ability->close();
 		$this->ability = $ability;
-		$this->cooltimeNotifier->addCooltimeHandler($ability->getCooltimeHandler());
+		$this->sortCooltimeNotifier();
 	}
 
 	public function setSkill(Skill $skill): void {
-		$this->cooltimeNotifier->removeCooltimeHandler($this->skill->getCooltimeHandler());
 		$this->skill->close();
 		$this->skill = $skill;
-		$this->cooltimeNotifier->addCooltimeHandler($skill->getCooltimeHandler());
+		$this->sortCooltimeNotifier();
+	}
+
+	public function addSpell(Spell $spell): void {
+		$this->spells[] = $spell;
+		$this->sortCooltimeNotifier();
+	}
+
+	/**
+	 * @return Spell[]
+	 */
+	public function getSpells(): array {
+		return $this->spells;
+	}
+
+	/**
+	 * @param Spell[] $spells
+	 * 
+	 * @return void
+	 */
+	public function setSpells(array $spells): void {
+		$this->spells = $spells;
+		$this->sortCooltimeNotifier();
 	}
 
 	public function getIdentityGroup(): IdentityGroup {

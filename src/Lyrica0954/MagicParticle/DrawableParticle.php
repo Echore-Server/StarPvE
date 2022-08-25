@@ -10,17 +10,17 @@ use pocketmine\math\Vector3;
 
 interface DrawableParticle {
 
-    /**
-     * @param Position $pos
-     * 
-     * @return Vector3[]
-     */
-    public function draw(Position $pos): array;
+	/**
+	 * @param Position $pos
+	 * 
+	 * @return Vector3[]
+	 */
+	public function draw(Position $pos): array;
 
-    /**
-     * @param Position $pos
-     * 
-     * @return Vector3[]
-     */
-    public function drawAsDelayed(Position $pos): array;
+	/**
+	 * @param Position $pos
+	 * 
+	 * @return Vector3[]
+	 */
+	public function drawAsDelayed(Position $pos): array;
 }

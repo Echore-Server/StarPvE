@@ -47,7 +47,10 @@ class JobInformationForm implements Form {
 §f---------------------------",
 			"buttons" => [
 				[
-					"text" => "§d§l特性"
+					"text" => "§d§l特性",
+				],
+				[
+					"text" => "§b§lスペル"
 				]
 			]
 		];
@@ -59,6 +62,11 @@ class JobInformationForm implements Form {
 				if ($data == 0) {
 					TaskUtil::delayed(new ClosureTask(function () use ($player) {
 						$jobIdentity = new JobIdentityForm($player, $this->job);
+						$player->sendForm($jobIdentity);
+					}), 1);
+				} elseif ($data == 1) {
+					TaskUtil::delayed(new ClosureTask(function () use ($player) {
+						$jobIdentity = new SpellListForm($this->job->getSpells());
 						$player->sendForm($jobIdentity);
 					}), 1);
 				}

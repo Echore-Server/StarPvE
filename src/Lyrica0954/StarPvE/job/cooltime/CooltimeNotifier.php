@@ -10,75 +10,97 @@ use pocketmine\scheduler\Task;
 
 class CooltimeNotifier {
 
-    protected array $cooltimes;
-    protected Player $player;
+	protected array $cooltimes;
+	protected Player $player;
 
-    private ?Task $task;
+	private ?Task $task;
 
-    protected string $prefix;
+	protected string $prefix;
 
-    public function __construct(Player $player) {
-        $this->player = $player;
-        $this->cooltimes = [];
-        $this->task = null;
-        $this->prefix = "";
-    }
+	public function __construct(Player $player) {
+		$this->player = $player;
+		$this->cooltimes = [];
+		$this->task = null;
+		$this->prefix = "";
+	}
 
-    public function getPrefix(): string {
-        return $this->prefix;
-    }
+	/**
+	 * @param CooltimeHandler[] $cooltimes
+	 * 
+	 * @return void
+	 */
+	public function setAll(array $cooltimes): void {
+		$cooltimes = array_values($cooltimes);
+		$final = [];
+		foreach ($cooltimes as $handler) {
+			$final[spl_object_hash($handler)] = $handler;
+		}
 
-    public function setPrefix(string $prefix): void {
-        $this->prefix = $prefix;
-    }
+		$this->cooltimes = $final;
+	}
 
-    public function log(string $message) {
-        StarPvE::getInstance()->log("§7[CooltimeNotifier] {$message}");
-    }
+	/**
+	 * @return CooltimeHandler[]
+	 */
+	public function getAll(): array {
+		return $this->cooltimes;
+	}
 
-    public function start() {
-        $this->log("Started the Task");
+	public function getPrefix(): string {
+		return $this->prefix;
+	}
 
-        $this->task = new class($this) extends Task {
+	public function setPrefix(string $prefix): void {
+		$this->prefix = $prefix;
+	}
 
-            private CooltimeNotifier $cooltimeNotifier;
+	public function log(string $message) {
+		StarPvE::getInstance()->log("§7[CooltimeNotifier] {$message}");
+	}
 
-            public function __construct(CooltimeNotifier $cooltimeNotifier) {
-                $this->cooltimeNotifier = $cooltimeNotifier;
-            }
+	public function start() {
+		$this->log("Started the Task");
 
-            public function onRun(): void {
-                $this->cooltimeNotifier->tick();
-            }
-        };
-        StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, 20);
-    }
+		$this->task = new class($this) extends Task {
 
-    public function stop() {
-        if ($this->task instanceof Task) {
-            $this->task->getHandler()->cancel();
-            $this->log("Stopped the Task");
-        }
-    }
+			private CooltimeNotifier $cooltimeNotifier;
 
-    public function tick() {
-        $text = $this->prefix;
-        foreach ($this->cooltimes as $cooltimeHandler) {
-            $seconds = round($cooltimeHandler->getRemain() / 20);
-            $status = (!$cooltimeHandler->isActive() ? "§a使用可能" : "§c残り {$seconds}秒");
-            $text .= "§7{$cooltimeHandler->getId()}: {$status}\n";
-        }
+			public function __construct(CooltimeNotifier $cooltimeNotifier) {
+				$this->cooltimeNotifier = $cooltimeNotifier;
+			}
 
-        $this->player->sendPopup($text);
-    }
+			public function onRun(): void {
+				$this->cooltimeNotifier->tick();
+			}
+		};
+		StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($this->task, 20);
+	}
 
-    public function addCooltimeHandler(CooltimeHandler $cooltimeHandler) {
-        $this->cooltimes[spl_object_hash($cooltimeHandler)] = $cooltimeHandler;
-        $this->log("Added cooltime handler: {$cooltimeHandler->getId()}");
-    }
+	public function stop() {
+		if ($this->task instanceof Task) {
+			$this->task->getHandler()->cancel();
+			$this->log("Stopped the Task");
+		}
+	}
 
-    public function removeCooltimeHandler(CooltimeHandler $cooltimeHandler) {
-        unset($this->cooltimes[spl_object_hash($cooltimeHandler)]);
-        $this->log("Removed cooltime handler: {$cooltimeHandler->getId()}");
-    }
+	public function tick() {
+		$text = $this->prefix;
+		foreach ($this->cooltimes as $cooltimeHandler) {
+			$seconds = round($cooltimeHandler->getRemain() / 20);
+			$status = (!$cooltimeHandler->isActive() ? "§a使用可能" : "§c残り {$seconds}秒");
+			$text .= "§7{$cooltimeHandler->getId()}: {$status}\n";
+		}
+
+		$this->player->sendPopup($text);
+	}
+
+	public function add(CooltimeHandler $cooltimeHandler) {
+		$this->cooltimes[spl_object_hash($cooltimeHandler)] = $cooltimeHandler;
+		$this->log("Added cooltime handler: {$cooltimeHandler->getId()}");
+	}
+
+	public function remove(CooltimeHandler $cooltimeHandler) {
+		unset($this->cooltimes[spl_object_hash($cooltimeHandler)]);
+		$this->log("Removed cooltime handler: {$cooltimeHandler->getId()}");
+	}
 }

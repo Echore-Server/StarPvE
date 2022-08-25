@@ -27,80 +27,80 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
 use pocketmine\player\Player;
 
 class Piglin extends FightingEntity implements Hostile, ProjectileSource {
-    use HealthBarEntity;
+	use HealthBarEntity;
 
-    public static function getNetworkTypeId(): string {
-        return EntityIds::PIGLIN;
-    }
+	public static function getNetworkTypeId(): string {
+		return EntityIds::PIGLIN;
+	}
 
-    protected float $reach = 1.5;
+	protected float $reach = 1.5;
 
-    public function getFollowRange(): float {
-        return 50;
-    }
+	public function getFollowRange(): float {
+		return 50;
+	}
 
-    public function getName(): string {
-        return "Piglin";
-    }
+	public function getName(): string {
+		return "Piglin";
+	}
 
-    protected function getInitialSizeInfo(): EntitySizeInfo {
-        return new EntitySizeInfo(1.8, 0.6);
-    }
+	protected function getInitialSizeInfo(): EntitySizeInfo {
+		return new EntitySizeInfo(1.8, 0.6);
+	}
 
-    protected function getInitialFightStyle(): Style {
-        return new MeleeStyle($this);
-    }
+	protected function getInitialFightStyle(): Style {
+		return new MeleeStyle($this);
+	}
 
-    public function getAddtionalAttackCooldown(): int {
-        return 14;
-    }
+	public function getAddtionalAttackCooldown(): int {
+		return 14;
+	}
 
-    public function attack(EntityDamageEvent $source): void {
-        if ($source instanceof EntityDamageByChildEntityEvent) {
-            $child = $source->getChild();
-            $damager = $source->getDamager();
-            if ($damager instanceof Player) {
-                $vec = $this->getEyePos();
-                $loc = $this->getLocation();
-                $loc->y = $vec->y;
+	public function attack(EntityDamageEvent $source): void {
+		if ($source instanceof EntityDamageByChildEntityEvent) {
+			$child = $source->getChild();
+			$damager = $source->getDamager();
+			if ($damager instanceof Player) {
+				$vec = $this->getEyePos();
+				$loc = $this->getLocation();
+				$loc->y = $vec->y;
 
-                $tloc = $damager->getLocation();
-                $tloc->y += $damager->getEyeHeight();
+				$tloc = $damager->getLocation();
+				$tloc->y += $damager->getEyeHeight();
 
-                $d = $tloc->subtractVector($loc)->normalize();
-                $projectile = new Arrow($loc, $this, true);
-                $projectile->setMotion($d->multiply(5));
-                $projectile->spawnToAll();
-                $source->setBaseDamage($source->getBaseDamage() / 2);
-            }
-        }
+				$d = $tloc->subtractVector($loc)->normalize();
+				$projectile = new Arrow($loc, $this, true);
+				$projectile->setMotion($d->multiply(5));
+				$projectile->spawnToAll();
+				$source->setBaseDamage($source->getBaseDamage() / 2);
+			}
+		}
 
-        parent::attack($source);
-    }
+		parent::attack($source);
+	}
 
-    protected function onTick(int $currentTick, int $tickDiff = 1): void {
-    }
+	protected function onTick(int $currentTick, int $tickDiff = 1): void {
+	}
 
-    public function hitEntity(Entity $entity, float $range): void {
-        if ($entity instanceof Player) {
-            PlayerUtil::playSound($entity, "random.break", 0.5, 0.75);
-        }
-    }
+	public function hitEntity(Entity $entity, float $range): void {
+		if ($entity instanceof Player) {
+			PlayerUtil::playSound($entity, "random.break", 0.5, 0.75);
+		}
+	}
 
-    public function attackEntity(Entity $entity, float $range): bool {
-        if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
-            $this->broadcastAnimation(new ArmSwingAnimation($this));
-            $source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
-            $kb = EntityUtil::attackEntity($source, 2.8, 1.0);
+	public function attackEntity(Entity $entity, float $range): bool {
+		if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
+			$this->broadcastAnimation(new ArmSwingAnimation($this));
+			$source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
+			$kb = EntityUtil::attackEntity($source, 2.8, 1.0);
 
-            if ($kb->lengthSquared() > 0) {
-                EntityUtil::immobile($this, 10);
-                $this->hitEntity($entity, $range);
-            }
-            $this->attackCooldown = $source->getAttackCooldown() + $this->getAddtionalAttackCooldown();
-            return true;
-        } else {
-            return false;
-        }
-    }
+			if ($kb->lengthSquared() > 0) {
+				EntityUtil::immobile($this, 10);
+				$this->hitEntity($entity, $range);
+			}
+			$this->attackCooldown = $source->getAttackCooldown() + $this->getAddtionalAttackCooldown();
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

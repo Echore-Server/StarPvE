@@ -14,31 +14,31 @@ use pocketmine\player\Player;
 
 class AttackPercentageArgIdentity extends PlayerArgIdentity {
 
-    protected float $percentage;
+	protected float $percentage;
 
-    public function __construct(?Condition $condition = null, float $percentage) {
-        parent::__construct($condition);
-        $this->percentage = $percentage;
-    }
+	public function __construct(?Condition $condition = null, float $percentage) {
+		parent::__construct($condition);
+		$this->percentage = $percentage;
+	}
 
-    public function getName(): string {
-        return "ダメージ増加";
-    }
+	public function getName(): string {
+		return "ダメージ増加";
+	}
 
-    public function getDescription(): string {
-        $p = $this->percentage * 100;
-        return "与えるダメージ §c+{$p}%";
-    }
+	public function getDescription(): string {
+		$p = $this->percentage * 100;
+		return "与えるダメージ §c+{$p}%";
+	}
 
-    public function apply(): void {
-        if ($this->player !== null) {
-            BuffUtil::add($this->player, BuffUtil::BUFF_ATK_PERCENTAGE, $this->percentage);
-        }
-    }
+	public function apply(): void {
+		if ($this->player !== null) {
+			BuffUtil::add($this->player, BuffUtil::BUFF_ATK_PERCENTAGE, $this->percentage);
+		}
+	}
 
-    public function reset(): void {
-        if ($this->player !== null) {
-            BuffUtil::subtract($this->player, BuffUtil::BUFF_ATK_PERCENTAGE, $this->percentage);
-        }
-    }
+	public function reset(): void {
+		if ($this->player !== null) {
+			BuffUtil::subtract($this->player, BuffUtil::BUFF_ATK_PERCENTAGE, $this->percentage);
+		}
+	}
 }

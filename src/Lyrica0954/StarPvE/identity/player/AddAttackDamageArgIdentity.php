@@ -14,30 +14,30 @@ use pocketmine\player\Player;
 
 class AddAttackDamageArgIdentity extends PlayerArgIdentity {
 
-    protected int $add;
+	protected int $add;
 
-    public function __construct(?Condition $condition = null, int $add) {
-        parent::__construct($condition);
-        $this->add = $add;
-    }
+	public function __construct(?Condition $condition = null, int $add) {
+		parent::__construct($condition);
+		$this->add = $add;
+	}
 
-    public function getName(): string {
-        return "ダメージ増加";
-    }
+	public function getName(): string {
+		return "ダメージ増加";
+	}
 
-    public function getDescription(): string {
-        return "与えるダメージが {$this->add} 増加";
-    }
+	public function getDescription(): string {
+		return "与えるダメージが {$this->add} 増加";
+	}
 
-    public function apply(): void {
-        if ($this->player !== null) {
-            BuffUtil::add($this->player, BuffUtil::BUFF_ATK_DAMAGE, $this->add);
-        }
-    }
+	public function apply(): void {
+		if ($this->player !== null) {
+			BuffUtil::add($this->player, BuffUtil::BUFF_ATK_DAMAGE, $this->add);
+		}
+	}
 
-    public function reset(): void {
-        if ($this->player !== null) {
-            BuffUtil::subtract($this->player, BuffUtil::BUFF_ATK_DAMAGE, $this->add);
-        }
-    }
+	public function reset(): void {
+		if ($this->player !== null) {
+			BuffUtil::subtract($this->player, BuffUtil::BUFF_ATK_DAMAGE, $this->add);
+		}
+	}
 }

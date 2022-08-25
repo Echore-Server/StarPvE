@@ -16,63 +16,63 @@ use pocketmine\player\Player;
 
 class InboundDamageService extends ListenerService {
 
-    /**
-     * @var array{playerHash: string, originalEvent: EntityDamageByEntityEvent}
-     */
-    private array $originalStore;
+	/**
+	 * @var array{playerHash: string, originalEvent: EntityDamageByEntityEvent}
+	 */
+	private array $originalStore;
 
-    protected function init(): void {
-        $this->originalStore = [];
-    }
+	protected function init(): void {
+		$this->originalStore = [];
+	}
 
 
-    /**
-     * @param EntityDamageByEntityEvent $event
-     * 
-     * @return void
-     * 
-     * @priority LOWEST
-     */
-    public function originalEvent(EntityDamageByEntityEvent $event): void {
-        $entity = $event->getEntity();
-        if ($entity instanceof Player) {
-            $adapter = SettingVariables::fetch($entity);
-            $store = false;
+	/**
+	 * @param EntityDamageByEntityEvent $event
+	 * 
+	 * @return void
+	 * 
+	 * @priority LOWEST
+	 */
+	public function originalEvent(EntityDamageByEntityEvent $event): void {
+		$entity = $event->getEntity();
+		if ($entity instanceof Player) {
+			$adapter = SettingVariables::fetch($entity);
+			$store = false;
 
-            if ($adapter instanceof PlayerConfigAdapter) {
-                $store = $adapter->getConfig()->get(SettingVariables::DEBUG_DAMAGE, false);
-            }
+			if ($adapter instanceof PlayerConfigAdapter) {
+				$store = $adapter->getConfig()->get(SettingVariables::DEBUG_DAMAGE, false);
+			}
 
-            if ($store) {
-                $this->originalStore[spl_object_hash($entity)] = clone $event;
-            }
-        }
-    }
+			if ($store) {
+				$this->originalStore[spl_object_hash($entity)] = clone $event;
+			}
+		}
+	}
 
-    /**
-     * @param EntityDamageByEntityEvent $event
-     * 
-     * @return void
-     * 
-     * @priority MONITOR
-     */
-    public function finalEvent(EntityDamageByEntityEvent $event): void {
-        $entity = $event->getEntity();
+	/**
+	 * @param EntityDamageByEntityEvent $event
+	 * 
+	 * @return void
+	 * 
+	 * @priority MONITOR
+	 */
+	public function finalEvent(EntityDamageByEntityEvent $event): void {
+		$entity = $event->getEntity();
 
-        if ($entity instanceof Player) {
-            $originalEvent = $this->originalStore[spl_object_hash($entity)] ?? null;
-            if ($originalEvent instanceof EntityDamageByEntityEvent) {
-                $this->originalStore[spl_object_hash($entity)] = null;
-                $originalDamage = $originalEvent->getFinalDamage();
+		if ($entity instanceof Player) {
+			$originalEvent = $this->originalStore[spl_object_hash($entity)] ?? null;
+			if ($originalEvent instanceof EntityDamageByEntityEvent) {
+				$this->originalStore[spl_object_hash($entity)] = null;
+				$originalDamage = $originalEvent->getFinalDamage();
 
-                $finalDamage = $event->getFinalDamage();
+				$finalDamage = $event->getFinalDamage();
 
-                $diff = ($finalDamage - $originalDamage);
+				$diff = ($finalDamage - $originalDamage);
 
-                $diffString = ($diff >= 0 ? "+" : "") . (string) $diff;
+				$diffString = ($diff >= 0 ? "+" : "") . (string) $diff;
 
-                $entity->sendMessage("§c§l<< §r§8{$originalEvent->getOriginalBaseDamage()} §f-> §7{$originalDamage} §f-> §c{$finalDamage} §d({$diffString})");
-            }
-        }
-    }
+				$entity->sendMessage("§c§l<< §r§8{$originalEvent->getOriginalBaseDamage()} §f-> §7{$originalDamage} §f-> §c{$finalDamage} §d({$diffString})");
+			}
+		}
+	}
 }

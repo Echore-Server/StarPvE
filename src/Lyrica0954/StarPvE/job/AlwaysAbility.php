@@ -6,7 +6,7 @@ namespace Lyrica0954\StarPvE\job;
 
 interface AlwaysAbility {
 
-    public function getAlAbilityName(): string;
+	public function getAlAbilityName(): string;
 
-    public function getAlAbilityDescription(): string;
+	public function getAlAbilityDescription(): string;
 }

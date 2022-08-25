@@ -9,7 +9,7 @@ use pocketmine\player\Player;
 
 class ArtifactVariables {
 
-    public static function fetch(Player $player): ?ItemConfigAdapter {
-        return PlayerDataCenter::getInstance()?->get($player)?->getArtifact();
-    }
+	public static function fetch(Player $player): ?ItemConfigAdapter {
+		return PlayerDataCenter::getInstance()?->get($player)?->getArtifact();
+	}
 }

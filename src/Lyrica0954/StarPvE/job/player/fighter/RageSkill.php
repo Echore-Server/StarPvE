@@ -29,90 +29,90 @@ use pocketmine\Server;
 
 class RageSkill extends Skill implements Listener {
 
-    public function getCooltime(): int {
-        return (96 * 20);
-    }
+	public function getCooltime(): int {
+		return (96 * 20);
+	}
 
-    public function getName(): String {
-        return "レイジ";
-    }
+	public function getName(): String {
+		return "レイジ";
+	}
 
-    public function getDescription(): String {
-        $duration = DescriptionTranslator::second($this->duration);
-        $amount = DescriptionTranslator::number($this->amount, "");
-        $damage = DescriptionTranslator::health($this->damage, false);
-        $damageProt = DescriptionTranslator::percentage($this->percentage, true);
-        return
-            sprintf(
-                '発動時: %1$s 間、攻撃速度が %2$s 上昇する(ファイトアップの効果も反映される)
+	public function getDescription(): String {
+		$duration = DescriptionTranslator::second($this->duration);
+		$amount = DescriptionTranslator::number($this->amount, "");
+		$damage = DescriptionTranslator::health($this->damage, false);
+		$damageProt = DescriptionTranslator::percentage($this->percentage, true);
+		return
+			sprintf(
+				'発動時: %1$s 間、攻撃速度が %2$s 上昇する(ファイトアップの効果も反映される)
 効果中に攻撃された場合、その敵に(%3$s + §eファイトアップのレベル§f)のダメージとノックバックを与えるカウンター攻撃を行い、受けるダメージを %4$s 軽減する。
 効果終了時、空腹になる。',
-                $duration,
-                $amount,
-                $damage,
-                $damageProt
-            );
-    }
+				$duration,
+				$amount,
+				$damage,
+				$damageProt
+			);
+	}
 
-    protected function init(): void {
-        $this->duration = new AbilityStatus(34 * 20);
-        $this->damage = new AbilityStatus(3.0);
-        $this->amount = new AbilityStatus(2);
-        $this->percentage = new AbilityStatus(0.8);
-    }
+	protected function init(): void {
+		$this->duration = new AbilityStatus(34 * 20);
+		$this->damage = new AbilityStatus(3.0);
+		$this->amount = new AbilityStatus(2);
+		$this->percentage = new AbilityStatus(0.8);
+	}
 
-    protected function onActivate(): ActionResult {
-        PlayerUtil::playSound($this->player, "random.fuse", 0.75);
-        PlayerUtil::playSound($this->player, "mob.creeper.death", 0.5, 0.6);
-        $fog = PlayerFogPacket::create(["minecraft:fog_hell"]);
-        $this->player->getNetworkSession()->sendDataPacket($fog);
+	protected function onActivate(): ActionResult {
+		PlayerUtil::playSound($this->player, "random.fuse", 0.75);
+		PlayerUtil::playSound($this->player, "mob.creeper.death", 0.5, 0.6);
+		$fog = PlayerFogPacket::create(["minecraft:fog_hell"]);
+		$this->player->getNetworkSession()->sendDataPacket($fog);
 
-        $this->active = true;
-        StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
-            $fogRemove = PlayerFogPacket::create([]);
-            $this->player->getNetworkSession()->sendDataPacket($fogRemove);
-            PlayerUtil::playSound($this->player, "random.fizz", 0.5);
-            $this->player->getEffects()->add(new EffectInstance(VanillaEffects::HUNGER(), 2 * 20, 255, false));
-            $this->active = false;
-        }), (int) $this->duration->get());
-
-
-        $period = 2;
-        $limit = ((int) $this->duration->get()) / $period;
-        TaskUtil::repeatingClosureLimit(function () {
-            $min = EntityUtil::getCollisionMin($this->player);
-            $par = EmitterParticle::createEmitterForEntity($this->player, 0.3, 1);
-
-            ParticleUtil::send(
-                $par,
-                $this->player->getWorld()->getPlayers(),
-                VectorUtil::insertWorld($min, $this->player->getWorld()),
-                ParticleOption::spawnPacket("minecraft:villager_angry", "")
-            );
-        }, (int) $period, (int) $limit);
+		$this->active = true;
+		StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
+			$fogRemove = PlayerFogPacket::create([]);
+			$this->player->getNetworkSession()->sendDataPacket($fogRemove);
+			PlayerUtil::playSound($this->player, "random.fizz", 0.5);
+			$this->player->getEffects()->add(new EffectInstance(VanillaEffects::HUNGER(), 2 * 20, 255, false));
+			$this->active = false;
+		}), (int) $this->duration->get());
 
 
-        return ActionResult::SUCCEEDED();
-    }
+		$period = 2;
+		$limit = ((int) $this->duration->get()) / $period;
+		TaskUtil::repeatingClosureLimit(function () {
+			$min = EntityUtil::getCollisionMin($this->player);
+			$par = EmitterParticle::createEmitterForEntity($this->player, 0.3, 1);
 
-    public function onEntityDamage(EntityDamageEvent $event) {
-        $entity = $event->getEntity();
-        if ($entity === $this->player && $this->player instanceof Player) {
-            if ($this->isActive()) {
-                if ($event instanceof EntityDamageByEntityEvent) {
-                    $damager = $event->getDamager();
-                    $add = 0;
-                    if ($this->job instanceof Fighter) {
-                        $add = $this->job->getComboLevel();
-                    }
-                    $counterDamage = $this->damage->get() + $add;
-                    $source = new EntityDamageByEntityEvent($this->player, $damager, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $counterDamage);
-                    $damager->attack($source);
+			ParticleUtil::send(
+				$par,
+				$this->player->getWorld()->getPlayers(),
+				VectorUtil::insertWorld($min, $this->player->getWorld()),
+				ParticleOption::spawnPacket("minecraft:villager_angry", "")
+			);
+		}, (int) $period, (int) $limit);
 
-                    PlayerUtil::playSound($this->player, "crossbow.shoot", 1.5, 0.9);
-                }
-                EntityUtil::multiplyFinalDamage($event, $this->percentage->get());
-            }
-        }
-    }
+
+		return ActionResult::SUCCEEDED();
+	}
+
+	public function onEntityDamage(EntityDamageEvent $event) {
+		$entity = $event->getEntity();
+		if ($entity === $this->player && $this->player instanceof Player) {
+			if ($this->isActive()) {
+				if ($event instanceof EntityDamageByEntityEvent) {
+					$damager = $event->getDamager();
+					$add = 0;
+					if ($this->job instanceof Fighter) {
+						$add = $this->job->getComboLevel();
+					}
+					$counterDamage = $this->damage->get() + $add;
+					$source = new EntityDamageByEntityEvent($this->player, $damager, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $counterDamage);
+					$damager->attack($source);
+
+					PlayerUtil::playSound($this->player, "crossbow.shoot", 1.5, 0.9);
+				}
+				EntityUtil::multiplyFinalDamage($event, $this->percentage->get());
+			}
+		}
+	}
 }

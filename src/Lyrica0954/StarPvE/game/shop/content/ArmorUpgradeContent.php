@@ -14,38 +14,38 @@ use pocketmine\player\Player;
 
 class ArmorUpgradeContent extends ShopContent {
 
-    protected function getGamePlayer(Player $player): ?GamePlayer {
-        $gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
-        return $gamePlayerManager->getGamePlayer($player);
-    }
+	protected function getGamePlayer(Player $player): ?GamePlayer {
+		$gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
+		return $gamePlayerManager->getGamePlayer($player);
+	}
 
-    public function canBuy(Player $player): bool {
-        $canBuy = parent::canBuy($player);
+	public function canBuy(Player $player): bool {
+		$canBuy = parent::canBuy($player);
 
-        $gamePlayer = $this->getGamePlayer($player);
-        if ($gamePlayer instanceof GamePlayer) {
-            if (!$gamePlayer->getArmorEquipment()->canUpgrade()) {
-                $canBuy = false;
-            }
-        }
+		$gamePlayer = $this->getGamePlayer($player);
+		if ($gamePlayer instanceof GamePlayer) {
+			if (!$gamePlayer->getArmorEquipment()->canUpgrade()) {
+				$canBuy = false;
+			}
+		}
 
-        return $canBuy;
-    }
+		return $canBuy;
+	}
 
-    protected function onBought(Player $player): bool {
-        $gamePlayer = $this->getGamePlayer($player);
-        $ae = $gamePlayer?->getArmorEquipment();
-        $ae?->upgrade();
-        return $ae instanceof ArmorEquipment;
-    }
+	protected function onBought(Player $player): bool {
+		$gamePlayer = $this->getGamePlayer($player);
+		$ae = $gamePlayer?->getArmorEquipment();
+		$ae?->upgrade();
+		return $ae instanceof ArmorEquipment;
+	}
 
-    public function getCost(Player $player): ?Item {
-        $gamePlayer = $this->getGamePlayer($player);
-        $ae = $gamePlayer?->getArmorEquipment();
-        if ($ae instanceof ArmorEquipment) {
-            return $ae->getCost($ae->getLevel() + 1);
-        } else {
-            return null;
-        }
-    }
+	public function getCost(Player $player): ?Item {
+		$gamePlayer = $this->getGamePlayer($player);
+		$ae = $gamePlayer?->getArmorEquipment();
+		if ($ae instanceof ArmorEquipment) {
+			return $ae->getCost($ae->getLevel() + 1);
+		} else {
+			return null;
+		}
+	}
 }

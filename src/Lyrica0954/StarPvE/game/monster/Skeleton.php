@@ -30,77 +30,77 @@ use pocketmine\player\Player;
 use pocketmine\Server;
 
 class Skeleton extends SmartSkeleton {
-    use HealthBarEntity;
+	use HealthBarEntity;
 
-    protected ?MemoryEntity $spark = null;
+	protected ?MemoryEntity $spark = null;
 
-    protected function getInitialFightStyle(): Style {
-        return new MeleeStyle($this);
-    }
+	protected function getInitialFightStyle(): Style {
+		return new MeleeStyle($this);
+	}
 
-    public function attackEntity(Entity $entity, float $range): bool {
-        if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
-            $this->broadcastAnimation(new ArmSwingAnimation($this));
-            $this->fireElectricSpark($entity, 30, 0.44);
-            $this->attackCooldown = 10 + $this->getAddtionalAttackCooldown();
+	public function attackEntity(Entity $entity, float $range): bool {
+		if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
+			$this->broadcastAnimation(new ArmSwingAnimation($this));
+			$this->fireElectricSpark($entity, 30, 0.44);
+			$this->attackCooldown = 10 + $this->getAddtionalAttackCooldown();
 
-            $this->hitEntity($entity, $range);
-            return true;
-        } else {
-            return false;
-        }
-    }
+			$this->hitEntity($entity, $range);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    protected function fireElectricSpark(Entity $entity, float $maxRange, float $speed) {
-        if ($this->spark === null) {
-            $loc = $this->getLocation();
-            $eloc = $entity->getLocation();
-            $loc->y += $this->getEyeHeight();
-            $this->spark = new MemoryEntity($loc, null, 0.0, 0.0);
+	protected function fireElectricSpark(Entity $entity, float $maxRange, float $speed) {
+		if ($this->spark === null) {
+			$loc = $this->getLocation();
+			$eloc = $entity->getLocation();
+			$loc->y += $this->getEyeHeight();
+			$this->spark = new MemoryEntity($loc, null, 0.0, 0.0);
 
-            $this->lookAt($entity);
-            $v = $this->getDirectionVector();
-            $this->spark->setMotion($v->multiply($speed));
+			$this->lookAt($entity);
+			$v = $this->getDirectionVector();
+			$this->spark->setMotion($v->multiply($speed));
 
-            $startTick = Server::getInstance()->getTick();
-            $this->spark->addCloseHook(function (MemoryEntity $entity) {
-                $this->spark = null;
-                $this->attackCooldown = 20;
-            });
+			$startTick = Server::getInstance()->getTick();
+			$this->spark->addCloseHook(function (MemoryEntity $entity) {
+				$this->spark = null;
+				$this->attackCooldown = 20;
+			});
 
-            $this->spark->addTickHook(function (MemoryEntity $entity) use ($loc, $maxRange, $startTick) {
-                $ct = Server::getInstance()->getTick();
-                if ($entity->getPosition()->distance($loc) >= $maxRange || ($ct - $startTick) >= 30) {
-                    $entity->close();
-                    return;
-                }
+			$this->spark->addTickHook(function (MemoryEntity $entity) use ($loc, $maxRange, $startTick) {
+				$ct = Server::getInstance()->getTick();
+				if ($entity->getPosition()->distance($loc) >= $maxRange || ($ct - $startTick) >= 30) {
+					$entity->close();
+					return;
+				}
 
-                foreach (EntityUtil::getPlayersInsideVector($entity->getPosition(), new Vector3(0.5, 0.5, 0.5)) as $player) {
-                    if (!$player->isImmobile()) {
-                        PlayerUtil::playSound($player, "fireworks.blast", 2.4, 1.0);
-                        $source = new EntityDamageByEntityEvent($entity, $player, EntityDamageByEntityEvent::CAUSE_MAGIC, $this->getAttackDamage(), [], 0);
-                        $source->setAttackCooldown(0);
-                        EntityUtil::immobile($player, 12);
-                        $pl = $player->getLocation();
-                        $pos = $this->getPosition();
-                        $pk = MovePlayerPacket::simple($player->getId(), $this->getPosition()->add(0, $player->getEyeHeight(), 0), $pl->getPitch(), $pl->getYaw(), $pl->getYaw(), MovePlayerPacket::MODE_NORMAL, true, -1, 0);
+				foreach (EntityUtil::getPlayersInsideVector($entity->getPosition(), new Vector3(0.5, 0.5, 0.5)) as $player) {
+					if (!$player->isImmobile()) {
+						PlayerUtil::playSound($player, "fireworks.blast", 2.4, 1.0);
+						$source = new EntityDamageByEntityEvent($entity, $player, EntityDamageByEntityEvent::CAUSE_MAGIC, $this->getAttackDamage(), [], 0);
+						$source->setAttackCooldown(0);
+						EntityUtil::immobile($player, 12);
+						$pl = $player->getLocation();
+						$pos = $this->getPosition();
+						$pk = MovePlayerPacket::simple($player->getId(), $this->getPosition()->add(0, $player->getEyeHeight(), 0), $pl->getPitch(), $pl->getYaw(), $pl->getYaw(), MovePlayerPacket::MODE_NORMAL, true, -1, 0);
 
-                        $player->setPosition($pos);
-                        $player->getNetworkSession()->sendDataPacket($pk);
-                        $player->attack($source);
-                    }
-                }
+						$player->setPosition($pos);
+						$player->getNetworkSession()->sendDataPacket($pk);
+						$player->attack($source);
+					}
+				}
 
-                if ($ct % 2 == 0) {
-                    $par = new SingleParticle();
-                    ParticleUtil::send($par, $entity->getWorld()->getPlayers(), $entity->getPosition(), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
-                    PlayerUtil::broadcastSound($entity, "firework.twinkle", 1.75, 0.3);
-                }
-            });
-        }
-    }
+				if ($ct % 2 == 0) {
+					$par = new SingleParticle();
+					ParticleUtil::send($par, $entity->getWorld()->getPlayers(), $entity->getPosition(), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
+					PlayerUtil::broadcastSound($entity, "firework.twinkle", 1.75, 0.3);
+				}
+			});
+		}
+	}
 
-    public function getFollowRange(): float {
-        return 50;
-    }
+	public function getFollowRange(): float {
+		return 50;
+	}
 }

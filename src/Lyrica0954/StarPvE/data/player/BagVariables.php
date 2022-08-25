@@ -9,7 +9,7 @@ use pocketmine\player\Player;
 
 class BagVariables {
 
-    public static function fetch(Player $player): ?ItemConfigAdapter {
-        return PlayerDataCenter::getInstance()?->get($player)?->getBag();
-    }
+	public static function fetch(Player $player): ?ItemConfigAdapter {
+		return PlayerDataCenter::getInstance()?->get($player)?->getBag();
+	}
 }

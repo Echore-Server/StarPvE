@@ -18,26 +18,26 @@ use pocketmine\scheduler\ClosureTask;
 
 class YesNoForm implements Form {
 
-    public function __construct(protected string $content, private \Closure $callback) {
-    }
+	public function __construct(protected string $content, private \Closure $callback) {
+	}
 
-    public function jsonSerialize(): mixed {
-        return [
-            "type" => "form",
-            "title" => "確認",
-            "content" => $this->content,
-            "buttons" => [
-                [
-                    "text" => "§aOK"
-                ],
-                [
-                    "text" => "§cCancel"
-                ]
-            ]
-        ];
-    }
+	public function jsonSerialize(): mixed {
+		return [
+			"type" => "form",
+			"title" => "確認",
+			"content" => $this->content,
+			"buttons" => [
+				[
+					"text" => "§aOK"
+				],
+				[
+					"text" => "§cCancel"
+				]
+			]
+		];
+	}
 
-    public function handleResponse(Player $player, $data): void {
-        ($this->callback)($player, $data);
-    }
+	public function handleResponse(Player $player, $data): void {
+		($this->callback)($player, $data);
+	}
 }

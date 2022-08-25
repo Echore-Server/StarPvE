@@ -22,45 +22,45 @@ use pocketmine\Server;
 class SettingForm implements Form {
 
 
-    public function __construct(private Player $player) {
-    }
+	public function __construct(private Player $player) {
+	}
 
-    public function jsonSerialize(): mixed {
+	public function jsonSerialize(): mixed {
 
-        $contents = [];
+		$contents = [];
 
-        $adapter = SettingVariables::fetch($this->player);
-        $ppt = 250;
-        $debugDamage = false;
-        if ($adapter instanceof PlayerConfigAdapter) {
-            $ppt = $adapter->getConfig()->get(SettingVariables::PARTICLE_PER_TICK, 250);
-            $debugDamage = $adapter->getConfig()->get(SettingVariables::DEBUG_DAMAGE, false);
-        }
+		$adapter = SettingVariables::fetch($this->player);
+		$ppt = 250;
+		$debugDamage = false;
+		if ($adapter instanceof PlayerConfigAdapter) {
+			$ppt = $adapter->getConfig()->get(SettingVariables::PARTICLE_PER_TICK, 250);
+			$debugDamage = $adapter->getConfig()->get(SettingVariables::DEBUG_DAMAGE, false);
+		}
 
-        $contents[] = FormUtil::slider("最大パーティクル数(1tick)", 0, 400, 5, $ppt);
-        $contents[] = FormUtil::toggle("与える/受けるダメージの詳細表示", $debugDamage);
+		$contents[] = FormUtil::slider("最大パーティクル数(1tick)", 0, 400, 5, $ppt);
+		$contents[] = FormUtil::toggle("与える/受けるダメージの詳細表示", $debugDamage);
 
-        return [
-            "type" => "custom_form",
-            "title" => "ユーザー設定",
-            "content" => $contents,
-        ];
-    }
+		return [
+			"type" => "custom_form",
+			"title" => "ユーザー設定",
+			"content" => $contents,
+		];
+	}
 
-    public function handleResponse(Player $player, $data): void {
-        if ($data !== null) {
-            $particlePerTick = (int) $data[0];
-            $debugDamage = (bool) $data[1];
+	public function handleResponse(Player $player, $data): void {
+		if ($data !== null) {
+			$particlePerTick = (int) $data[0];
+			$debugDamage = (bool) $data[1];
 
-            $adapter = SettingVariables::fetch($player);
-            if ($adapter instanceof PlayerConfigAdapter) {
-                $adapter->getConfig()->set(SettingVariables::PARTICLE_PER_TICK, $particlePerTick);
-                $adapter->getConfig()->set(SettingVariables::DEBUG_DAMAGE, $debugDamage);
-            }
+			$adapter = SettingVariables::fetch($player);
+			if ($adapter instanceof PlayerConfigAdapter) {
+				$adapter->getConfig()->set(SettingVariables::PARTICLE_PER_TICK, $particlePerTick);
+				$adapter->getConfig()->set(SettingVariables::DEBUG_DAMAGE, $debugDamage);
+			}
 
-            $player->sendMessage("§a変更を保存しました");
-        } else {
-            $player->sendMessage("§c変更を破棄しました");
-        }
-    }
+			$player->sendMessage("§a変更を保存しました");
+		} else {
+			$player->sendMessage("§c変更を破棄しました");
+		}
+	}
 }

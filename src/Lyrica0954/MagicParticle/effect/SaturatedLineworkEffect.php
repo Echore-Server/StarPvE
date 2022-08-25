@@ -7,7 +7,7 @@ namespace Lyrica0954\MagicParticle\effect;
 use Lyrica0954\MagicParticle\CoveredParticle;
 use Lyrica0954\MagicParticle\LineParticle;
 use Lyrica0954\MagicParticle\SendableParticle;
-use Lyrica0954\StarPvE\utils\RandomUtil;
+use Lyrica0954\MagicParticle\utils\RandomUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\world\Position;
 
@@ -28,14 +28,14 @@ class SaturatedLineworkEffect extends ParticleEffect {
 		$particles = [];
 		for ($i = 0; $i < $this->amount; $i++) {
 			$yaw = lcg_value() * $this->maxYaw;
-			$pitch = RandomUtil::rand_float($this->minPitch, $this->maxPitch);
+			$pitch = RandomUtil::float($this->minPitch, $this->maxPitch);
 
 			$dir = VectorUtil::getDirectionVector($yaw, $pitch);
 			$start = $pos->addVector($dir->multiply($this->centerOffset));
 			$lineDir = $dir->multiply($this->lineLength);
 			$end = $pos->addVector($lineDir);
-			$line = new LineParticle(VectorUtil::insertWorld($start, $pos->getWorld()), $this->linePpb);
-			$particles[] = new CoveredParticle($line, VectorUtil::insertWorld($end, $pos->getWorld()));
+			$line = new LineParticle(Position::fromObject($start, $pos->getWorld()), $this->linePpb);
+			$particles[] = new CoveredParticle($line, Position::fromObject($end, $pos->getWorld()));
 		}
 		return $particles;
 	}

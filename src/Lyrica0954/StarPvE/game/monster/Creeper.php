@@ -21,76 +21,76 @@ use pocketmine\world\Position;
 use pocketmine\world\sound\ExplodeSound;
 
 class Creeper extends SmartCreeper {
-    use HealthBarEntity;
+	use HealthBarEntity;
 
-    protected float $reach = 3.0;
+	protected float $reach = 3.0;
 
-    public function getFuseLength(): int {
-        return 30;
-    }
+	public function getFuseLength(): int {
+		return 30;
+	}
 
-    public function getFollowRange(): float {
-        return 50;
-    }
+	public function getFollowRange(): float {
+		return 50;
+	}
 
-    public function explode(): void {
-        $this->spawnExplosion($this->getPosition(), $this->getExplosionRadius());
-        $this->kill();
-    }
+	public function explode(): void {
+		$this->spawnExplosion($this->getPosition(), $this->getExplosionRadius());
+		$this->kill();
+	}
 
-    protected function spawnExplosion(Position $pos, float $size): bool {
-        $updateBlocks = [];
+	protected function spawnExplosion(Position $pos, float $size): bool {
+		$updateBlocks = [];
 
-        $source = $pos->floor();
-        $yield = (1 / $size) * 100;
+		$source = $pos->floor();
+		$yield = (1 / $size) * 100;
 
-        $ev = new EntityExplodeEvent($this, $pos, [], $yield);
-        $ev->call();
-        if ($ev->isCancelled()) {
-            return false;
-        } else {
-            $yield = $ev->getYield();
-        }
+		$ev = new EntityExplodeEvent($this, $pos, [], $yield);
+		$ev->call();
+		if ($ev->isCancelled()) {
+			return false;
+		} else {
+			$yield = $ev->getYield();
+		}
 
-        $explosionSize = $size * 2;
-        $minX = (int) floor($pos->x - $explosionSize - 1);
-        $maxX = (int) ceil($pos->x + $explosionSize + 1);
-        $minY = (int) floor($pos->y - $explosionSize - 1);
-        $maxY = (int) ceil($pos->y + $explosionSize + 1);
-        $minZ = (int) floor($pos->z - $explosionSize - 1);
-        $maxZ = (int) ceil($pos->z + $explosionSize + 1);
+		$explosionSize = $size * 2;
+		$minX = (int) floor($pos->x - $explosionSize - 1);
+		$maxX = (int) ceil($pos->x + $explosionSize + 1);
+		$minY = (int) floor($pos->y - $explosionSize - 1);
+		$maxY = (int) ceil($pos->y + $explosionSize + 1);
+		$minZ = (int) floor($pos->z - $explosionSize - 1);
+		$maxZ = (int) ceil($pos->z + $explosionSize + 1);
 
-        $explosionBB = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
+		$explosionBB = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
 
-        $list = $this->getWorld()->getNearbyEntities($explosionBB, $this);
-        foreach ($list as $entity) {
-            if ($entity instanceof Player) {
-                $entityPos = $entity->getPosition();
-                $distance = $entityPos->distance($pos) / $explosionSize;
+		$list = $this->getWorld()->getNearbyEntities($explosionBB, $this);
+		foreach ($list as $entity) {
+			if ($entity instanceof Player) {
+				$entityPos = $entity->getPosition();
+				$distance = $entityPos->distance($pos) / $explosionSize;
 
-                if ($distance <= 1) {
-                    $motion = $entityPos->subtractVector($pos)->normalize();
+				if ($distance <= 1) {
+					$motion = $entityPos->subtractVector($pos)->normalize();
 
-                    $impact = (1 - $distance) * ($exposure = 1);
+					$impact = (1 - $distance) * ($exposure = 1);
 
-                    $damage = (int) ((($impact * $impact + $impact) / 2) * 8 * $explosionSize + 1);
+					$damage = (int) ((($impact * $impact + $impact) / 2) * 8 * $explosionSize + 1);
 
-                    $ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, $damage);
+					$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, $damage);
 
 
-                    $entity->attack($ev);
-                    $motion = $motion->multiply($impact * 2);
-                    $motion->y += 0.4;
-                    $motion->x *= 1.3;
-                    $motion->z *= 1.3;
-                    $entity->setMotion($motion);
-                }
-            }
-        }
+					$entity->attack($ev);
+					$motion = $motion->multiply($impact * 2);
+					$motion->y += 0.4;
+					$motion->x *= 1.3;
+					$motion->z *= 1.3;
+					$entity->setMotion($motion);
+				}
+			}
+		}
 
-        $this->getWorld()->addParticle($source, new HugeExplodeSeedParticle());
-        $this->getWorld()->addSound($source, new ExplodeSound());
+		$this->getWorld()->addParticle($source, new HugeExplodeSeedParticle());
+		$this->getWorld()->addSound($source, new ExplodeSound());
 
-        return true;
-    }
+		return true;
+	}
 }

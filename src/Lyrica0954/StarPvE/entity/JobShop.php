@@ -29,86 +29,86 @@ use pocketmine\player\Player;
 
 class JobShop extends Human implements Ghost {
 
-    protected $lookTick = 0;
-    protected int $ptick = 0;
-    protected $emoted = array();
+	protected $lookTick = 0;
+	protected int $ptick = 0;
+	protected $emoted = array();
 
-    protected SquareEffect $sq;
+	protected SquareEffect $sq;
 
-    public function getName(): String {
-        return "JobShop";
-    }
+	public function getName(): String {
+		return "JobShop";
+	}
 
-    protected function getInitialSizeInfo(): EntitySizeInfo {
-        return new EntitySizeInfo(1.8, 0.6);
-    }
+	protected function getInitialSizeInfo(): EntitySizeInfo {
+		return new EntitySizeInfo(1.8, 0.6);
+	}
 
-    public static function getNetworkTypeId(): string {
-        return EntityIds::PLAYER;
-    }
+	public static function getNetworkTypeId(): string {
+		return EntityIds::PLAYER;
+	}
 
-    public function onInteract(Player $player, Vector3 $clickPos): bool {
-        $jobSelect = new JobSelectForm($player);
-        $player->sendForm($jobSelect);
-        return true;
-    }
+	public function onInteract(Player $player, Vector3 $clickPos): bool {
+		$jobSelect = new JobSelectForm($player);
+		$player->sendForm($jobSelect);
+		return true;
+	}
 
-    protected function initEntity(CompoundTag $nbt): void {
-        parent::initEntity($nbt);
+	protected function initEntity(CompoundTag $nbt): void {
+		parent::initEntity($nbt);
 
-        $this->sq = new SquareEffect(4, 3);
-    }
+		$this->sq = new SquareEffect(4, 3);
+	}
 
-    public function entityBaseTick(int $tickDiff = 1): bool {
-        $hasUpdate = parent::entityBaseTick($tickDiff);
+	public function entityBaseTick(int $tickDiff = 1): bool {
+		$hasUpdate = parent::entityBaseTick($tickDiff);
 
-        $this->lookTick += $tickDiff;
-        if ($this->lookTick >= 6) {
-            $this->lookTick = 0;
+		$this->lookTick += $tickDiff;
+		if ($this->lookTick >= 6) {
+			$this->lookTick = 0;
 
-            $ef = new PartDelayedEffect((new SaturatedLineworkEffect(14, 3, 1, 5)), 2, 1, true);
-            ParticleUtil::send($ef, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
+			$ef = new PartDelayedEffect((new SaturatedLineworkEffect(14, 3, 1, 5)), 2, 1, true);
+			ParticleUtil::send($ef, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
 
 
-            #$this->sq->rotate(4, 0);
-            #$this->sq->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, 10, 0), ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
+			#$this->sq->rotate(4, 0);
+			#$this->sq->sendToPlayers($this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, 10, 0), ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
 
-            $nearestDist = PHP_INT_MAX;
-            $nearestPlayer = null;
-            foreach ($this->getWorld()->getPlayers() as $player) {
-                $dist = $this->getPosition()->distance($player->getPosition());
-                if ($dist < $nearestDist) {
-                    $nearestDist = $dist;
-                    $nearestPlayer = $player;
-                }
+			$nearestDist = PHP_INT_MAX;
+			$nearestPlayer = null;
+			foreach ($this->getWorld()->getPlayers() as $player) {
+				$dist = $this->getPosition()->distance($player->getPosition());
+				if ($dist < $nearestDist) {
+					$nearestDist = $dist;
+					$nearestPlayer = $player;
+				}
 
-                $gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
-                if (!in_array($player, $this->emoted, true) && ($gamePlayerManager->getGamePlayer($player) !== null)) {
-                    if ($dist <= 5.0) {
-                        $this->lookAt($player->getEyePos());
-                        $packet = EmotePacket::create($this->getId(), EmoteIds::WAVE, 1 << 0);
-                        $player->getNetworkSession()->sendDataPacket($packet);
+				$gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
+				if (!in_array($player, $this->emoted, true) && ($gamePlayerManager->getGamePlayer($player) !== null)) {
+					if ($dist <= 5.0) {
+						$this->lookAt($player->getEyePos());
+						$packet = EmotePacket::create($this->getId(), EmoteIds::WAVE, 1 << 0);
+						$player->getNetworkSession()->sendDataPacket($packet);
 
-                        $this->emoted[] = $player;
-                    }
-                }
-            }
+						$this->emoted[] = $player;
+					}
+				}
+			}
 
-            if ($nearestPlayer !== null) {
-                $this->lookAt($nearestPlayer->getEyePos());
-            }
-        }
+			if ($nearestPlayer !== null) {
+				$this->lookAt($nearestPlayer->getEyePos());
+			}
+		}
 
-        $this->ptick += $tickDiff;
-        if (($this->ptick) >= 100) {
-            $this->ptick = 0;
-            $ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12);
-            ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
+		$this->ptick += $tickDiff;
+		if (($this->ptick) >= 100) {
+			$this->ptick = 0;
+			$ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12);
+			ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
 
-            $ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12, true);
-            ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
-        }
+			$ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12, true);
+			ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
+		}
 
-        return $hasUpdate;
-    }
+		return $hasUpdate;
+	}
 }

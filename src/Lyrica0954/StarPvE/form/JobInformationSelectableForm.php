@@ -41,6 +41,11 @@ class JobInformationSelectableForm extends JobInformationForm {
 						$jobIdentity = new JobIdentityForm($player, $this->job);
 						$player->sendForm($jobIdentity);
 					}), 1);
+				} elseif ($data == 2) {
+					TaskUtil::delayed(new ClosureTask(function () use ($player) {
+						$jobIdentity = new SpellListForm($this->job->getSpells());
+						$player->sendForm($jobIdentity);
+					}), 1);
 				} else {
 					TaskUtil::delayed(new ClosureTask(function () use ($player) {
 						$jobSelect = new JobSelectForm($player);

@@ -13,36 +13,36 @@ use pocketmine\item\ItemIds;
 
 class ArmorEquipment extends Equipment {
 
-    public function getName(): string {
-        return "防具";
-    }
+	public function getName(): string {
+		return "防具";
+	}
 
-    protected function getInitialMaxLevel(): int {
-        return 3;
-    }
+	protected function getInitialMaxLevel(): int {
+		return 3;
+	}
 
-    public function getCost(int $level): Item {
-        $f = ItemFactory::getInstance();
-        $costItem = match ($level) {
-            1 => $f->get(ItemIds::EMERALD, 0, 0),
-            2 => $f->get(ItemIds::EMERALD, 0, 40),
-            3 => $f->get(ItemIds::EMERALD, 0, 120),
-            default => $f->get(ItemIds::EMERALD, 0, 0)
-        };
+	public function getCost(int $level): Item {
+		$f = ItemFactory::getInstance();
+		$costItem = match ($level) {
+			1 => $f->get(ItemIds::EMERALD, 0, 0),
+			2 => $f->get(ItemIds::EMERALD, 0, 40),
+			3 => $f->get(ItemIds::EMERALD, 0, 120),
+			default => $f->get(ItemIds::EMERALD, 0, 0)
+		};
 
-        return $costItem;
-    }
+		return $costItem;
+	}
 
-    protected function onUpgrade(int $level): void {
-        $armorSet = match ($level) {
-            1 => ArmorSet::leather(),
-            2 => ArmorSet::iron(),
-            3 => ArmorSet::diamond(),
-            default => new ArmorSet(null, null, null, null)
-        };
+	protected function onUpgrade(int $level): void {
+		$armorSet = match ($level) {
+			1 => ArmorSet::leather(),
+			2 => ArmorSet::iron(),
+			3 => ArmorSet::diamond(),
+			default => new ArmorSet(null, null, null, null)
+		};
 
-        $armorSet->setUnbreakable();
+		$armorSet->setUnbreakable();
 
-        $armorSet->equip($this->player);
-    }
+		$armorSet->equip($this->player);
+	}
 }

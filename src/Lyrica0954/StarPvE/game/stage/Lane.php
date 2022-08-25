@@ -19,46 +19,46 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\world\Position;
 
 class Lane {
-    use TaskHolder;
+	use TaskHolder;
 
-    /**
-     * @var Attacker[]
-     */
-    private array $attackers;
+	/**
+	 * @var Attacker[]
+	 */
+	private array $attackers;
 
-    public Position $start;
-    public Position $end;
+	public Position $start;
+	public Position $end;
 
-    /**
-     * @var Block[]
-     */
-    private array $lastBlocks;
+	/**
+	 * @var Block[]
+	 */
+	private array $lastBlocks;
 
-    public function __construct(Position $start, Position $end) {
-        $this->attackers = [];
-        $this->lastBlocks = [];
-        $this->start = $start;
-        $this->end = $end;
-        #$this->addRepeatingTask(new ClosureTask(function (){
-        #    $this->updateLaneState();
-        #}), 1);
-    }
+	public function __construct(Position $start, Position $end) {
+		$this->attackers = [];
+		$this->lastBlocks = [];
+		$this->start = $start;
+		$this->end = $end;
+		#$this->addRepeatingTask(new ClosureTask(function (){
+		#    $this->updateLaneState();
+		#}), 1);
+	}
 
-    public function getStart(): Position {
-        return $this->start;
-    }
+	public function getStart(): Position {
+		return $this->start;
+	}
 
-    public function getEnd(): Position {
-        return $this->end;
-    }
+	public function getEnd(): Position {
+		return $this->end;
+	}
 
-    public function addAttacker(Attacker $attacker) {
-        $this->attackers[spl_object_hash($attacker)] = $attacker;
-    }
+	public function addAttacker(Attacker $attacker) {
+		$this->attackers[spl_object_hash($attacker)] = $attacker;
+	}
 
-    public function onAttackerDeath(Attacker $dead) {
-        if (isset($this->attackers[spl_object_hash($dead)])) {
-            unset($this->attackers[spl_object_hash($dead)]);
-        }
-    }
+	public function onAttackerDeath(Attacker $dead) {
+		if (isset($this->attackers[spl_object_hash($dead)])) {
+			unset($this->attackers[spl_object_hash($dead)]);
+		}
+	}
 }

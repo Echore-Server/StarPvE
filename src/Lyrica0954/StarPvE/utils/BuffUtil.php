@@ -16,99 +16,99 @@ use pocketmine\Server;
 
 class BuffUtil implements Listener {
 
-    const BUFF_ATK_DAMAGE = 0;
-    const BUFF_ATK_PERCENTAGE = 1;
-    const BUFF_DMG_REDUCTION = 2;
-    const BUFF_DMG_REFLECTION = 3;
-    const BUFF_DMG_REDUCTION_PERC = 4;
+	const BUFF_ATK_DAMAGE = 0;
+	const BUFF_ATK_PERCENTAGE = 1;
+	const BUFF_DMG_REDUCTION = 2;
+	const BUFF_DMG_REFLECTION = 3;
+	const BUFF_DMG_REDUCTION_PERC = 4;
 
-    const BUFF_CONT_DMG_REDUCTION_PERC = 5;
-    const BUFF_MAGIC_DMG_REDUCTION_PERC = 6;
+	const BUFF_CONT_DMG_REDUCTION_PERC = 5;
+	const BUFF_MAGIC_DMG_REDUCTION_PERC = 6;
 
-    const BUFF_FIRE_ASPECT_DURATION = 5;
-    const BUFF_ARROW_POWER_PERC = 6;
+	const BUFF_FIRE_ASPECT_DURATION = 5;
+	const BUFF_ARROW_POWER_PERC = 6;
 
-    const BUFF_CRITICAL_PERC = 7;
-    const BUFF_CRITICAL_DMG_PERC = 8;
+	const BUFF_CRITICAL_PERC = 7;
+	const BUFF_CRITICAL_DMG_PERC = 8;
 
-    public static array $list;
+	public static array $list;
 
-    public function __construct(PluginBase $pluginBase) {
-        self::$list = [];
-        Server::getInstance()->getPluginManager()->registerEvents($this, $pluginBase);
-    }
+	public function __construct(PluginBase $pluginBase) {
+		self::$list = [];
+		Server::getInstance()->getPluginManager()->registerEvents($this, $pluginBase);
+	}
 
-    public function onEntityDamage(EntityDamageEvent $event): void {
-        $entity = $event->getEntity();
-        $finalDamage = $event->getFinalDamage();
-
-
-        if ($event instanceof EntityDamageByEntityEvent) {
-            $damager = $event->getDamager();
-
-            EntityUtil::addFinalDamage($event, self::get($damager, self::BUFF_ATK_DAMAGE));
-            EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_ATK_PERCENTAGE)));
-
-            $criticalPerc = (0.0 + self::get($damager, self::BUFF_CRITICAL_PERC));
-
-            if (RandomUtil::percentage($criticalPerc)) {
-                EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_CRITICAL_DMG_PERC)));
-                if ($damager instanceof Player) {
-                    PlayerUtil::playSound($damager, "block.sweet_berry_bush.break", 0.6, 0.6);
-                }
-            }
+	public function onEntityDamage(EntityDamageEvent $event): void {
+		$entity = $event->getEntity();
+		$finalDamage = $event->getFinalDamage();
 
 
-            $fireAspectDuration = self::get($damager, self::BUFF_FIRE_ASPECT_DURATION);
-            if ($fireAspectDuration > 0.0) {
-                $duration = (int) ceil($fireAspectDuration);
-                $entity->setOnFire($duration / 20);
-            }
+		if ($event instanceof EntityDamageByEntityEvent) {
+			$damager = $event->getDamager();
 
-            if ($event instanceof EntityDamageByChildEntityEvent) {
-                $child = $event->getChild();
-                if ($child instanceof Arrow) {
-                    EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_ARROW_POWER_PERC)));
-                }
-            }
-        }
+			EntityUtil::addFinalDamage($event, self::get($damager, self::BUFF_ATK_DAMAGE));
+			EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_ATK_PERCENTAGE)));
 
-        EntityUtil::addFinalDamage($event, -self::get($entity, self::BUFF_DMG_REDUCTION));
-        EntityUtil::multiplyFinalDamage($event, (1.0 - self::get($entity, self::BUFF_DMG_REDUCTION_PERC)));
+			$criticalPerc = (0.0 + self::get($damager, self::BUFF_CRITICAL_PERC));
 
-        if ($event->getCause() === EntityDamageEvent::CAUSE_MAGIC) {
-            EntityUtil::multiplyFinalDamage($event, (1.0 - self::get($entity, self::BUFF_MAGIC_DMG_REDUCTION_PERC)));
-        }
+			if (RandomUtil::percentage($criticalPerc)) {
+				EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_CRITICAL_DMG_PERC)));
+				if ($damager instanceof Player) {
+					PlayerUtil::playSound($damager, "block.sweet_berry_bush.break", 0.6, 0.6);
+				}
+			}
 
 
-        if ($event instanceof EntityDamageByEntityEvent) {
-            $damager = $event->getDamager();
+			$fireAspectDuration = self::get($damager, self::BUFF_FIRE_ASPECT_DURATION);
+			if ($fireAspectDuration > 0.0) {
+				$duration = (int) ceil($fireAspectDuration);
+				$entity->setOnFire($duration / 20);
+			}
 
-            if ($finalDamage >= self::get($entity, self::BUFF_DMG_REFLECTION)) {
-                $damage = self::get($entity, self::BUFF_DMG_REFLECTION);
-                if ($damage > 0.0) {
-                    $source = new EntityDamageEvent($damager, EntityDamageEvent::CAUSE_MAGIC, $damage);
-                    $damager->attack($source);
-                }
-            }
-        }
-    }
+			if ($event instanceof EntityDamageByChildEntityEvent) {
+				$child = $event->getChild();
+				if ($child instanceof Arrow) {
+					EntityUtil::multiplyFinalDamage($event, (1.0 + self::get($damager, self::BUFF_ARROW_POWER_PERC)));
+				}
+			}
+		}
 
-    public static function set(Entity $entity, int $buff, float $value): void {
-        $h = spl_object_hash($entity);
-        self::$list[$h] ?? self::$list[$h] = [];
-        self::$list[$h][$buff] = $value;
-    }
+		EntityUtil::addFinalDamage($event, -self::get($entity, self::BUFF_DMG_REDUCTION));
+		EntityUtil::multiplyFinalDamage($event, (1.0 - self::get($entity, self::BUFF_DMG_REDUCTION_PERC)));
 
-    public static function get(Entity $entity, int $buff): float {
-        return self::$list[spl_object_hash($entity)][$buff] ?? 0.0;
-    }
+		if ($event->getCause() === EntityDamageEvent::CAUSE_MAGIC) {
+			EntityUtil::multiplyFinalDamage($event, (1.0 - self::get($entity, self::BUFF_MAGIC_DMG_REDUCTION_PERC)));
+		}
 
-    public static function add(Entity $entity, int $buff, float $add): void {
-        self::set($entity, $buff, self::get($entity, $buff) + $add);
-    }
 
-    public static function subtract(Entity $entity, int $buff, float $subtract): void {
-        self::add($entity, $buff, -$subtract);
-    }
+		if ($event instanceof EntityDamageByEntityEvent) {
+			$damager = $event->getDamager();
+
+			if ($finalDamage >= self::get($entity, self::BUFF_DMG_REFLECTION)) {
+				$damage = self::get($entity, self::BUFF_DMG_REFLECTION);
+				if ($damage > 0.0) {
+					$source = new EntityDamageEvent($damager, EntityDamageEvent::CAUSE_MAGIC, $damage);
+					$damager->attack($source);
+				}
+			}
+		}
+	}
+
+	public static function set(Entity $entity, int $buff, float $value): void {
+		$h = spl_object_hash($entity);
+		self::$list[$h] ?? self::$list[$h] = [];
+		self::$list[$h][$buff] = $value;
+	}
+
+	public static function get(Entity $entity, int $buff): float {
+		return self::$list[spl_object_hash($entity)][$buff] ?? 0.0;
+	}
+
+	public static function add(Entity $entity, int $buff, float $add): void {
+		self::set($entity, $buff, self::get($entity, $buff) + $add);
+	}
+
+	public static function subtract(Entity $entity, int $buff, float $subtract): void {
+		self::add($entity, $buff, -$subtract);
+	}
 }

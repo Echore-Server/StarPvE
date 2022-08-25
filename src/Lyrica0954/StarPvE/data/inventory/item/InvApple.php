@@ -9,9 +9,9 @@ use pocketmine\item\ItemIds;
 
 class InvApple extends MaterialItem {
 
-    public function __construct(int $id) {
-        parent::__construct($id);
+	public function __construct(int $id) {
+		parent::__construct($id);
 
-        $this->entryItemIdentifier = new ItemIdentifier(ItemIds::APPLE, 0);
-    }
+		$this->entryItemIdentifier = new ItemIdentifier(ItemIds::APPLE, 0);
+	}
 }

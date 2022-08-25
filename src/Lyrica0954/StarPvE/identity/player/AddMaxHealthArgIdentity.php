@@ -13,30 +13,30 @@ use pocketmine\player\Player;
 
 class AddMaxHealthArgIdentity extends PlayerArgIdentity {
 
-    protected int $add;
+	protected int $add;
 
-    public function __construct(?Condition $condition = null, int $add) {
-        parent::__construct($condition);
-        $this->add = $add;
-    }
+	public function __construct(?Condition $condition = null, int $add) {
+		parent::__construct($condition);
+		$this->add = $add;
+	}
 
-    public function getName(): string {
-        return "最大HP増加";
-    }
+	public function getName(): string {
+		return "最大HP増加";
+	}
 
-    public function getDescription(): string {
-        return "最大HPが {$this->add} 増加";
-    }
+	public function getDescription(): string {
+		return "最大HPが {$this->add} 増加";
+	}
 
-    public function apply(): void {
-        if ($this->player !== null) {
-            EntityUtil::addMaxHealthSynchronously($this->player, $this->add);
-        }
-    }
+	public function apply(): void {
+		if ($this->player !== null) {
+			EntityUtil::addMaxHealthSynchronously($this->player, $this->add);
+		}
+	}
 
-    public function reset(): void {
-        if ($this->player !== null) {
-            EntityUtil::addMaxHealthSynchronously($this->player, -$this->add);
-        }
-    }
+	public function reset(): void {
+		if ($this->player !== null) {
+			EntityUtil::addMaxHealthSynchronously($this->player, -$this->add);
+		}
+	}
 }

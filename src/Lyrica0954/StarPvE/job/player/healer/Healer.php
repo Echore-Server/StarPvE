@@ -29,62 +29,62 @@ use pocketmine\Server;
 
 class Healer extends PlayerJob implements AlwaysAbility, Listener {
 
-    protected function getInitialIdentityGroup(): IdentityGroup {
-        $g = new IdentityGroup();
-        $list = [
-            new AddMaxHealthArgIdentity(null, 2),
-            new FastFeedIdentity(null, 30)
-        ];
-        $g->addAllSafe($list);
-        return $g;
-    }
+	protected function getInitialIdentityGroup(): IdentityGroup {
+		$g = new IdentityGroup();
+		$list = [
+			new AddMaxHealthArgIdentity(null, 2),
+			new FastFeedIdentity(null, 30)
+		];
+		$g->addAllSafe($list);
+		return $g;
+	}
 
-    protected function getInitialAbility(): Ability {
-        return new HarmonyAbility($this);
-    }
+	protected function getInitialAbility(): Ability {
+		return new HarmonyAbility($this);
+	}
 
-    protected function getInitialSkill(): Skill {
-        return new ConcordeSkill($this);
-    }
+	protected function getInitialSkill(): Skill {
+		return new ConcordeSkill($this);
+	}
 
-    public function getName(): string {
-        return "Healer";
-    }
+	public function getName(): string {
+		return "Healer";
+	}
 
-    public function getDescription(): string {
-        return
-            "§7- §l§a支援[♡]§r
+	public function getDescription(): string {
+		return
+			"§7- §l§a支援[♡]§r
 
 味方を回復できるヒーラー。
 味方を支援したり、回復させたりすることができる。";
-    }
+	}
 
-    public function getAlAbilityName(): string {
-        return "ハートウォーミング";
-    }
+	public function getAlAbilityName(): string {
+		return "ハートウォーミング";
+	}
 
-    public function getAlAbilityDescription(): string {
-        return "自分から半径 §c7m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c30%%§f 軽減させる。";
-    }
+	public function getAlAbilityDescription(): string {
+		return "自分から半径 §c7m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c30%%§f 軽減させる。";
+	}
 
-    public function getSelectableCondition(): ?Condition {
-        return null;
-    }
+	public function getSelectableCondition(): ?Condition {
+		return null;
+	}
 
-    public function onEntityDamage(EntityDamageEvent $event) {
-        $entity = $event->getEntity();
-        if ($entity instanceof Player) {
-            if ($this->player instanceof Player) {
-                if ($entity !== $this->player) {
-                    $gp = StarPvE::getInstance()->getGamePlayerManager();
-                    if ($gp->areSameGame($entity, $this->player)) {
-                        $dist = $entity->getPosition()->distance($this->player->getPosition());
-                        if ($dist <= 7) {
-                            EntityUtil::multiplyFinalDamage($event, 0.7);
-                        }
-                    }
-                }
-            }
-        }
-    }
+	public function onEntityDamage(EntityDamageEvent $event) {
+		$entity = $event->getEntity();
+		if ($entity instanceof Player) {
+			if ($this->player instanceof Player) {
+				if ($entity !== $this->player) {
+					$gp = StarPvE::getInstance()->getGamePlayerManager();
+					if ($gp->areSameGame($entity, $this->player)) {
+						$dist = $entity->getPosition()->distance($this->player->getPosition());
+						if ($dist <= 7) {
+							EntityUtil::multiplyFinalDamage($event, 0.7);
+						}
+					}
+				}
+			}
+		}
+	}
 }

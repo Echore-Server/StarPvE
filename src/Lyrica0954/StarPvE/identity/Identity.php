@@ -14,24 +14,24 @@ use pocketmine\Server;
 
 abstract class Identity {
 
-    public function close(): void {
-        if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
-    }
+	public function close(): void {
+		if ($this instanceof Listener) HandlerListManager::global()->unregisterAll($this);
+	}
 
-    protected function registerEvent(): void {
-        if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
-    }
+	protected function registerEvent(): void {
+		if ($this instanceof Listener) Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
+	}
 
-    public function __construct() {
-    }
+	public function __construct() {
+	}
 
-    abstract public function apply(): void;
+	abstract public function apply(): void;
 
-    abstract public function reset(): void;
+	abstract public function reset(): void;
 
-    abstract public function isApplicable(): bool;
+	abstract public function isApplicable(): bool;
 
-    abstract public function getName(): string;
+	abstract public function getName(): string;
 
-    abstract public function getDescription(): string;
+	abstract public function getDescription(): string;
 }

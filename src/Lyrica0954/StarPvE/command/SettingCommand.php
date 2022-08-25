@@ -13,15 +13,15 @@ use pocketmine\player\Player;
 
 final class SettingCommand extends PluginCommandNoAuth {
 
-    public function canRunBy(): int {
-        return self::PLAYER;
-    }
+	public function canRunBy(): int {
+		return self::PLAYER;
+	}
 
 
-    protected function run(CommandSender $sender, array $args): void {
-        if ($sender instanceof Player) {
-            $form = new SettingForm($sender);
-            $sender->sendForm($form);
-        }
-    }
+	protected function run(CommandSender $sender, array $args): void {
+		if ($sender instanceof Player) {
+			$form = new SettingForm($sender);
+			$sender->sendForm($form);
+		}
+	}
 }

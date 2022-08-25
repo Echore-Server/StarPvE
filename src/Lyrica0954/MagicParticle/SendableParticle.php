@@ -15,23 +15,23 @@ use pocketmine\world\Position;
 
 abstract class SendableParticle implements DrawableParticle {
 
-    public function drawAsDelayed(Position $pos): array {
-        return $this->draw($pos);
-    }
+	public function drawAsDelayed(Position $pos): array {
+		return $this->draw($pos);
+	}
 
-    public function getPackets(Position $pos, ParticleOption $option): array {
-        $packets = [];
-        $generator = $this->draw($pos);
-        foreach ($generator as $particlePos) {
-            if (is_string($option->getParticle())) {
-                $pkt = SpawnParticleEffectPacket::create(DimensionIds::OVERWORLD, -1, $particlePos, $option->getParticle(), $option->getMolang());
-                $pk = [$pkt];
-            } else {
-                $pk = $option->getParticle()->encode($particlePos);
-            }
-            $packets[] = $pk;
-        }
+	public function getPackets(Position $pos, ParticleOption $option): array {
+		$packets = [];
+		$generator = $this->draw($pos);
+		foreach ($generator as $particlePos) {
+			if (is_string($option->getParticle())) {
+				$pkt = SpawnParticleEffectPacket::create(DimensionIds::OVERWORLD, -1, $particlePos, $option->getParticle(), $option->getMolang());
+				$pk = [$pkt];
+			} else {
+				$pk = $option->getParticle()->encode($particlePos);
+			}
+			$packets[] = $pk;
+		}
 
-        return $packets;
-    }
+		return $packets;
+	}
 }
