@@ -29,6 +29,7 @@ use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\game\wave\WaveData;
 use Lyrica0954\StarPvE\game\wave\WaveMonsters;
+use Lyrica0954\StarPvE\job\AbilitySpell;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -47,6 +48,7 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
+use pocketmine\item\VanillaItems;
 use pocketmine\lang\Translatable;
 use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use pocketmine\player\Player;
@@ -741,7 +743,11 @@ class Game implements CooltimeAttachable {
 		$playerJob = StarPvE::getInstance()->getJobManager()->getJob($player);
 		if ($playerJob instanceof PlayerJob) {
 			$items = array_map(function (Spell $spell) {
-				return $spell->getActivateItem();
+				if ($spell instanceof AbilitySpell) {
+					return $spell->getActivateItem();
+				} else {
+					return VanillaItems::AIR();
+				}
 			}, $playerJob->getSpells());
 			/**
 			 * @var Item[] $items

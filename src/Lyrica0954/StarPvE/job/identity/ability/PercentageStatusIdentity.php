@@ -31,7 +31,11 @@ class PercentageStatusIdentity extends AttachStatusIdentityBase {
 		$name = $attaching->getCooltimeHandler()->getId();
 		$statusName = StatusTranslate::translate($this->attachStatus);
 		$perc = round(($this->percentage - 1.0) * 100);
-		return "{$name}の{$statusName} §c+{$perc}%§f";
+		$op = "+";
+		if ($this->percentage < 1.0) {
+			$op = "";
+		}
+		return "{$name}の{$statusName} §c{$op}{$perc}%§f";
 	}
 
 	public function applyStatus(AbilityStatus $status): void {

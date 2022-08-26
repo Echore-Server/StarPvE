@@ -7,13 +7,11 @@ namespace Lyrica0954\StarPvE\job;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use pocketmine\item\Item;
+use pocketmine\player\Player;
 
-abstract class Spell extends Ability {
+interface Spell {
 
-	public function __construct(PlayerJob $job) {
-		parent::__construct($job);
-		$this->cooltimeHandler = new CooltimeHandler($this->getName(), CooltimeHandler::BASE_TICK, 1);
-	}
+	public function getName(): string;
 
-	abstract public function getActivateItem(): Item;
+	public function close(): void;
 }

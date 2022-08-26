@@ -39,9 +39,13 @@ class ForceFieldSkill extends Skill {
 	public function getDescription(): String {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$damage = DescriptionTranslator::health($this->damage);
-		$percentage = DescriptionTranslator::percentage($this->percentage, true);
+		$percentage = DescriptionTranslator::percentage($this->percentage, false, -1.0);
+		$op = "";
+		if ($this->percentage->get() > 1.0) {
+			$op = "+";
+		}
 		return
-			sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。(ノックバック §c+%3$s)', $area, $damage, $percentage);
+			sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。(ノックバック §c' . $op . '%3$s)', $area, $damage, $percentage);
 	}
 
 	protected function init(): void {

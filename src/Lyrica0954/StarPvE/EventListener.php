@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE;
 
 use Lyrica0954\MagicParticle\CircleParticle;
+use Lyrica0954\MagicParticle\ParticleOption;
+use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\entity\Ghost;
 use Lyrica0954\StarPvE\entity\JobShop;
 use Lyrica0954\StarPvE\form\GameSelectForm;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\Entity;
@@ -37,6 +40,7 @@ use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\raklib\RakLibInterface;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
+use pocketmine\world\Position;
 
 class EventListener implements Listener {
 
@@ -56,6 +60,13 @@ class EventListener implements Listener {
 		if ($item->getId() === ItemIds::COMPASS) {
 			$form = new GameSelectForm();
 			$player->sendForm($form);
+		} elseif ($item->getId() === ItemIds::REDSTONE_TORCH) {
+			ParticleUtil::send(
+				new SingleParticle,
+				$player->getWorld()->getPlayers(),
+				Position::fromObject($player->getEyePos(), $player->getWorld()),
+				ParticleOption::spawnPacket("starpve:party_cracker", "")
+			);
 		}
 	}
 
@@ -85,6 +96,16 @@ class EventListener implements Listener {
 					PlayerUtil::teleportToLobby($entity);
 				}
 			}
+		}
+
+		if (!$event->isCancelled()) {
+			$par = new SingleParticle;
+			ParticleUtil::send(
+				$par,
+				$entity->getWorld()->getPlayers(),
+				Position::fromObject($entity->getPosition()->add(0, $entity->size->getHeight() / 2, 0), $entity->getWorld()),
+				ParticleOption::spawnPacket("starpve:entity_damage", "")
+			);
 		}
 	}
 

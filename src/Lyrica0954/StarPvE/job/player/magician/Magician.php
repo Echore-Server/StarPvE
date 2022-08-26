@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\job\player\magician;
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\data\condition\LevelCondition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\SpeedPercentageArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
@@ -23,7 +24,12 @@ class Magician extends PlayerJob {
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup {
-		return new IdentityGroup();
+		$idt = new IdentityGroup();
+		$list = [
+			new SpeedPercentageArgIdentity(null, 0.75)
+		];
+		$idt->addAll($list);
+		return $idt;
 	}
 
 	public function getName(): string {

@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\player\equipment\ArmorEquipment;
 use Lyrica0954\StarPvE\game\player\equipment\SwordEquipment;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\ArmorSet;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
@@ -92,12 +93,6 @@ class GamePlayer {
 		$this->identityGroup = new IdentityGroup();
 		$this->perkAvailable = 0;
 
-		$job = StarPvE::getInstance()->getJobManager()->getJob($this->getPlayer());
-		if ($job !== null) {
-			$class = $job::class;
-			StarPvE::getInstance()->getJobManager()->setJob($this->player, $class);
-		}
-
 		$this->rollPerkIdentities();
 
 		$this->resetEquipment();
@@ -149,6 +144,8 @@ class GamePlayer {
 	public function leaveGame() {
 		PlayerUtil::reset($this->player);
 		PlayerUtil::teleportToLobby($this->player);
+
+		StarPvE::getInstance()->getJobManager()->setJob($this->player, null);
 
 		$this->resetAll();
 		$this->player->setGamemode(GameMode::ADVENTURE());

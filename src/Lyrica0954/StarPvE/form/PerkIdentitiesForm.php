@@ -71,7 +71,7 @@ class PerkIdentitiesForm implements Form {
 		$buttons = [];
 
 		foreach ($this->identities as $identity) {
-			$fixed = str_replace("%", "%%", $identity->getDescription());
+			$fixed = FormUtil::fixText($identity->getDescription());
 			$compatibility = true;
 
 			if ($identity instanceof AAIB) {

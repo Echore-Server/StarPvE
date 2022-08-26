@@ -104,7 +104,7 @@ class DeathPulseSkill extends Skill {
 					$this->player->getWorld()->getPlayers(),
 					$pos,
 					ParticleOption::spawnPacket(
-						"starpve:rocket_sparkler_emitter",
+						"starpve:shaman_sparkler",
 						""
 					)
 				);

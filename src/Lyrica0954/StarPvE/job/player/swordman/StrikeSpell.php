@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\job\player\swordman;
 use Lyrica0954\MagicParticle\effect\LightningEffect;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
+use Lyrica0954\StarPvE\job\AbilitySpell;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\Skill;
@@ -29,7 +30,7 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\world\Position;
 use Ramsey\Uuid\Rfc4122\Validator;
 
-class StrikeSpell extends Spell {
+class StrikeSpell extends AbilitySpell {
 
 	public function getActivateItem(): Item {
 		$item = VanillaItems::NETHER_STAR()->setCustomName("§r§l§b{$this->getName()}");
@@ -41,7 +42,7 @@ class StrikeSpell extends Spell {
 	}
 
 	protected function init(): void {
-		$this->duration = new AbilityStatus(10 * 20);
+		$this->duration = new AbilityStatus(6 * 20);
 		$this->percentage = new AbilityStatus(0.0);
 		$this->area = new AbilityStatus(5.0);
 		$this->damage = new AbilityStatus(2.0);

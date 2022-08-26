@@ -25,7 +25,7 @@ class AddMaxHealthArgIdentity extends PlayerArgIdentity {
 	}
 
 	public function getDescription(): string {
-		return "最大HPが {$this->add} 増加";
+		return "最大HP §c+{$this->add}";
 	}
 
 	public function apply(): void {

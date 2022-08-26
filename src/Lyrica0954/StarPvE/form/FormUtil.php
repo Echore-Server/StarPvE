@@ -48,4 +48,10 @@ class FormUtil {
 
 		return $json;
 	}
+
+	public static function fixText(string $text): string {
+		$text = str_replace("%", "%%", $text);
+
+		return $text;
+	}
 }

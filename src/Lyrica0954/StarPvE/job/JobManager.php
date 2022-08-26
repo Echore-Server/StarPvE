@@ -34,6 +34,8 @@ class JobManager {
 	public function register(PlayerJob $job) {
 		$name = (new \ReflectionClass($job))->getShortName();
 		$this->jobs[$name] = $job::class;
+
+		$job::initStatic();
 	}
 
 	public function getRegisteredJobs() {

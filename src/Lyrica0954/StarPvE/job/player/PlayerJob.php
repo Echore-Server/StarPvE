@@ -7,12 +7,14 @@ namespace Lyrica0954\StarPvE\job\player;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\AbilitySpell;
 use Lyrica0954\StarPvE\job\ActionBarManager;
 use Lyrica0954\StarPvE\job\ActionListManager;
 use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeNotifier;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\JobIdentityGroup;
 use Lyrica0954\StarPvE\job\LineOption;
@@ -40,6 +42,11 @@ abstract class PlayerJob extends Job {
 	 */
 	protected array $spells;
 
+	/**
+	 * @var Spell[]
+	 */
+	protected array $defaultSpells;
+
 	protected IdentityGroup $identityGroup;
 
 	protected CooltimeNotifier $cooltimeNotifier;
@@ -48,6 +55,14 @@ abstract class PlayerJob extends Job {
 	protected int $lastActionUpdate;
 
 	protected ?TaskHandler $actionTask;
+
+	/**
+	 * @return void
+	 * 
+	 * called when registered
+	 */
+	public static function initStatic(): void {
+	}
 
 	public function __construct(?Player $player = null) {
 
@@ -65,6 +80,7 @@ abstract class PlayerJob extends Job {
 		$this->ability = $this->getInitialAbility();
 		$this->skill = $this->getInitialSkill();
 		$this->spells = [];
+		$this->defaultSpells = [];
 		$this->identityGroup = $this->getInitialIdentityGroup();
 		$this->action = new ActionListManager();
 		$this->lastActionUpdate = 0;
@@ -103,23 +119,56 @@ abstract class PlayerJob extends Job {
 	protected function init(): void {
 	}
 
+	/**
+	 * @return Spell[]
+	 */
+	public function getDefaultSpells(): array {
+		return $this->defaultSpells;
+	}
+
 	protected function sortCooltimeNotifier(): void {
 		$all = [
 			$this->ability->getCooltimeHandler(),
 			$this->skill->getCooltimeHandler()
 		];
-		$spells = array_map(function (Spell $spell) {
-			return $spell->getCooltimeHandler();
-		}, $this->spells);
+		$spells = [];
+		foreach ($this->spells as $spell) {
+			if ($spell instanceof AbilitySpell) {
+				$spells[] = $spell->getCooltimeHandler();
+			}
+		}
+
 		$this->cooltimeNotifier->setAll(array_merge($all, $spells));
+	}
+
+	public function applyAllSpellEffect(): void {
+		foreach ($this->spells as $spell) {
+			if ($spell instanceof IdentitySpell) {
+				$spell->getIdentityGroup()->apply();
+			}
+		}
+	}
+
+	public function resetAllSpellEffect(): void {
+		foreach ($this->spells as $spell) {
+			if ($spell instanceof IdentitySpell) {
+				$spell->getIdentityGroup()->apply();
+			}
+		}
+	}
+
+	public function closeSpell(): void {
+		foreach ($this->spells as $spell) {
+			$spell->close();
+		}
 	}
 
 	public function close() {
 		$this->ability->close();
 		$this->skill->close();
-		foreach ($this->spells as $spell) {
-			$spell->close();
-		}
+		$this->closeSpell();
+
+		$this->resetAllSpellEffect();
 
 		$this->cooltimeNotifier->stop();
 
@@ -161,21 +210,23 @@ abstract class PlayerJob extends Job {
 		}
 
 		foreach ($this->spells as $spell) {
-			$spellItem = $spell->getActivateItem();
-			if ($spellItem->equals($item, false, false)) {
-				$result = $spell->activate();
+			if ($spell instanceof AbilitySpell) {
+				$spellItem = $spell->getActivateItem();
+				if ($spellItem->equals($item, false, false)) {
+					$result = $spell->activate();
 
-				$name = $spell->getName();
+					$name = $spell->getName();
 
-				if ($result->isFailedByCooltime()) {
-					$this->action->push(new LineOption("§c現在{$name}はクールタイム中です！"));
-				} elseif ($result->isFailedAlreadyActive()) {
-					$this->action->push(new LineOption("§c{$name}は既にアクティブです！"));
-				} elseif ($result->isSucceeded()) {
-					$this->action->push(new LineOption("§a{$name}を発動しました！"));
-				} elseif ($result->isFailed()) {
-					$this->action->push(new LineOption("§c{$name}を発動できません！"));
-				} elseif ($result->isAbandoned()) {
+					if ($result->isFailedByCooltime()) {
+						$this->action->push(new LineOption("§c現在{$name}はクールタイム中です！"));
+					} elseif ($result->isFailedAlreadyActive()) {
+						$this->action->push(new LineOption("§c{$name}は既にアクティブです！"));
+					} elseif ($result->isSucceeded()) {
+						$this->action->push(new LineOption("§a{$name}を発動しました！"));
+					} elseif ($result->isFailed()) {
+						$this->action->push(new LineOption("§c{$name}を発動できません！"));
+					} elseif ($result->isAbandoned()) {
+					}
 				}
 			}
 		}
@@ -215,6 +266,10 @@ abstract class PlayerJob extends Job {
 
 	public function addSpell(Spell $spell): void {
 		$this->spells[] = $spell;
+		if ($spell instanceof IdentitySpell) {
+			$spell->getIdentityGroup()->apply();
+		}
+
 		$this->sortCooltimeNotifier();
 	}
 
@@ -231,7 +286,25 @@ abstract class PlayerJob extends Job {
 	 * @return void
 	 */
 	public function setSpells(array $spells): void {
+		$this->resetAllSpellEffect();
 		$this->spells = $spells;
+		$this->applyAllSpellEffect();
+
+		$this->sortCooltimeNotifier();
+	}
+
+	public function removeSpell(Spell $spell): void {
+		$key = array_search($spell, $this->spells);
+		if ($key !== false) {
+			$target = $this->spells[$key];
+			$target->close();
+			if ($target instanceof IdentitySpell) {
+				$target->getIdentityGroup()->reset();
+			}
+
+			unset($this->spells[$key]);
+		}
+
 		$this->sortCooltimeNotifier();
 	}
 

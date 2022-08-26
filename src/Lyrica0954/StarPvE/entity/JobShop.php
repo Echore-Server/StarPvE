@@ -10,6 +10,7 @@ use Lyrica0954\MagicParticle\effect\SaturatedLineworkEffect;
 use Lyrica0954\MagicParticle\effect\SquareEffect;
 use Lyrica0954\MagicParticle\PartDelayedParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
+use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\StarPvE\form\JobSelectForm;
 use pocketmine\entity\Human;
@@ -26,6 +27,7 @@ use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\player\Player;
+use pocketmine\world\Position;
 
 class JobShop extends Human implements Ghost {
 
@@ -66,8 +68,9 @@ class JobShop extends Human implements Ghost {
 		if ($this->lookTick >= 6) {
 			$this->lookTick = 0;
 
-			$ef = new PartDelayedEffect((new SaturatedLineworkEffect(14, 3, 1, 5)), 2, 1, true);
-			ParticleUtil::send($ef, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
+
+			#$ef = new PartDelayedEffect((new SaturatedLineworkEffect(14, 3, 1, 5)), 2, 1, true);
+			#ParticleUtil::send($ef, $this->getWorld()->getPlayers(), VectorUtil::keepAdd($this->getPosition(), 0, $this->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:balloon_gas_particle", ""));
 
 
 			#$this->sq->rotate(4, 0);
@@ -90,6 +93,14 @@ class JobShop extends Human implements Ghost {
 						$player->getNetworkSession()->sendDataPacket($packet);
 
 						$this->emoted[] = $player;
+
+						$par = new SingleParticle;
+						ParticleUtil::send(
+							$par,
+							[$player],
+							Position::fromObject($this->getEyePos()->add(0, 0.5, 0), $this->getWorld()),
+							ParticleOption::spawnPacket("starpve:job_shop", "")
+						);
 					}
 				}
 			}
@@ -99,14 +110,17 @@ class JobShop extends Human implements Ghost {
 			}
 		}
 
+
+
 		$this->ptick += $tickDiff;
 		if (($this->ptick) >= 100) {
 			$this->ptick = 0;
-			$ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12);
-			ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
 
-			$ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12, true);
-			ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
+			#$ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12);
+			#ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_green_gas", ""));
+			#
+			#$ef = new PartDelayedParticle(new CoveredParticle(new SphereParticle(5, 6, 6), VectorUtil::keepAdd($this->getPosition(), 0, 9, 0)), 1, 12, true);
+			#ParticleUtil::send($ef, $this->getWorld()->getPlayers(), option: ParticleOption::spawnPacket("starpve:soft_red_gas", ""));
 		}
 
 		return $hasUpdate;

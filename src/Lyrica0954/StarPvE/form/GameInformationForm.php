@@ -68,6 +68,11 @@ class GameInformationForm implements Form {
 			if ($data == 0) {
 				if ($this->game->canJoin($player)) {
 					$gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
+					$job = StarPvE::getInstance()->getJobManager()->getJob($player);
+					if (!$job instanceof PlayerJob) {
+						$player->sendMessage("§c職業を選択してください！");
+						return;
+					}
 					if (($gamePlayer = $gamePlayerManager->getGamePlayer($player)) !== null) {
 						$gamePlayer->joinGame($this->game);
 					} else {

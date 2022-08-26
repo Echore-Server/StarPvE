@@ -21,6 +21,7 @@ use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseStatusIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\JobIdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
@@ -68,7 +69,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 			new PercentageStatusIdentity($this, new JobLevelCondition(16, "Swordman"), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 1.07),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(18, "Swordman"), 2),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(20, "Swordman"), 6),
-			new PercentageStatusIdentity($this, new JobLevelCondition(20, "Swordman"), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 1.4),
+			new PercentageStatusIdentity($this, new JobLevelCondition(20, "Swordman"), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 1.75),
 			new PercentageStatusIdentity($this, new JobLevelCondition(20, "Swordman"), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.2),
 
 		];
@@ -77,7 +78,16 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 	}
 
 	protected function init(): void {
-		$this->addSpell(new StrikeSpell($this));
+		$this->defaultSpells = [
+			new StrikeSpell($this),
+			(new IdentitySpell($this, "ライトニングフィールド"))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_PERCENTAGE, 0.0))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 2.0))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 0.5)),
+			(new IdentitySpell($this, "特攻兵"))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 4.0))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.2))
+		];
 	}
 
 	public function getName(): string {

@@ -34,9 +34,12 @@ class JobIdentityForm implements Form {
 				$activateable = $identity->isApplicableFor($this->player);
 			}
 
-			$activateableIdentity[] = $identity;
+			if ($activateable) {
+				$activateableIdentity[] = $identity;
+			}
+
 			$desc = $activateable ? "§a有効" : "§c無効";
-			$fixed = str_replace("%", "%%", $identity->getDescription());
+			$fixed = FormUtil::fixText($identity->getDescription());
 			$buttons[] = [
 				"text" => "§l§6{$identity->getName()}\n§r{$desc} §f/ §7{$fixed}"
 			];
