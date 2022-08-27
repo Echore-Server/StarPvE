@@ -8,6 +8,7 @@ use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\effect\SaturatedLineworkEffect;
 use Lyrica0954\MagicParticle\EmitterParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
+use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
@@ -97,10 +98,8 @@ class DeathPulseSkill extends Skill {
 					)
 				);
 
-				$base = (new Vector3($area, 0, $area))->divide(2);
-				$emitter = new EmitterParticle($base->multiply(-1), $base, 20);
 				ParticleUtil::send(
-					$emitter,
+					new SingleParticle,
 					$this->player->getWorld()->getPlayers(),
 					$pos,
 					ParticleOption::spawnPacket(

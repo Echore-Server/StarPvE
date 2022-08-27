@@ -34,10 +34,12 @@ class JobInformationSelectableForm extends JobInformationForm {
 						StarPvE::getInstance()->getJobManager()->setJob($player, $class);
 						Messanger::talk($player, "職業", "§a{$this->job->getName()} を選択しました！");
 						$jobInstance = StarPvE::getInstance()->getJobManager()->getJob($player);
-						TaskUtil::delayed(new ClosureTask(function () use ($player, $jobInstance) {
-							$form = new SelectSpellForm($jobInstance);
-							$player->sendForm($form);
-						}), 1);
+						if (count($jobInstance->getDefaultSpells()) > 0) {
+							TaskUtil::delayed(new ClosureTask(function () use ($player, $jobInstance) {
+								$form = new SelectSpellForm($jobInstance);
+								$player->sendForm($form);
+							}), 1);
+						}
 					} else {
 						Messanger::talk($player, "職業", "§c{$this->job->getName()} を選択できません");
 					}

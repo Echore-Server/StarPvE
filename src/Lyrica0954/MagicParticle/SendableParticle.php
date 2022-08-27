@@ -6,7 +6,9 @@ namespace Lyrica0954\MagicParticle;
 
 use Generator;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\SetActorDataPacket;
 use pocketmine\network\mcpe\protocol\SpawnParticleEffectPacket;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\player\Player;
@@ -24,7 +26,7 @@ abstract class SendableParticle implements DrawableParticle {
 		$generator = $this->draw($pos);
 		foreach ($generator as $particlePos) {
 			if (is_string($option->getParticle())) {
-				$pkt = SpawnParticleEffectPacket::create(DimensionIds::OVERWORLD, -1, $particlePos, $option->getParticle(), $option->getMolang());
+				$pkt = SpawnParticleEffectPacket::create(DimensionIds::OVERWORLD, $option->getActorUniqueId(), $particlePos, $option->getParticle(), $option->getMolang() === "" ? null : $option->getMolang());
 				$pk = [$pkt];
 			} else {
 				$pk = $option->getParticle()->encode($particlePos);

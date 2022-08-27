@@ -21,12 +21,15 @@ use Lyrica0954\StarPvE\PlayerController;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EmoteIds;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
+use Lyrica0954\StarPvE\utils\RandomUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\EntitySizeInfo;
+use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\player\Player;
+use pocketmine\world\particle\Particle;
 use pocketmine\world\Position;
 
 class JobShop extends Human implements Ghost {
@@ -67,6 +70,65 @@ class JobShop extends Human implements Ghost {
 		$this->lookTick += $tickDiff;
 		if ($this->lookTick >= 6) {
 			$this->lookTick = 0;
+
+			ParticleUtil::send(
+				new SingleParticle,
+				$this->getWorld()->getPlayers(),
+				Position::fromObject($this->getEyePos(), $this->getWorld()),
+				ParticleOption::spawnPacket("starpve:axe", json_encode(
+					[
+						[
+							"name" => "variable.dx",
+							"value" => [
+								"type" => "float",
+								"value" => RandomUtil::rand_float(-1, 1)
+							]
+						],
+						[
+							"name" => "variable.dy",
+							"value" => [
+								"type" => "float",
+								"value" => RandomUtil::rand_float(-1, 1)
+							]
+						],
+						[
+							"name" => "variable.dz",
+							"value" => [
+								"type" => "float",
+								"value" => RandomUtil::rand_float(-1, 1)
+							]
+						],
+						[
+							"name" => "variable.speed",
+							"value" => [
+								"type" => "float",
+								"value" => 3.0
+							]
+						],
+						[
+							"name" => "variable.size",
+							"value" => [
+								"type" => "float",
+								"value" => 1.25
+							]
+						],
+						[
+							"name" => "variable.lifetime",
+							"value" => [
+								"type" => "float",
+								"value" => 10.0
+							]
+						],
+						[
+							"name" => "variable.hasCollision",
+							"value" => [
+								"type" => "float",
+								"value" => 0.0
+							]
+						]
+					]
+				))
+			);
 
 
 			#$ef = new PartDelayedEffect((new SaturatedLineworkEffect(14, 3, 1, 5)), 2, 1, true);

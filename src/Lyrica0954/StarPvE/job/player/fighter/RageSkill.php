@@ -64,7 +64,7 @@ class RageSkill extends Skill implements Listener {
 	protected function onActivate(): ActionResult {
 		PlayerUtil::playSound($this->player, "random.fuse", 0.75);
 		PlayerUtil::playSound($this->player, "mob.creeper.death", 0.5, 0.6);
-		$fog = PlayerFogPacket::create(["minecraft:fog_hell"]);
+		$fog = PlayerFogPacket::create(["starpve:fighter_angry"]);
 		$this->player->getNetworkSession()->sendDataPacket($fog);
 
 		$this->active = true;

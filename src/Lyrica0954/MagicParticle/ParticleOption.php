@@ -13,10 +13,14 @@ class ParticleOption {
 
 	protected string|Particle $particle;
 
-	public function __construct(string|Particle $particle, string $molang) {
+	protected int $actorUniqueId;
+
+	public function __construct(string|Particle $particle, string $molang, int $actorUniqueId = -1) {
 		$this->particle = $particle;
 
 		$this->molang = $molang;
+
+		$this->actorUniqueId = $actorUniqueId;
 	}
 
 	public function getParticle(): string|Particle {
@@ -27,14 +31,18 @@ class ParticleOption {
 		return $this->molang;
 	}
 
+	public function getActorUniqueId(): int {
+		return $this->actorUniqueId;
+	}
 
-	public static function levelEvent(Particle $particle): self {
-		$option = new ParticleOption($particle, "");
+
+	public static function levelEvent(Particle $particle, int $actorUniqueId = -1): self {
+		$option = new ParticleOption($particle, "", $actorUniqueId);
 		return $option;
 	}
 
-	public static function spawnPacket(string $particle, string $molang): self {
-		$option = new ParticleOption($particle, $molang);
+	public static function spawnPacket(string $particle, string $molang = "", int $actorUniqueId = -1): self {
+		$option = new ParticleOption($particle, $molang, $actorUniqueId);
 		return $option;
 	}
 }

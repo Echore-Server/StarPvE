@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job;
 
+use Lyrica0954\MagicParticle\ParticleOption;
+use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\data\player\PlayerConfig;
 use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
 use Lyrica0954\StarPvE\event\job\player\PlayerLeftJobEvent;
 use Lyrica0954\StarPvE\event\job\player\PlayerSelectJobEvent;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use Lyrica0954\StarPvE\job\player\swordman\Swordman;
 use Lyrica0954\StarPvE\StarPvE;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\item\ItemIds;
 use pocketmine\player\Player;
+use pocketmine\scheduler\Task;
+use pocketmine\scheduler\TaskHandler;
+use pocketmine\world\Position;
 
 class JobManager {
 
@@ -26,9 +33,38 @@ class JobManager {
 	 */
 	private array $players;
 
+	protected ?TaskHandler $visTask = null;
+
 	public function __construct() {
 		$this->players = [];
 		$this->jobs = [];
+
+		$task = new class($this) extends Task {
+			public function __construct(protected JobManager $jobManager) {
+			}
+
+			public function onRun(): void {
+				foreach ($this->jobManager->getPlayers() as $playerJob) {
+					if ($playerJob instanceof PlayerJob && ($player = $playerJob->getPlayer()) instanceof Player && $player->isOnline()) {
+						$particle = match (true) {
+							$playerJob instanceof Swordman => "starpve:job_swordman",
+							default => null
+						};
+						if ($particle !== null) {
+							ParticleUtil::send(
+								new SingleParticle,
+								$player->getWorld()->getPlayers(),
+								Position::fromObject($player->getEyePos(), $player->getWorld()),
+								ParticleOption::spawnPacket($particle, "", $player->getId())
+							);
+							$player->sendMessage("sent uid: {$player->getId()}");
+						}
+					}
+				}
+			}
+		};
+
+		#$this->visTask = StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask($task, (2 * 20));
 	}
 
 	public function register(PlayerJob $job) {
@@ -106,6 +142,13 @@ class JobManager {
 
 	public function isManaged(Player $player) {
 		return isset($this->players[spl_object_hash($player)]);
+	}
+
+	/**
+	 * @return PlayerJob[]
+	 */
+	public function getPlayers(): array {
+		return $this->players;
 	}
 
 	public function onItemUse(PlayerItemUseEvent|PlayerInteractEvent $event) {

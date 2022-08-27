@@ -19,6 +19,7 @@ class SelectSpellForm extends SpellListForm {
 	public function jsonSerialize(): mixed {
 		$parentData = parent::jsonSerialize();
 		$parentData["title"] = "ショップ >> 職業 >> {$this->job->getName()} >> スペル選択";
+		$parentData["buttons"][] = ["text" => "選択しない"];
 		return $parentData;
 	}
 
@@ -29,6 +30,8 @@ class SelectSpellForm extends SpellListForm {
 				$form = new SpellInformationSelectableForm($this->job, $spell);
 				$player->sendForm($form);
 			}
+		} else {
+			$player->sendForm($this);
 		}
 	}
 }
