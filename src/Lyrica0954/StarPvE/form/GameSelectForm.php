@@ -29,7 +29,7 @@ class GameSelectForm implements Form {
 			$statusText = Game::statusAsText($game->getStatus());
 			$gameCount++;
 			$buttons[] = [
-				"text" => "§eGame {$gameCount}§d({$playerCount}/{$game->getMaxPlayers()}) §r{$statusText}\n§7{$game->getWorld()->getFolderName()}"
+				"text" => "§eGame {$gameCount}§d({$playerCount}/{$game->getOption()->getMaxPlayers()}) §r{$statusText}\n§7{$game->getWorld()->getFolderName()}"
 			];
 		}
 

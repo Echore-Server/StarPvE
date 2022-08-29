@@ -46,8 +46,8 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 	public function getAlAbilityDescription(): String {
 		return
 			"§b発動条件:§f 敵を倒す
-§b発動時:§f 倒した敵から半径 §c2.8m§f 以内の敵に
-倒した敵の最大体力 §c16%% §f分のダメージを与える。
+§b発動時:§f 倒した敵から半径 §c2.3m§f 以内の敵に
+倒した敵の最大体力 §c10%% §f分のダメージを与える。
 倒した敵が §dクリーパー§f の場合は範囲が §c10m§f になり、ダメージが最大体力 §c40%%§f 分になる。";
 	}
 
@@ -75,11 +75,11 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 
 		$range = match ($entity::class) {
 			DefaultMonsters::CREEPER => 10.0,
-			default => 2.8
+			default => 2.3
 		};
 		$per = match ($entity::class) {
 			DefaultMonsters::CREEPER => 0.4,
-			default => 0.16
+			default => 0.1
 		};
 
 		$damage = $entity->getMaxHealth() * $per;
@@ -88,19 +88,12 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 
 		PlayerUtil::broadcastSound($pos, "dig.basalt", 0.8, 1.0);
 
-		if ($count < 2) {
-			foreach (EntityUtil::getWithinRange($pos, $range) as $target) {
-				if (MonsterData::isMonster($target)) {
-					if ($target !== $entity) {
-						if ($target->getHealth() > 0) {
-							$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
-							#$source->setAttackCooldown(10);
-							if ($target->getHealth() <= $source->getFinalDamage()) {
-								$target->kill();
-							} else {
-								$target->attack($source);
-							}
-						}
+		foreach (EntityUtil::getWithinRange($pos, $range) as $target) {
+			if (MonsterData::isMonster($target)) {
+				if ($target !== $entity) {
+					if (!$target->isClosed()) {
+						$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_CUSTOM, $damage, [], 0);
+						$target->attack($source);
 					}
 				}
 			}
@@ -118,8 +111,10 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 		$entity = $event->getEntity();
 		$damager = $event->getDamager();
 		if ($damager === $this->player && $this->player instanceof Player) {
-			if ($entity->getHealth() <= $event->getFinalDamage() && $entity->isAlive()) {
-				$this->causeCollapse($entity);
+			if ($event->getCause() !== EntityDamageEvent::CAUSE_CUSTOM) {
+				if ($entity->getHealth() <= $event->getFinalDamage() && $entity->isAlive()) {
+					$this->causeCollapse($entity);
+				}
 			}
 		}
 	}

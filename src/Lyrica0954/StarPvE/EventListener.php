@@ -7,6 +7,8 @@ namespace Lyrica0954\StarPvE;
 use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\StarPvE\command\CommandLoader;
+use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\entity\Ghost;
 use Lyrica0954\StarPvE\entity\JobShop;
 use Lyrica0954\StarPvE\form\GameSelectForm;
@@ -16,6 +18,7 @@ use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Location;
 use pocketmine\entity\Skin;
+use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityMotionEvent;
@@ -25,6 +28,7 @@ use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
+use pocketmine\event\player\PlayerGameModeChangeEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerJoinEvent;
@@ -38,6 +42,7 @@ use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\raklib\RakLibInterface;
+use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 use pocketmine\world\Position;
@@ -201,6 +206,13 @@ class EventListener implements Listener {
 			$jobShop->setNameTag("§7------------------\n§d職業選択\n§7------------------");
 			$jobShop->spawnToAll();
 		}
+
+		$adapter = GenericConfigAdapter::fetch($player);
+		if ($adapter instanceof GenericConfigAdapter) {
+			foreach ($adapter->getConfig()->get(GenericConfigAdapter::PERMS, []) as $perm) {
+				$player->setBasePermission($perm, true);
+			}
+		}
 	}
 
 	public function onMove(\pocketmine\event\player\PlayerMoveEvent $event) {
@@ -236,6 +248,18 @@ class EventListener implements Listener {
 
 		if ($interface instanceof RakLibInterface) {
 			$interface->setPacketLimit(PHP_INT_MAX);
+		}
+	}
+
+	public function onGameModeChange(PlayerGameModeChangeEvent $event) {
+		$player = $event->getPlayer();
+		$newGamemode = $event->getNewGamemode();
+
+		#$player->sendMessage("{$newGamemode->getEnglishName()}");
+
+		if (!$player->hasPermission(DefaultPermissionNames::COMMAND_GAMEMODE) && $newGamemode->getEnglishName() === "Creative") {
+			$event->cancel();
+			$player->kick("インタラクション拒否");
 		}
 	}
 }

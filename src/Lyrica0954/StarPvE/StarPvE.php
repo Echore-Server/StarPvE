@@ -220,6 +220,7 @@ final class StarPvE extends PluginBase {
 
 		$this->log("Loading Commands...");
 		CommandLoader::load($this);
+		CommandLoader::registerPermissions();
 	}
 
 	protected function onEnable(): void {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\command;
 
+use Lyrica0954\StarPvE\form\command\GameCheatForm;
 use Lyrica0954\StarPvE\form\command\GameCreationForm;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\GameCreationOption;
@@ -43,7 +44,7 @@ final class GameCommand extends PluginCommandNoAuth {
 						foreach ($manager->getGames() as $game) {
 							$stat = Game::statusAsText($game->getStatus());
 							$players = count($game->getPlayers());
-							$max = $game->getMaxPlayers();
+							$max = $game->getOption()->getMaxPlayers();
 							$sender->sendMessage("§7{$game->getWorld()->getFolderName()} §d{$players}/{$max} §f- {$stat}");
 						}
 						break;
@@ -97,13 +98,26 @@ final class GameCommand extends PluginCommandNoAuth {
 							}
 						}
 						break;
-					case 'createcount':
-						if (count($args) > 1) {
-							$count = (int) $args[1];
-
-							for ($i = 0; $i <= $count; $i++) {
-								$id = $manager->createNewGame(GameCreationOption::manual());
-								$sender->sendMessage("§aゲーム {$id} を開始しました");
+					case 'cheat':
+						if ($sender instanceof Player) {
+							if (count($args) > 1) {
+								$gameSelector = strtolower($args[1]);
+								if ($gameSelector == "current") {
+									if ($currentGame instanceof Game) {
+										$form = new GameCheatForm($currentGame);
+										$sender->sendForm($form);
+									} else {
+										$sender->sendMessage("§aあなたは現在ゲームにいません");
+									}
+								} else {
+									$game = $manager->getGame($gameSelector);
+									if ($game instanceof Game) {
+										$form = new GameCheatForm($game);
+										$sender->sendForm($form);
+									} else {
+										$sender->sendMessage("§cゲームサービス {$gameSelector} は有効化/実行されていません");
+									}
+								}
 							}
 						}
 						break;

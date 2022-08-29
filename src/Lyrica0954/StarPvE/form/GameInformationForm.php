@@ -27,7 +27,7 @@ class GameInformationForm implements Form {
 
 		$g = $this->game;
 		foreach ([
-			"プレイ人数: %s/%s" => [count($g->getPlayers()), $g->getMaxPlayers()],
+			"プレイ人数: %s/%s" => [count($g->getPlayers()), $g->getOption()->getMaxPlayers()],
 			"ステージ: %s §7(作成者: %s§7)" => [$g->getStageInfo()->getName(), $g->getStageInfo()->getAuthor()],
 			"ゲームモード: §astandard§f" => [],
 			"オブジェクト数: §a0§f" => []

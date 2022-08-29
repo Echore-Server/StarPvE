@@ -20,6 +20,10 @@ trait CooltimeHolder {
 		$this->cooltimeHandler->attach($this);
 	}
 
+	public function getCooltimeHandler(): ?CooltimeHandler {
+		return $this->cooltimeHandler;
+	}
+
 	protected function breakCooltimeHandler() {
 		$this->cooltimeHandler?->detach();
 		$this->cooltimeHandler = null;

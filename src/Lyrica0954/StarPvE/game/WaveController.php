@@ -104,6 +104,8 @@ class WaveController implements CooltimeAttachable, Listener {
 	 */
 	protected array $spawnTasks;
 
+	public float $expMultiplier = 1.0;
+
 	public function __construct(Game $game, array $waveData) {
 		$this->game = $game;
 		$this->waveData = $waveData;
@@ -312,7 +314,7 @@ class WaveController implements CooltimeAttachable, Listener {
 							$option = $this->monsterOptions[$entity::class] ?? null;
 							if ($option instanceof MonsterOption) {
 								$dropExp = $option->getExp();
-								$gainExp = $waveBase * $dropExp;
+								$gainExp = $waveBase * $dropExp * $this->expMultiplier;
 								$adapt = GenericConfigAdapter::fetch($damager);
 								$jobAdapt = JobConfigAdapter::fetchCurrent($damager);
 								if ($adapt instanceof GenericConfigAdapter) {
@@ -561,6 +563,10 @@ class WaveController implements CooltimeAttachable, Listener {
 					$owning = $entity->getOwningEntity();
 					if ($owning instanceof Player) {
 						$entity->kill();
+					}
+				} elseif (MonsterData::isMonster($entity)) {
+					if ($entity->isAlive() && !$entity->isClosed()) {
+						$entity->close();
 					}
 				}
 			}

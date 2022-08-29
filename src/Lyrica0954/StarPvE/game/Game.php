@@ -138,7 +138,6 @@ class Game implements CooltimeAttachable {
 		$this->lane2 = new Lane(Position::fromObject($stageInfo->getLane2(), $world), $this->centerPos);
 		$this->lane3 = new Lane(Position::fromObject($stageInfo->getLane3(), $world), $this->centerPos);
 		$this->lane4 = new Lane(Position::fromObject($stageInfo->getLane4(), $world), $this->centerPos);
-		$this->maxPlayers = $option->getMaxPlayers();
 
 		$this->closed = false;
 
@@ -511,6 +510,10 @@ class Game implements CooltimeAttachable {
 		]);
 	}
 
+	public function getOption(): GameOption {
+		return $this->option;
+	}
+
 	public function getBossBar(): BossBar {
 		return $this->bossBar;
 	}
@@ -558,16 +561,8 @@ class Game implements CooltimeAttachable {
 		return $this->centerPos;
 	}
 
-	public function getMaxPlayers() {
-		return $this->maxPlayers;
-	}
-
-	public function setMaxPlayers(int $maxPlayers) {
-		$this->maxPlayers = $maxPlayers;
-	}
-
 	public function canJoin(?Player $player) { #player引数を設定しているのはpartyゲームや追放機能追加のため
-		return !$this->closed && $this->status === self::STATUS_IDLE && count($this->getPlayers()) < $this->getMaxPlayers();
+		return !$this->closed && $this->status === self::STATUS_IDLE && count($this->getPlayers()) < $this->option->getMaxPlayers();
 	}
 
 	public function broadcastMessage(string|Translatable $message) {
@@ -792,6 +787,8 @@ class Game implements CooltimeAttachable {
 	public function start(): void {
 		$this->status = self::STATUS_STARTING;
 		$this->log("Starting Game...");
+
+		$this->breakCooltimeHandler();
 
 		$this->bossBar->showToWorld($this->world);
 

@@ -10,6 +10,8 @@ use Lyrica0954\StarPvE\game\player\equipment\ArmorEquipment;
 use Lyrica0954\StarPvE\game\player\equipment\SwordEquipment;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use Lyrica0954\StarPvE\player\party\Party;
+use Lyrica0954\StarPvE\player\party\PartyManager;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\ArmorSet;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
@@ -111,7 +113,7 @@ class GamePlayer {
 		return $this->game;
 	}
 
-	public function setGame(?Game $game) {
+	protected function setGame(?Game $game) {
 		if ($this->game instanceof Game) {
 			if (!$this->game->isClosed()) {
 				$this->game->onPlayerLeave($this->player);
@@ -124,6 +126,22 @@ class GamePlayer {
 	}
 
 	public function joinGame(Game $game) {
+
+		$party = PartyManager::getInstance()->get($this->player);
+		if ($party instanceof Party) {
+			if ($party->getHost() === $this->player) {
+				foreach ($party->getPlayers() as $player) {
+					if ($game->canJoin($player)) {
+						$gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
+						$gamePlayer?->joinGame($game);
+					}
+				}
+			} else {
+				$this->player->sendMessage("§dParty §7>> §cパーティーのホストでないため、ゲームに参加できません。 §7(/party leave で退出)");
+				return;
+			}
+		}
+
 		PlayerUtil::reset($this->player);
 		$this->resetAll();
 		$this->player->teleport($game->getCenterPosition());
