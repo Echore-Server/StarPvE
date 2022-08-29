@@ -34,6 +34,7 @@ use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Spell;
+use Lyrica0954\StarPvE\service\PlayerCounterService;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\task\CooltimeHolder;
 use Lyrica0954\StarPvE\task\TaskHolder;
@@ -83,6 +84,7 @@ class Game implements CooltimeAttachable {
 	public Lane $lane4;
 
 	protected StageInfo $stageInfo;
+	protected GameOption $option;
 
 	protected bool $closed;
 
@@ -106,6 +108,7 @@ class Game implements CooltimeAttachable {
 	public function __construct(World $world, StageInfo $stageInfo, GameOption $option) {
 		$this->world = $world;
 		$this->stageInfo = $stageInfo;
+		$this->option = $option;
 		foreach ($stageInfo->getIdentityGroup()->getAll() as $identity) {
 			if ($identity instanceof GameArgIdentity) {
 				$identity->setGame($this);
@@ -330,12 +333,13 @@ class Game implements CooltimeAttachable {
 			9 => new WaveData(
 				$defaultTitleFormat,
 				null,
-				new WaveMonsters(
+				new WaveMonsters( #NEW: MAGE PIGLIN
 					new MonsterData(DefaultMonsters::ZOMBIE, 13),
 					new MonsterData(DefaultMonsters::ATTACKER, 2),
 					new MonsterData(DefaultMonsters::HUSK, 2),
 					new MonsterData(DefaultMonsters::SPIDER, 3),
 					new MonsterData(DefaultMonsters::PIGLIN, 7),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 					new MonsterData(DefaultMonsters::ENDERMAN, 1)
 
 				),
@@ -371,7 +375,8 @@ class Game implements CooltimeAttachable {
 					new MonsterData(DefaultMonsters::SPIDER, 3),
 					new MonsterData(DefaultMonsters::PIGLIN, 2),
 					new MonsterData(DefaultMonsters::SKELETON, 1), #NEW: SKELETON,
-					new MonsterData(DefaultMonsters::ENDERMAN, 8)
+					new MonsterData(DefaultMonsters::ENDERMAN, 8),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 8),
@@ -381,6 +386,7 @@ class Game implements CooltimeAttachable {
 					new MonsterData(DefaultMonsters::SKELETON, 1),
 					new MonsterData(DefaultMonsters::PIGLIN, 2),
 					new MonsterData(DefaultMonsters::ENDERMAN, 2),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 1),
 					new MonsterData(DefaultMonsters::PIGLIN_BRUTE, 1)
 				),
 				new WaveMonsters(
@@ -406,7 +412,8 @@ class Game implements CooltimeAttachable {
 				}),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::HUSK, 18),
-					new MonsterData(DefaultMonsters::SPIDER, 9)
+					new MonsterData(DefaultMonsters::SPIDER, 9),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 8),
@@ -415,7 +422,8 @@ class Game implements CooltimeAttachable {
 					new MonsterData(DefaultMonsters::SPIDER, 3),
 					new MonsterData(DefaultMonsters::SKELETON, 2),
 					new MonsterData(DefaultMonsters::PIGLIN, 3),
-					new MonsterData(DefaultMonsters::ENDERMAN, 2)
+					new MonsterData(DefaultMonsters::ENDERMAN, 2),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 4),
@@ -431,7 +439,8 @@ class Game implements CooltimeAttachable {
 					new MonsterData(DefaultMonsters::CREEPER, 3),
 					new MonsterData(DefaultMonsters::SKELETON, 3),
 					new MonsterData(DefaultMonsters::PIGLIN, 3),
-					new MonsterData(DefaultMonsters::ENDERMAN, 3)
+					new MonsterData(DefaultMonsters::ENDERMAN, 3),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 1),
 				)
 			),
 			12 => new WaveData(
@@ -444,7 +453,8 @@ class Game implements CooltimeAttachable {
 					new MonsterData(DefaultMonsters::ZOMBIE, 1),
 					new MonsterData(DefaultMonsters::HUSK, 6),
 					new MonsterData(DefaultMonsters::SPIDER, 3),
-					new MonsterData(DefaultMonsters::SKELETON, 7)
+					new MonsterData(DefaultMonsters::SKELETON, 7),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 2),
@@ -452,43 +462,50 @@ class Game implements CooltimeAttachable {
 					new MonsterData(DefaultMonsters::DEFENDER, 3), #NEW: DEFENDER
 					new MonsterData(DefaultMonsters::CREEPER, 34),
 					new MonsterData(DefaultMonsters::SPIDER, 3),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 1),
 					new MonsterData(DefaultMonsters::SPIDER, 1),
 					new MonsterData(DefaultMonsters::CREEPER, 2),
-					new MonsterData(DefaultMonsters::SKELETON, 1)
+					new MonsterData(DefaultMonsters::SKELETON, 1),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 20),
 					new MonsterData(DefaultMonsters::ATTACKER, 4),
 					new MonsterData(DefaultMonsters::DEFENDER, 1),
 					new MonsterData(DefaultMonsters::CREEPER, 3),
-					new MonsterData(DefaultMonsters::PIGLIN, 12)
+					new MonsterData(DefaultMonsters::PIGLIN, 12),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				)
 			),
 			13 => new WaveData(
 				$defaultTitleFormat,
 				new CustomWaveStart(function (WaveController $wc) {
-					$wc->getGame()->broadcastMessage("§l§9クリーパーとエンダーマンの群れが接近中です！");
+					$wc->getGame()->broadcastMessage("§l§9クリーパーとエンダーマンとメイジピグリンの群れが接近中です！");
 				}),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::CREEPER, 40),
 					new MonsterData(DefaultMonsters::ATTACKER, 6),
-					new MonsterData(DefaultMonsters::ENDERMAN, 18)
+					new MonsterData(DefaultMonsters::ENDERMAN, 18),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 5),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::CREEPER, 40),
 					new MonsterData(DefaultMonsters::ATTACKER, 6),
-					new MonsterData(DefaultMonsters::ENDERMAN, 18)
-				),
-				new WaveMonsters(
-					new MonsterData(DefaultMonsters::CREEPER, 40),
-					new MonsterData(DefaultMonsters::ATTACKER, 6)
+					new MonsterData(DefaultMonsters::ENDERMAN, 18),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 5),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::CREEPER, 40),
 					new MonsterData(DefaultMonsters::ATTACKER, 6),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 5),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::CREEPER, 40),
+					new MonsterData(DefaultMonsters::ATTACKER, 6),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 5),
 				)
 			),
 		]);
@@ -534,7 +551,7 @@ class Game implements CooltimeAttachable {
 	}
 
 	public function hasMinPlayer() {
-		return count($this->getPlayers()) >= 1;
+		return count($this->getPlayers()) >= $this->option->getMinPlayers();
 	}
 
 	public function getCenterPosition() {
@@ -697,10 +714,25 @@ class Game implements CooltimeAttachable {
 		$this->stageInfo->getIdentityGroup()->reset();
 		$this->stageInfo->getIdentityGroup()->close();
 
-		$this->broadcastMessage("§6>> §eモンスターキル数");
-		$this->broadcastMessage($this->waveController->getKillCounter()->createRanking());
-		$this->broadcastMessage("§6>> §eダメージ");
-		$this->broadcastMessage($this->waveController->getDamageCounter()->createRanking());
+		$kills = $this->waveController->getKillCounter()->getAll();
+		$text = Messanger::createRanking($kills, "§6>> §eモンスターキル数");
+		$this->broadcastMessage($text);
+
+		$damages = $this->waveController->getDamageCounter();
+		$text = Messanger::createRanking($damages->getAll(), "§6>> §eダメージ");
+		$this->broadcastMessage($text);
+
+		$counter = $this->waveController->getEachDamageCounter(DefaultMonsters::ATTACKER);
+		if ($counter instanceof PlayerCounterService) {
+			$list = [];
+			foreach ($damages->getAll() as $name => $damage) {
+				$attackerDamage = $counter->getFromName($name) ?? 0;
+				$list[$name] = (int) (($attackerDamage / $damage) * $damage);
+			}
+
+			$text = Messanger::createRanking($list, "§6>> §bディフェンススコア");
+			$this->broadcastMessage($text);
+		}
 
 		StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
 			$this->closeEntities();
@@ -822,6 +854,9 @@ class Game implements CooltimeAttachable {
 			} else {
 				if ($cooltimeHandler->getRemain() < $cooltimeHandler->getTime()) {
 					$this->broadcastActionBarMessage("キャンセルされました");
+				} else {
+					$count = $this->option->getMinPlayers() - count($this->getPlayers());
+					$this->broadcastActionBarMessage("プレイヤーを待っています... (残り {$count}人 で準備開始)");
 				}
 				$cooltimeHandler->reset();
 			}

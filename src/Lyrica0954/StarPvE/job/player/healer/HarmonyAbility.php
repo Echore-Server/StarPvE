@@ -21,15 +21,13 @@ use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
+use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\player\Player;
 
 class HarmonyAbility extends Ability {
 
-	protected EffectGroup $normalEffects;
-	protected EffectGroup $fighterEffects;
-
 	public function getCooltime(): int {
-		return (25 * 20);
+		return (5 * 20);
 	}
 
 	public function getName(): string {
@@ -38,72 +36,33 @@ class HarmonyAbility extends Ability {
 
 	public function getDescription(): string {
 		$area = DescriptionTranslator::number($this->area, "m");
-		$fighter = DescriptionTranslator::job("Fighter");
-		$normalEffects = DescriptionTranslator::effectGroup($this->normalEffects);
-		$fighterEffects = DescriptionTranslator::effectGroup($this->fighterEffects);
+		$heal = DescriptionTranslator::health($this->damage);
+		$duration = DescriptionTranslator::second($this->duration);
 		return
-			sprintf('§b発動時:§f %1$s 以内の味方(自分以外)に %2$s を与える。
-もし回復させた味方が %3$s の場合、追加で %4$s を与える。', $area, $normalEffects, $fighter, $fighterEffects);
+			sprintf('§b発動時:§f %1$s 以内の味方(自分以外)の体力を %2$s 回復させ、 %3$s 秒無敵にする。', $area, $heal, $duration);
 	}
 
 	protected function init(): void {
 		$this->area = new AbilityStatus(12.0);
-		$this->normalEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::ABSORPTION(), (12 * 20), 4),
-		);
-		$this->fighterEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::STRENGTH(), (9 * 20), 0)
-		);
+		$this->duration = new AbilityStatus(0.75 * 20);
+		$this->damage = new AbilityStatus(2);
 	}
 
 	protected function onActivate(): ActionResult {
 
 		$par = (new SingleParticle);
-		$linePar = (new LineParticle(VectorUtil::keepAdd($this->player->getPosition(), 0, 0.5, 0), 1));
 		$circlePar = (new CircleParticle($this->area->get(), 12));
 		$players = $this->player->getWorld()->getPlayers();
 		foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
 			if ($entity instanceof Player) {
 				if ($entity !== $this->player) {
-					$this->normalEffects->apply($entity);
-					$parPos = VectorUtil::keepAdd(
-						$entity->getPosition(),
-						0,
-						($entity->getEyeHeight() + 0.5),
-						0
-					);
-					if (StarPvE::getInstance()->getJobManager()->isJobName($entity, "Fighter")) {
-						$this->fighterEffects->apply($entity);
-						ParticleUtil::send(
-							$par,
-							$players,
-							$parPos,
-							ParticleOption::spawnPacket("minecraft:villager_angry", "")
-						);
-					} else {
-						ParticleUtil::send(
-							$par,
-							$players,
-							$parPos,
-							ParticleOption::spawnPacket("minecraft:heart_particle", "")
-						);
-					}
+					PlayerUtil::broadcastSound($entity, "mob.guardian.hit", 1.2, 0.7);
+					$source = new EntityRegainHealthEvent($entity, $this->damage->get(), EntityRegainHealthEvent::CAUSE_CUSTOM);
+					$entity->heal($source);
 
-					ParticleUtil::send(
-						$linePar,
-						$players,
-						VectorUtil::keepAdd(
-							$entity->getPosition(),
-							0,
-							0.75,
-							0
-						),
-						ParticleOption::spawnPacket("minecraft:villager_happy", "")
-					);
+					$effect = new EffectInstance(VanillaEffects::RESISTANCE(), (int) $this->duration->get(), 255, false);
+					$entity->getEffects()->add($effect);
 				}
-
-				PlayerUtil::playSound($entity, "random.orb");
-				PlayerUtil::playSound($entity, "random.glass", 1.5, 0.75);
 			}
 		}
 

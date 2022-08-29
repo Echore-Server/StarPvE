@@ -198,7 +198,7 @@ class EventListener implements Listener {
 			$jobShop = new JobShop(new Location(2.5, 51, 6.5, $player->getWorld(), 0, 0), new Skin("Standard_Custom", $skinData));
 			$jobShop->setNameTagVisible(true);
 			$jobShop->setNameTagAlwaysVisible(true);
-			$jobShop->setNameTag("§dハローワーク");
+			$jobShop->setNameTag("§7------------------\n§d職業選択\n§7------------------");
 			$jobShop->spawnToAll();
 		}
 	}

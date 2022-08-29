@@ -67,6 +67,7 @@ use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
+use pocketmine\utils\EnumTraitTest;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\particle\FloatingTextParticle;
 use pocketmine\world\Position;
@@ -89,9 +90,14 @@ class WaveController implements CooltimeAttachable, Listener {
 
 	protected ServiceSession $serviceSession;
 
-	protected string $killCounterHash;
+	protected PlayerCounterService $killCounter;
 
-	protected string $damageCounterHash;
+	protected PlayerCounterService $damageCounter;
+
+	/**
+	 * @var PlayerCounterService[]
+	 */
+	protected array $eachDamageCounters;
 
 	/**
 	 * @var TaskHandler[]
@@ -113,23 +119,28 @@ class WaveController implements CooltimeAttachable, Listener {
 
 		$this->createCooltimeHandler("Wave Tick", CooltimeHandler::BASE_SECOND, 1);
 		$this->serviceSession = new ServiceSession(StarPvE::getInstance());
-		$killCounter = new PlayerCounterService($this->serviceSession);
-		$damageCounter = new PlayerCounterService($this->serviceSession);
-		$this->killCounterHash = spl_object_hash($killCounter);
-		$this->damageCounterHash = spl_object_hash($damageCounter);
-		$this->serviceSession->add($killCounter);
-		$this->serviceSession->add($damageCounter);
+		$this->killCounter = new PlayerCounterService($this->serviceSession);
+		$this->damageCounter = new PlayerCounterService($this->serviceSession);
+		foreach (MonsterFactory::getInstance()->getClasses() as $class) {
+			$this->eachDamageCounters[$class] = new PlayerCounterService($this->serviceSession);
+		}
+		$this->serviceSession->add($this->killCounter);
+		$this->serviceSession->add($this->damageCounter);
 		$this->serviceSession->start();
 
 		$this->spawnTasks = [];
 	}
 
-	public function getKillCounter(): ?PlayerCounterService {
-		return $this->serviceSession->getServices()[$this->killCounterHash] ?? null;
+	public function getKillCounter(): PlayerCounterService {
+		return $this->killCounter;
 	}
 
-	public function getDamageCounter(): ?PlayerCounterService {
-		return $this->serviceSession->getServices()[$this->damageCounterHash] ?? null;
+	public function getDamageCounter(): PlayerCounterService {
+		return $this->damageCounter;
+	}
+
+	public function getEachDamageCounter(string $class): ?PlayerCounterService {
+		return $this->eachDamageCounters[$class] ?? null;
 	}
 
 	public function getGame(): Game {
@@ -170,9 +181,17 @@ class WaveController implements CooltimeAttachable, Listener {
 	 */
 	public function monitorEntityDamageByEntity(EntityDamageByEntityEvent $event): void {
 		$damager = $event->getDamager();
-		if ($damager instanceof Player) {
-			$counter = $this->getDamageCounter();
-			$counter->add($damager, (int) $event->getFinalDamage());
+		$entity = $event->getEntity();
+		if ($entity->getWorld() === $this->game->getWorld()) {
+			if ($damager instanceof Player) {
+				$counter = $this->getDamageCounter();
+				$counter->add($damager, (int) $event->getFinalDamage());
+
+				$counter = $this->getEachDamageCounter($entity::class);
+				if ($counter instanceof PlayerCounterService) {
+					$counter->add($damager, (int) $event->getFinalDamage());
+				}
+			}
 		}
 	}
 

@@ -20,15 +20,13 @@ class IncreaseStatusIdentity extends AttachStatusIdentityBase {
 	}
 
 	public function getName(): string {
-		$attaching = $this->getAttaching();
-		$name = $attaching->getCooltimeHandler()->getId();
+		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
 		return "{$name}の{$statusName}増加";
 	}
 
 	public function getDescription(): string {
-		$attaching = $this->getAttaching();
-		$name = $attaching->getCooltimeHandler()->getId();
+		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
 		return "{$name}の{$statusName} §c+{$this->add}§f";
 	}

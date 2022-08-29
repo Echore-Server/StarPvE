@@ -8,12 +8,15 @@ class GameOption {
 
 	protected int $maxPlayers;
 
-	public static function manual(int $maxPlayers = 6): self {
-		return new self($maxPlayers);
+	protected int $minPlayers;
+
+	public static function manual(int $maxPlayers = 6, int $minPlayers = 1): self {
+		return new self($maxPlayers, $minPlayers);
 	}
 
-	public function __construct(int $maxPlayers) {
+	public function __construct(int $maxPlayers, int $minPlayers) {
 		$this->maxPlayers = $maxPlayers;
+		$this->minPlayers = $minPlayers;
 	}
 
 	public function getMaxPlayers(): int {
@@ -22,5 +25,13 @@ class GameOption {
 
 	public function setMaxPlayers(int $maxPlayers): void {
 		$this->maxPlayers = $maxPlayers;
+	}
+
+	public function getMinPlayers(): int {
+		return $this->minPlayers;
+	}
+
+	public function setMinPlayers(int $minPlayers) {
+		$this->minPlayers = $minPlayers;
 	}
 }

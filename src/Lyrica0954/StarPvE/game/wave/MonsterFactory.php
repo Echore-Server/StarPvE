@@ -144,6 +144,23 @@ class MonsterFactory {
 
 		$this->register(
 			new MonsterOption(
+				DefaultMonsters::MAGE_PIGLIN,
+				new MonsterAttribute(14, 3.5, 0.42),
+				new ArmorSet(
+					VanillaItems::GOLDEN_HELMET(),
+					VanillaItems::IRON_CHESTPLATE(),
+					null,
+					VanillaItems::LEATHER_BOOTS()
+				),
+				[
+					VanillaItems::EMERALD()->setCount(2)
+				],
+				4
+			)
+		);
+
+		$this->register(
+			new MonsterOption(
 				DefaultMonsters::ENDERMAN,
 				new MonsterAttribute(22, 4, 0.4),
 				ArmorSet::none(),
@@ -219,5 +236,14 @@ class MonsterFactory {
 	 */
 	public function getList(): array {
 		return $this->list;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getClasses(): array {
+		return array_map(function (MonsterOption $option) {
+			return $option->getClass();
+		}, $this->list);
 	}
 }

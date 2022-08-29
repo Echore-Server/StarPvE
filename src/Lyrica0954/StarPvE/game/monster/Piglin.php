@@ -10,6 +10,7 @@ use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 use Lyrica0954\SmartEntity\entity\Hostile;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
+use Lyrica0954\SmartEntity\utils\VectorUtil;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
@@ -87,15 +88,16 @@ class Piglin extends FightingEntity implements Hostile, ProjectileSource {
 		}
 	}
 
-	public function attackEntity(Entity $entity, float $range): bool {
-		if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
+	public function attackEntity(Entity $entity): bool {
+		$dist = VectorUtil::distanceToAABB($this->getEyePos(), $entity->getBoundingBox());
+		if ($this->isAlive() && $dist <= $this->getAttackRange() && $this->attackCooldown <= 0) {
 			$this->broadcastAnimation(new ArmSwingAnimation($this));
 			$source = new EntityDamageByEntityEvent($this, $entity, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $this->getAttackDamage());
 			$kb = EntityUtil::attackEntity($source, 2.8, 1.0);
 
 			if ($kb->lengthSquared() > 0) {
 				EntityUtil::immobile($this, 10);
-				$this->hitEntity($entity, $range);
+				$this->hitEntity($entity, $dist);
 			}
 			$this->attackCooldown = $source->getAttackCooldown() + $this->getAddtionalAttackCooldown();
 			return true;

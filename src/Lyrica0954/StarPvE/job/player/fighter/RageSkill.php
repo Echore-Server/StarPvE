@@ -77,12 +77,12 @@ class RageSkill extends Skill implements Listener {
 		}), (int) $this->duration->get());
 
 
-		$period = 2;
+		$period = 3;
 		$limit = ((int) $this->duration->get()) / $period;
 		TaskUtil::repeatingClosureLimit(function () {
 			$min = EntityUtil::getCollisionMin($this->player);
 			$par = EmitterParticle::createEmitterForEntity($this->player, 0.3, 1);
-
+			PlayerUtil::playSound($this->player, "mob.guardian.attack_loop", 1.1, 0.7);
 			ParticleUtil::send(
 				$par,
 				$this->player->getWorld()->getPlayers(),

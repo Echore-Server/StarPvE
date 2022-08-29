@@ -32,6 +32,29 @@ class Messanger {
 		$sender->sendMessage("§c<!> {$message} §7(ID: {$id})");
 	}
 
+	/**
+	 * @param float[] $list
+	 * @param string $title
+	 * @param mixed string
+	 * 
+	 * @return string
+	 */
+	public static function createRanking(array $list, string $title = "", string $format = "§e%d位 §c%s §f- §c%d§f"): string {
+		arsort($list, SORT_NUMERIC);
+		$n = 0;
+		$text = "";
+		if ($title !== "") {
+			$text .= $title . "\n";
+		}
+
+		foreach ($list as $name => $count) {
+			$n++;
+			$text .= sprintf($format, $n, $name, $count) . "\n";
+		}
+
+		return $text;
+	}
+
 	public static function getIdFromObject(object $object, string $function, string $add = "") {
 		$ref = new \ReflectionClass($object);
 		$name = $ref->getShortName();

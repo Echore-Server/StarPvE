@@ -25,7 +25,7 @@ Castle -　戦闘をサポート
 
 強み
 
-Fighter - 近接戦闘
+Fighter - 近距離
 Swordman - 戦闘から離脱、中範囲の吹き飛ばし、ダメージ軽減
 Shaman - 高火力のダメージ、体力が多い敵でも対処できる
 Magician - 中距離攻撃

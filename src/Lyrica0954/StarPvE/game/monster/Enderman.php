@@ -12,6 +12,7 @@ use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 use Lyrica0954\SmartEntity\entity\Hostile;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
+use Lyrica0954\SmartEntity\utils\VectorUtil as UtilsVectorUtil;
 use Lyrica0954\StarPvE\event\PlayerDeathOnGameEvent;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
@@ -89,7 +90,7 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 			#$this->motion = new Vector3(0, 0, 0);
 			$this->holdDamageTick += $tickDiff;
 			$this->holdTick += $tickDiff;
-			if ($this->holdTick >= (15 * 20)) {
+			if ($this->holdTick >= (15 * 20) || !$this->holding->isImmobile()) {
 				$this->release();
 				return;
 			}
@@ -118,7 +119,8 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 		}
 	}
 
-	public function attackEntity(Entity $entity, float $range): bool {
+	public function attackEntity(Entity $entity): bool {
+		$range = UtilsVectorUtil::distanceToAABB($this->getEyePos(), $entity->getBoundingBox());
 		if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
 			$this->broadcastAnimation(new ArmSwingAnimation($this));
 			if ($this->holdRemain <= 0) {

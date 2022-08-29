@@ -20,6 +20,7 @@ class SelectSpellForm extends SpellListForm {
 		$parentData = parent::jsonSerialize();
 		$parentData["title"] = "ショップ >> 職業 >> {$this->job->getName()} >> スペル選択";
 		$parentData["buttons"][] = ["text" => "選択しない"];
+		$parentData["content"] = "習得するスペルを選択してください";
 		return $parentData;
 	}
 

@@ -42,13 +42,14 @@ class PerkIdentitiesForm implements Form {
 				new PercentageStatusIdentity($playerJob, null, AAIB::ATTACH_ABILITY, StatusTranslate::STATUS_SPEED, 1.4)
 			];
 
-			for ($i = 0; $i < 4; $i++) {
+			for ($i = 0; $i < 5; $i++) {
 				$ind = array_rand($rand);
 				$identity = clone $rand[$ind];
 				if ($identity instanceof AAIB) {
 					$l = [
 						AAIB::ATTACH_ABILITY,
-						AAIB::ATTACH_SKILL
+						AAIB::ATTACH_SKILL,
+						AAIB::ATTACH_SPELL
 					];
 
 					$attachTo = $l[array_rand($l)];
@@ -75,7 +76,15 @@ class PerkIdentitiesForm implements Form {
 			$compatibility = true;
 
 			if ($identity instanceof AAIB) {
-				$compatibility = $identity->isAppicableForAbility($identity->getAttaching());
+				$applicable = false;
+				foreach ($identity->getAttaching() as $ability) {
+					if ($identity->isAppicableForAbility($ability)) {
+						$applicable = true;
+						break;
+					}
+				}
+
+				$compatibility = $applicable;
 			}
 
 			$color = $compatibility ? "§a" : "§c";
@@ -99,7 +108,15 @@ class PerkIdentitiesForm implements Form {
 			if ($identity instanceof Identity) {
 				$compatibility = true;
 				if ($identity instanceof AAIB) {
-					$compatibility = $identity->isAppicableForAbility($identity->getAttaching());
+					$applicable = false;
+					foreach ($identity->getAttaching() as $ability) {
+						if ($identity->isAppicableForAbility($ability)) {
+							$applicable = true;
+							break;
+						}
+					}
+
+					$compatibility = $applicable;
 				}
 
 				if (!$compatibility) {
@@ -125,11 +142,16 @@ class PerkIdentitiesForm implements Form {
 				};
 
 				if ($identity instanceof AAIB) {
-					$ability = clone $identity->getAttaching();
+					$content = "選択すると、アビリティが以下になります。\n\n";
+					foreach ($identity->getAttaching() as $attach) {
+						$ability = clone $attach;
 
-					$identity->applyAbility($ability);
-					$content = "選択すると、アビリティが以下になります。\n\n{$ability->getDescription()}";
+						$identity->applyAbility($ability);
 
+						$cooltime = round($ability->getCooltime() / 20, 1);
+
+						$content .= "§d{$ability->getName()} §d({$ability->getCooltimeHandler()->getId()})\n§bクールタイム: §c{$cooltime}秒\n{$ability->getDescription()}\n\n";
+					}
 					$form = new YesNoForm($content, function (Player $player, $data) use ($fn, $identity): void {
 						if ($data !== null) {
 							if ($data === 0) {

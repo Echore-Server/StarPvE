@@ -11,6 +11,7 @@ use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\monster\Defender;
 use Lyrica0954\StarPvE\game\monster\Enderman;
 use Lyrica0954\StarPvE\game\monster\Husk;
+use Lyrica0954\StarPvE\game\monster\MagePiglin;
 use Lyrica0954\StarPvE\game\monster\Piglin;
 use Lyrica0954\StarPvE\game\monster\PiglinBrute;
 use Lyrica0954\StarPvE\game\monster\Skeleton;
@@ -29,7 +30,14 @@ class DefaultMonsters {
 	const PIGLIN = Piglin::class;
 	const ENDERMAN = Enderman::class;
 	const PIGLIN_BRUTE = PiglinBrute::class;
+	const MAGE_PIGLIN = MagePiglin::class;
 
 	const ZOMBIE_LORD = ZombieLord::class;
 	const STRAY = Stray::class;
+
+	public static function getDefaults(): array {
+		$ref = new \ReflectionClass(self::class);
+		$classes = $ref->getConstants();
+		return array_values($classes);
+	}
 }

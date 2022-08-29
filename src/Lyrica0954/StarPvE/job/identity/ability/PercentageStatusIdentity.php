@@ -20,15 +20,13 @@ class PercentageStatusIdentity extends AttachStatusIdentityBase {
 	}
 
 	public function getName(): string {
-		$attaching = $this->getAttaching();
-		$name = $attaching->getCooltimeHandler()->getId();
+		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
 		return "{$name}の{$statusName}増加";
 	}
 
 	public function getDescription(): string {
-		$attaching = $this->getAttaching();
-		$name = $attaching->getCooltimeHandler()->getId();
+		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
 		$perc = round(($this->percentage - 1.0) * 100);
 		$op = "+";

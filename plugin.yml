@@ -5,4 +5,4 @@ main: Lyrica0954\StarPvE\StarPvE
 api: 4.0.5
 author: Lyrica0954
 
-depend: ["SmartEntity", "Figurics"]
+depend: ["SmartEntity", "Figurics", "MagicParticle"]

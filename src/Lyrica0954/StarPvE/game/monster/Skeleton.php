@@ -11,6 +11,7 @@ use Lyrica0954\SmartEntity\entity\fightstyle\MeleeStyle;
 use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 use Lyrica0954\SmartEntity\entity\walking\Skeleton as SmartSkeleton;
 use Lyrica0954\SmartEntity\SmartEntity;
+use Lyrica0954\SmartEntity\utils\VectorUtil as UtilsVectorUtil;
 use Lyrica0954\StarPvE\entity\MemoryEntity;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
@@ -38,7 +39,8 @@ class Skeleton extends SmartSkeleton {
 		return new MeleeStyle($this);
 	}
 
-	public function attackEntity(Entity $entity, float $range): bool {
+	public function attackEntity(Entity $entity): bool {
+		$range = UtilsVectorUtil::distanceToAABB($this->getEyePos(), $entity->getBoundingBox());
 		if ($this->isAlive() && $range <= $this->getAttackRange() && $this->attackCooldown <= 0) {
 			$this->broadcastAnimation(new ArmSwingAnimation($this));
 			$this->fireElectricSpark($entity, 30, 0.44);

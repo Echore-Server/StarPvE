@@ -37,11 +37,11 @@ class ConcordeSkill extends Skill {
 	protected EffectGroup $villagerEffects;
 
 	public function getCooltime(): int {
-		return (140 * 20);
+		return (40 * 20);
 	}
 
 	public function getName(): string {
-		return "コンコルド";
+		return "フュージョン";
 	}
 
 	public function getDescription(): String {
@@ -52,10 +52,8 @@ class ConcordeSkill extends Skill {
 		$fighterEffects = DescriptionTranslator::effectGroup($this->fighterEffects);
 		$villagerEffects = DescriptionTranslator::effectGroup($this->villagerEffects);
 		return
-			sprintf('§b発動時(1):§f %1$s 以内の味方(自分以外)の体力を %2$s 回復させ、%3$s を与える。
-もし回復させた味方の職業が %4$s の場合、追加で %5$s を与える。
-さらに、自分自身を全回復させる。
-§b発動時(2):§f %1$s 以内の村人に %6$s を与える。', $area, $heal, $normalEffects, $fighter, $fighterEffects, $villagerEffects);
+			sprintf('§b発動時(1):§f %1$s 以内の味方の中で一番体力が低いプレイヤーを全回復させる。 
+', $area, $heal, $normalEffects, $fighter, $fighterEffects, $villagerEffects);
 	}
 
 	protected function init(): void {

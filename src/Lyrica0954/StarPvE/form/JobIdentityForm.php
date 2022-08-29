@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\form;
 
+use Lyrica0954\StarPvE\form\help\HelpIdentityForm;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\job\JobIdentity;
@@ -24,6 +25,8 @@ class JobIdentityForm implements Form {
 		$identityGroup = $this->job->getIdentityGroup();
 
 		$buttons = [];
+
+		$buttons[] = ["text" => "特性とは？ §7(ヘルプに進みます)"];
 
 		$activateableIdentity = [];
 		$identityCount = count($identityGroup->getAll());
@@ -57,9 +60,18 @@ class JobIdentityForm implements Form {
 
 	public function handleResponse(Player $player, $data): void {
 		if ($data !== null) {
-			$identity = $this->identities[$data] ?? null;
-			Messanger::talk($player, "職業", "§cこの特性を有効するには以下の条件を満たす必要があります");
-			Messanger::condition($player, $identity->getCondition());
+			if ($data == 0) {
+				$form = new HelpIdentityForm();
+				$player->sendForm($form);
+			} else {
+				$identity = $this->identities[$data - 1] ?? null;
+				if ($identity !== null) {
+					Messanger::talk($player, "職業", "§cこの特性を有効するには以下の条件を満たす必要があります");
+					Messanger::condition($player, $identity->getCondition());
+				} else {
+					Messanger::error($player, "Identity index error", Messanger::getIdFromObject($this, "handleResponse"));
+				}
+			}
 		}
 	}
 }

@@ -12,6 +12,7 @@ use Lyrica0954\MagicParticle\PartDelayedParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\SphereParticle;
+use Lyrica0954\MagicParticle\utils\MolangUtil;
 use Lyrica0954\StarPvE\form\JobSelectForm;
 use pocketmine\entity\Human;
 use pocketmine\network\mcpe\protocol\EmotePacket;
@@ -71,64 +72,21 @@ class JobShop extends Human implements Ghost {
 		if ($this->lookTick >= 6) {
 			$this->lookTick = 0;
 
-			ParticleUtil::send(
-				new SingleParticle,
-				$this->getWorld()->getPlayers(),
-				Position::fromObject($this->getEyePos(), $this->getWorld()),
-				ParticleOption::spawnPacket("starpve:axe", json_encode(
-					[
-						[
-							"name" => "variable.dx",
-							"value" => [
-								"type" => "float",
-								"value" => RandomUtil::rand_float(-1, 1)
-							]
-						],
-						[
-							"name" => "variable.dy",
-							"value" => [
-								"type" => "float",
-								"value" => RandomUtil::rand_float(-1, 1)
-							]
-						],
-						[
-							"name" => "variable.dz",
-							"value" => [
-								"type" => "float",
-								"value" => RandomUtil::rand_float(-1, 1)
-							]
-						],
-						[
-							"name" => "variable.speed",
-							"value" => [
-								"type" => "float",
-								"value" => 3.0
-							]
-						],
-						[
-							"name" => "variable.size",
-							"value" => [
-								"type" => "float",
-								"value" => 1.25
-							]
-						],
-						[
-							"name" => "variable.lifetime",
-							"value" => [
-								"type" => "float",
-								"value" => 10.0
-							]
-						],
-						[
-							"name" => "variable.hasCollision",
-							"value" => [
-								"type" => "float",
-								"value" => 0.0
-							]
-						]
-					]
-				))
-			);
+			#$molang = [];
+			#$molang[] = MolangUtil::variable("dx", RandomUtil::rand_float(-1, 1));
+			#$molang[] = MolangUtil::variable("dy", RandomUtil::rand_float(-1, 1));
+			#$molang[] = MolangUtil::variable("dz", RandomUtil::rand_float(-1, 1));
+			#$molang[] = MolangUtil::variable("speed", 3.0);
+			#$molang[] = MolangUtil::variable("size", 1.25);
+			#$molang[] = MolangUtil::variable("lifetime", 10.0);
+			#$molang[] = MolangUtil::variable("hasCollision", 0.0);
+			#$encoded = MolangUtil::encode($molang);
+			#ParticleUtil::send(
+			#	new SingleParticle,
+			#	$this->getWorld()->getPlayers(),
+			#	Position::fromObject($this->getEyePos(), $this->getWorld()),
+			#	ParticleOption::spawnPacket("starpve:axe", $encoded)
+			#);
 
 
 			#$ef = new PartDelayedEffect((new SaturatedLineworkEffect(14, 3, 1, 5)), 2, 1, true);

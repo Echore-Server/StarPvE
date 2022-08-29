@@ -23,6 +23,7 @@ class CommandLoader {
 		new TestCommand("testf", $p, $p);
 		new PlayerStatusCommand("stats", $p, $p);
 		new SettingCommand("setting", $p, $p);
+		new PartyCommand("party", $p, $p);
 
 		new TaskInfoCommand("taskinfo", $p, $p);
 	}
