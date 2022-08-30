@@ -120,7 +120,7 @@ class PerkIdentitiesForm implements Form {
 				}
 
 				if (!$compatibility) {
-					Messanger::talk($player, "特性", "§7この特性は取得しても効果がありません！");
+					$player->sendMessage(Messanger::talk("特性", "§7この特性は取得しても効果がありません！"));
 					return;
 				}
 
@@ -138,7 +138,7 @@ class PerkIdentitiesForm implements Form {
 						$this->gamePlayer->setPerkAvailable($this->gamePlayer->getPerkAvailable() - 1);
 						$this->gamePlayer->rollPerkIdentities();
 					}
-					Messanger::talk($player, "特性", "§d{$identity->getName()} §7を習得しました！");
+					$player->sendMessage(Messanger::talk("特性", "§d{$identity->getName()} §7を習得しました！"));
 				};
 
 				if ($identity instanceof AAIB) {

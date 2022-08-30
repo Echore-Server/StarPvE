@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\player\party;
 
+use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\player\Player;
 use pocketmine\scheduler\TaskHandler;
@@ -43,7 +44,7 @@ class PartyManager {
 					if ($tick - $invite->getTick() > (2 * 60 * 20)) {
 						$invite->expired = true;
 						unset($this->invites[$k1][$k2]);
-						$invite->getInviter()->sendMessage("§dParty §7>> §c{$invite->getVictim()->getName()} への招待が無効になりました (2分経過)");
+						$invite->getInviter()->sendMessage(Messanger::talk("Party", "§c{$invite->getVictim()->getName()} への招待が無効になりました (2分経過)"));
 					}
 				}
 			}
@@ -79,7 +80,7 @@ class PartyManager {
 			return false;
 		}
 		$this->invites[$vxuid][$ixuid] = $invite;
-		$victim->sendMessage("§dParty §7>> §a{$inviter->getName()} からパーティーに招待されました §7(/party accept {$inviter->getName()})");
+		$victim->sendMessage(Messanger::talk("Party", "§a{$inviter->getName()} からパーティーに招待されました §7(/party accept {$inviter->getName()})"));
 		return true;
 	}
 
@@ -97,9 +98,9 @@ class PartyManager {
 			}
 		} else {
 			if ($invite?->isExpired() ?? false) {
-				$player->sendMessage("§dParty §7>> §cこの招待は期限切れです！");
+				$player->sendMessage(Messanger::talk("Party", "§cこの招待は期限切れです！"));
 			} else {
-				$player->sendMessage("§dParty §7>> §c{$inviter->getName()} からの招待はありません");
+				$player->sendMessage(Messanger::talk("Party", "§c{$inviter->getName()} からの招待はありません"));
 			}
 		}
 	}

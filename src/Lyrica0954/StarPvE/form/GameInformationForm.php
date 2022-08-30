@@ -9,6 +9,8 @@ use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use Lyrica0954\StarPvE\player\party\Party;
+use Lyrica0954\StarPvE\player\party\PartyManager;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\TaskUtil;
@@ -73,10 +75,42 @@ class GameInformationForm implements Form {
 						$player->sendMessage("§c職業を選択してください！");
 						return;
 					}
-					if (($gamePlayer = $gamePlayerManager->getGamePlayer($player)) !== null) {
-						$gamePlayer->joinGame($this->game);
+					$party = PartyManager::getInstance()->get($player);
+					$canJoin = true;
+					if ($party instanceof Party) {
+						if ($party->getHost() === $player) {
+							foreach ($party->getPlayers() as $target) {
+								$job = StarPvE::getInstance()->getJobManager()->getJob($target);
+								if (!$job instanceof PlayerJob) {
+									$canJoin = false;
+									break;
+								}
+							}
+
+							if ($canJoin) {
+								$gamePlayerManager->getGamePlayer($player)->joinGame($this->game);
+								foreach ($party->getPlayers() as $target) {
+									if ($this->game->canJoin($target)) {
+										$gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($target);
+										$gamePlayer?->joinGame($this->game);
+									} else {
+										$party->broadcastMessage("§dParty §7>> §c{$target->getName()} がゲームに参加できませんでした");
+									}
+								}
+							} else {
+								$party->broadcastMessage("§dParty §7>> §cパーティー内の誰かが職業を選択していないため、参加できません");
+								return;
+							}
+						} else {
+							$player->sendMessage("§dParty §7>> §cパーティーのホストでないため、ゲームに参加できません。 §7(/party leave で退出)");
+							return;
+						}
 					} else {
-						$player->sendMessage("§cエラー: ゲームに参加できませんでした");
+						if (($gamePlayer = $gamePlayerManager->getGamePlayer($player)) !== null) {
+							$gamePlayer->joinGame($this->game);
+						} else {
+							$player->sendMessage("§cエラー: ゲームに参加できませんでした");
+						}
 					}
 				} else {
 					$player->sendMessage("§cこのゲームには参加できません");

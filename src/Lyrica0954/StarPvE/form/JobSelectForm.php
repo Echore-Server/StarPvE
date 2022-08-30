@@ -51,7 +51,7 @@ class JobSelectForm implements Form {
 							$player->sendForm($jobInformation);
 						}), 1);
 					} else {
-						Messanger::talk($player, "職業", "§cこの職業を選択するには以下の条件を満たす必要があります");
+						$player->sendMessage(Messanger::talk("職業", "§cこの職業を選択するには以下の条件を満たす必要があります"));
 						Messanger::condition($player, $job->getSelectableCondition());
 					}
 				}

@@ -40,6 +40,7 @@ class GenericConfigAdapter extends PlayerConfigAdapter {
 	const LAST_PLAYED = "LastPlayed";
 
 	const PERMS = "Perms";
+	const RANKS = "Ranks";
 
 	public function addExp(float $amount): mixed {
 		$eev = new GlobalAddExpEvent($this, $amount);

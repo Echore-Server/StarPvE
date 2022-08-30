@@ -32,7 +32,7 @@ class JobInformationSelectableForm extends JobInformationForm {
 					if ($this->job->isSelectable($player)) {
 						$class = $this->job::class;
 						StarPvE::getInstance()->getJobManager()->setJob($player, $class);
-						Messanger::talk($player, "職業", "§a{$this->job->getName()} を選択しました！");
+						$player->sendMessage(Messanger::talk("職業", "§a{$this->job->getName()} を選択しました！"));
 						$jobInstance = StarPvE::getInstance()->getJobManager()->getJob($player);
 						if (count($jobInstance->getDefaultSpells()) > 0) {
 							TaskUtil::delayed(new ClosureTask(function () use ($player, $jobInstance) {
@@ -41,7 +41,7 @@ class JobInformationSelectableForm extends JobInformationForm {
 							}), 1);
 						}
 					} else {
-						Messanger::talk($player, "職業", "§c{$this->job->getName()} を選択できません");
+						$player->sendMessage(Messanger::talk("職業", "§c{$this->job->getName()} を選択できません"));
 					}
 				} elseif ($data == 1) {
 					TaskUtil::delayed(new ClosureTask(function () use ($player) {

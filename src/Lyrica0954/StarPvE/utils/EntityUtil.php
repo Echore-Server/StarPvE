@@ -57,7 +57,7 @@ class EntityUtil implements Listener {
 	 */
 	public static function getWithinRange(Position $pos, float $range): array {
 		$entities = [];
-		foreach ($pos->getWorld()->getEntities() as $entity) {
+		foreach ($pos->getWorld()->getEntities() as $entity) { #array_filter とかよりforeachのほうが軽いらしい
 			if ($entity->isAlive()) {
 				if ($entity->getPosition()->distance($pos) <= $range) {
 					$entities[] = $entity;

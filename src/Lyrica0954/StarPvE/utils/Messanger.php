@@ -10,8 +10,8 @@ use pocketmine\player\Player;
 
 class Messanger {
 
-	public static function talk(Player $player, string $by, string $message) {
-		$player->sendMessage("§d{$by} §7>> §f{$message}");
+	public static function talk(string $by, string $message): string {
+		return "§d{$by} §7>> §f{$message}";
 	}
 
 	public static function reward(Player $player, string $content, string $amount = null, string $color = "§7") {

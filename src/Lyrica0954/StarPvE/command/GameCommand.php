@@ -12,6 +12,8 @@ use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use NeiroNetwork\VanillaCommands\parameter\BasicParameters;
+use NeiroNetwork\VanillaCommands\parameter\Parameter;
 use pocketmine\command\CommandSender;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
@@ -26,6 +28,45 @@ final class GameCommand extends PluginCommandNoAuth {
 	protected function init(): void {
 		$this->setDescription("ゲームサービスの管理");
 		$this->setPermission(DefaultPermissions::ROOT_OPERATOR);
+	}
+
+	protected function initParameter(): void {
+		Parameter::getInstance()->add("game", [
+			BasicParameters::enum("list", "list"),
+		]);
+
+		Parameter::getInstance()->add("game", [
+			BasicParameters::enum("close", "close"),
+			BasicParameters::enum("current", "current"),
+		]);
+
+
+		Parameter::getInstance()->add("game", [
+			BasicParameters::enum("close", "close"),
+			BasicParameters::enum("all", "all"),
+		]);
+
+
+		Parameter::getInstance()->add("game", [
+			BasicParameters::enum("close", "close"),
+			BasicParameters::string("gameId")
+		]);
+
+
+		Parameter::getInstance()->add("game", [
+			BasicParameters::enum("create", "create"),
+			BasicParameters::string("gameId", optional: true)
+		]);
+
+		Parameter::getInstance()->add("game", [
+			BasicParameters::enum("cheat", "cheat"),
+			BasicParameters::string("gameId", optional: true)
+		]);
+
+		Parameter::getInstance()->add("game", [
+			BasicParameters::enum("forcekick", "forcekick"),
+			BasicParameters::targets("victim")
+		]);
 	}
 
 	protected function run(CommandSender $sender, array $args): void {

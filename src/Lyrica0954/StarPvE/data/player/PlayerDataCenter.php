@@ -42,7 +42,8 @@ class PlayerDataCenter extends DataCenter implements Listener {
 			GenericConfigAdapter::TOTAL_EXP => 0,
 			GenericConfigAdapter::EXP => 0,
 			GenericConfigAdapter::NEXT_EXP => GenericConfigAdapter::getExpToCompleteLevel(1),
-			GenericConfigAdapter::PERMS => []
+			GenericConfigAdapter::PERMS => [],
+			GenericConfigAdapter::RANKS => []
 		];
 
 		$this->jobDefault = [

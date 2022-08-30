@@ -6,10 +6,12 @@ namespace Lyrica0954\StarPvE\command;
 
 use Lyrica0954\StarPvE\form\JobInformationForm;
 use Lyrica0954\StarPvE\StarPvE;
+use NeiroNetwork\VanillaCommands\parameter\Parameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
+use pocketmine\Server;
 
 class CommandLoader {
 
@@ -73,6 +75,7 @@ class CommandLoader {
 			DefaultPermissionNames::COMMAND_CLEAR_SELF => true,
 			DefaultPermissionNames::COMMAND_STATUS => true,
 			DefaultPermissionNames::COMMAND_TELEPORT => true,
+			"vanillacommands.all" => true
 		]));
 		DefaultPermissions::registerPermission($team);
 

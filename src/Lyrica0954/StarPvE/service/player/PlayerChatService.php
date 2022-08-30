@@ -52,7 +52,7 @@ class PlayerChatService extends ListenerService {
 					default => "§8"
 				};
 
-				$message = "§8[{$channel}] §f<{$color}{$level} §r§f{$player->getDisplayName()}> §r{$event->getMessage()}";
+				$message = "§8[{$channel}] §f<{$color}{$level} §r§f{$player->getDisplayName()}§r§f> §r{$event->getMessage()}";
 
 				foreach ($event->getRecipients() as $commandSender) {
 					$commandSender->sendMessage($message);

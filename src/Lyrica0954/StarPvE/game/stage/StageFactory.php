@@ -59,13 +59,13 @@ class StageFactory {
 			new StageInfo(
 				DefaultStages::STAIR,
 				new Vector3(0.5, 101.6, 0.5),
-				new Vector3(37.5, 81, 1.5),
-				new Vector3(37.5, 81, -0.5),
-				new Vector3(39.5, 81, -0.5),
-				new Vector3(39.5, 81, 1.5),
+				new Vector3(40.5, 81, 3.5),
+				new Vector3(40.5, 81, -2.5),
+				new Vector3(40.5, 89, 3.5),
+				new Vector3(40.5, 89, -2.5),
 				"map_2",
 				"Lyrica0954",
-				$ident
+				new IdentityGroup
 			)
 		);
 

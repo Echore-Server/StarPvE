@@ -12,6 +12,8 @@ use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\entity\Ghost;
 use Lyrica0954\StarPvE\entity\JobShop;
 use Lyrica0954\StarPvE\form\GameSelectForm;
+use Lyrica0954\StarPvE\player\rank\RankManager;
+use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
@@ -212,6 +214,17 @@ class EventListener implements Listener {
 			foreach ($adapter->getConfig()->get(GenericConfigAdapter::PERMS, []) as $perm) {
 				$player->setBasePermission($perm, true);
 			}
+
+			foreach ($adapter->getConfig()->get(GenericConfigAdapter::RANKS, []) as $id) {
+				$rank = RankManager::getInstance()->get($id);
+				if ($rank !== null) {
+					RankManager::getInstance()->add($player, $rank);
+				} else {
+					Messanger::error($player, "ランクの反映に失敗しました: {$id}", "RankService");
+				}
+			}
+
+			RankManager::getInstance()->apply($player);
 		}
 	}
 

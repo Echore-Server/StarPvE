@@ -66,7 +66,7 @@ class JobIdentityForm implements Form {
 			} else {
 				$identity = $this->identities[$data - 1] ?? null;
 				if ($identity !== null) {
-					Messanger::talk($player, "職業", "§cこの特性を有効するには以下の条件を満たす必要があります");
+					$player->sendMessage(Messanger::talk("職業", "§cこの特性を有効するには以下の条件を満たす必要があります"));
 					Messanger::condition($player, $identity->getCondition());
 				} else {
 					Messanger::error($player, "Identity index error", Messanger::getIdFromObject($this, "handleResponse"));

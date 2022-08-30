@@ -126,25 +126,10 @@ class GamePlayer {
 	}
 
 	public function joinGame(Game $game) {
-
-		$party = PartyManager::getInstance()->get($this->player);
-		if ($party instanceof Party) {
-			if ($party->getHost() === $this->player) {
-				foreach ($party->getPlayers() as $player) {
-					if ($game->canJoin($player)) {
-						$gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
-						$gamePlayer?->joinGame($game);
-					}
-				}
-			} else {
-				$this->player->sendMessage("§dParty §7>> §cパーティーのホストでないため、ゲームに参加できません。 §7(/party leave で退出)");
-				return;
-			}
-		}
-
 		PlayerUtil::reset($this->player);
 		$this->resetAll();
 		$this->player->teleport($game->getCenterPosition());
+		$this->player->setGamemode(GameMode::ADVENTURE());
 		if ($game->getStatus() == Game::STATUS_PLAYING) {
 			$game->giveEquipments($this->player);
 		}

@@ -39,9 +39,9 @@ abstract class ShopContent {
 				if ($costItem !== null) {
 					$player->getInventory()->removeItem(clone $costItem);
 				}
-				Messanger::talk($player, "村人", "§a{$this->name} を購入しました！");
+				$player->sendMessage(Messanger::talk("村人", "§a{$this->name} を購入しました！"));
 			} else {
-				Messanger::talk($player, "村人", "§c購入に失敗しました！");
+				$player->sendMessage(Messanger::talk("村人", "§c購入に失敗しました！"));
 			}
 		} else {
 			$costItem = $this->getCost($player);
@@ -54,7 +54,7 @@ abstract class ShopContent {
 					$itemMsg = "あと §6{$need} §c{$costItem->getName()}が必要です！";
 				}
 			}
-			Messanger::talk($player, "村人", "§cこのアイテムを購入できません！{$itemMsg}{$message}");
+			$player->sendMessage(Messanger::talk("村人", "§cこのアイテムを購入できません！{$itemMsg}{$message}"));
 		}
 	}
 

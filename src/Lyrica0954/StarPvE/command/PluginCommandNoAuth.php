@@ -12,6 +12,7 @@ use pocketmine\plugin\PluginOwnedTrait;
 use pocketmine\console\ConsoleCommandSender;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\Server;
 
 abstract class PluginCommandNoAuth extends Command implements PluginOwned {
 	use PluginOwnedTrait;
@@ -38,7 +39,14 @@ abstract class PluginCommandNoAuth extends Command implements PluginOwned {
 		$this->usageMessage = "";
 		$this->init();
 
+		if (Server::getInstance()->getPluginManager()->getPlugin("VanillaCommands") !== null) {
+			$this->initParameter();
+		}
+
 		$owner->getServer()->getCommandMap()->register($name, $this, $name);
+	}
+
+	protected function initParameter(): void {
 	}
 
 	protected function init(): void {

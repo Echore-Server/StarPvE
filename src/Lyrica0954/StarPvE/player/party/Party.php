@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\player\party;
 
+use Lyrica0954\StarPvE\utils\Messanger;
 use pocketmine\player\Player;
 use pocketmine\player\PlayerInfo;
 use pocketmine\Server;
@@ -141,20 +142,44 @@ class Party {
 		return true;
 	}
 
+	public function kick(Player $victim, ?Player $by = null): bool {
+		if ($victim === $by) {
+			return false;
+		}
+
+		if ($victim === $this->host) {
+			return false;
+		}
+
+		if ($by !== $this->host) {
+			return false;
+		}
+
+		$victim->sendMessage(Messanger::talk("Party", "§c追放されました"));
+		$this->leave($victim);
+		$this->onKick($victim, $by);
+		return true;
+	}
+
 	public function onJoin(Player $player): void {
-		$this->broadcastMessage("§dParty §7>> §a{$player->getName()} が参加しました");
+		$this->broadcastMessage(Messanger::talk("Party", "§a{$player->getName()} が参加しました"));
 	}
 
 	public function onLeave(Player $player): void {
-		$this->broadcastMessage("§dParty §7>> §c{$player->getName()} が去りました");
+		$this->broadcastMessage(Messanger::talk("Party", "§c{$player->getName()} が去りました"));
 	}
 
 	public function onAcceptInvite(PartyInvite $invite): void {
-		$this->broadcastMessage("§dParty §7>> §a{$invite->getInviter()->getName()} の招待により {$invite->getVictim()->getName()} が参加しました");
+		$this->broadcastMessage(Messanger::talk("Party", "§a{$invite->getInviter()->getName()} の招待により {$invite->getVictim()->getName()} が参加しました"));
 	}
 
 	public function onDisband(?Player $by = null): void {
 		$info = $by instanceof Player ? "{$by->getName()} によって" : "";
-		$this->broadcastMessage("§dParty §7>> §c{$info}パーティーは解散されました");
+		$this->broadcastMessage(Messanger::talk("Party", "§c{$info}パーティーは解散されました"));
+	}
+
+	public function onKick(Player $victim, ?Player $by = null): void {
+		$info = $by instanceof Player ? "{$by->getName()} によって" : "";
+		$this->broadcastMessage(Messanger::talk("Party", "§c{$info} {$victim->getName()} が追放されました"));
 	}
 }
