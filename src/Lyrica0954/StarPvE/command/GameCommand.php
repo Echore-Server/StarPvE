@@ -27,7 +27,7 @@ final class GameCommand extends PluginCommandNoAuth {
 
 	protected function init(): void {
 		$this->setDescription("ゲームサービスの管理");
-		$this->setPermission(DefaultPermissions::ROOT_OPERATOR);
+		$this->setPermission(PermissionNames::TEAM);
 	}
 
 	protected function initParameter(): void {

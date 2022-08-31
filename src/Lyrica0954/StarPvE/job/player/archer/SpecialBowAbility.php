@@ -77,8 +77,8 @@ class SpecialBowAbility extends Ability implements Listener {
 	protected function init(): void {
 		$this->area = new AbilityStatus(2.6);
 		$this->duration = new AbilityStatus(1 * 20);
-		$this->damage = new AbilityStatus(6.0);
-		$this->areaDamage = new AbilityStatus(2.0);
+		$this->damage = new AbilityStatus(8.0);
+		$this->areaDamage = new AbilityStatus(6.0);
 		$this->bow = ItemFactory::getInstance()->get(ItemIds::BOW);
 		if ($this->bow instanceof Bow) {
 			$this->bow->setUnbreakable(true);

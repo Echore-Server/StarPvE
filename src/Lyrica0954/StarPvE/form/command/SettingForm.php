@@ -37,7 +37,7 @@ class SettingForm implements Form {
 			$debugDamage = $adapter->getConfig()->get(SettingVariables::DEBUG_DAMAGE, false);
 		}
 
-		$contents[] = FormUtil::slider("最大パーティクル数(1tick)", 0, 400, 5, $ppt);
+		$contents[] = FormUtil::slider("最大パーティクル数(1ティック中)", 0, 400, 5, $ppt);
 		$contents[] = FormUtil::toggle("与える/受けるダメージの詳細表示", $debugDamage);
 
 		return [

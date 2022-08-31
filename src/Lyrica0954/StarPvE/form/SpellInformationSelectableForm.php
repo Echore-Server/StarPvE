@@ -19,12 +19,13 @@ class SpellInformationSelectableForm extends SpellInformationForm {
 	public function jsonSerialize(): mixed {
 		$parentData = parent::jsonSerialize();
 		$parentData["buttons"][] = ["text" => "§a習得する"];
-		$parentData["buttons"][] = ["text" => "戻る"];
 		$parentData["title"] = "ショップ >> 職業 >> {$this->job->getName()} >> スペルリスト >> {$this->spell->getName()}";
 		return $parentData;
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
+
 		if ($data !== null) {
 			if ($data == 0) {
 				$job = StarPvE::getInstance()->getJobManager()->getJob($player);
@@ -33,9 +34,6 @@ class SpellInformationSelectableForm extends SpellInformationForm {
 				} else {
 					$player->sendMessage("§cあなたは現在職業についていません！");
 				}
-			} elseif ($data == 1) {
-				$form = new SelectSpellForm($this->job);
-				$player->sendForm($form);
 			}
 		}
 	}

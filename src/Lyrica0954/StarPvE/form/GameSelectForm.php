@@ -13,7 +13,7 @@ use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 
-class GameSelectForm implements Form {
+class GameSelectForm extends AdvancedForm {
 
 	private array $games;
 
@@ -46,12 +46,13 @@ class GameSelectForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
+
 		if ($data !== null) {
 			if (($game = (array_values($this->games)[$data] ?? null)) !== null) {
-				TaskUtil::delayed(new ClosureTask(function () use ($player, $game) {
-					$form = new GameInformationForm($game);
-					$player->sendForm($form);
-				}), 1);
+				$form = new GameInformationForm($game);
+				$form->setChildForm($this);
+				$player->sendForm($form);
 			} else {
 				if ($data == (count($this->games))) {
 					$games = StarPvE::getInstance()->getGameManager()->getGames();

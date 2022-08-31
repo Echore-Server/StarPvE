@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\game\wave;
 
 use Lyrica0954\StarPvE\game\monster\Attacker;
+use Lyrica0954\StarPvE\game\monster\boss\GiantAttacker;
 use Lyrica0954\StarPvE\game\monster\boss\Stray;
 use Lyrica0954\StarPvE\game\monster\boss\ZombieLord;
 use Lyrica0954\StarPvE\game\monster\Creeper;
@@ -34,6 +35,7 @@ class DefaultMonsters {
 
 	const ZOMBIE_LORD = ZombieLord::class;
 	const STRAY = Stray::class;
+	const GIANT_ATTACKER = GiantAttacker::class;
 
 	public static function getDefaults(): array {
 		$ref = new \ReflectionClass(self::class);

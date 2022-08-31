@@ -161,7 +161,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 							ParticleOption::spawnPacket("starpve:soft_yellow_gas", "")
 						);
 
-						$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_MAGIC, 2);
+						$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_MAGIC, 4);
 						$source->setAttackCooldown(1);
 						$entity->attack($source);
 

@@ -147,7 +147,8 @@ class Game implements CooltimeAttachable {
 				$defaultTitleFormat,
 				null,
 				new WaveMonsters(
-					new MonsterData(DefaultMonsters::ZOMBIE, 2)
+					new MonsterData(DefaultMonsters::ZOMBIE, 2),
+					new MonsterData(DefaultMonsters::GIANT_ATTACKER, 1),
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 1),
@@ -407,39 +408,26 @@ class Game implements CooltimeAttachable {
 			11 => new WaveData(
 				$defaultTitleFormat,
 				new CustomWaveStart(function (WaveController $wc) {
-					$wc->getGame()->broadcastMessage("§l§cハスクとクモの群れがレーン §e1 §cに接近中です！！");
+					$wc->getGame()->broadcastMessage("§l§cエンダーマンの群れが接近中です！！");
 				}),
 				new WaveMonsters(
-					new MonsterData(DefaultMonsters::HUSK, 18),
-					new MonsterData(DefaultMonsters::SPIDER, 9),
-					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
-				),
-				new WaveMonsters(
-					new MonsterData(DefaultMonsters::ZOMBIE, 8),
-					new MonsterData(DefaultMonsters::ATTACKER, 7),
+					new MonsterData(DefaultMonsters::ENDERMAN, 20),
 					new MonsterData(DefaultMonsters::CREEPER, 6),
-					new MonsterData(DefaultMonsters::SPIDER, 3),
-					new MonsterData(DefaultMonsters::SKELETON, 2),
-					new MonsterData(DefaultMonsters::PIGLIN, 3),
-					new MonsterData(DefaultMonsters::ENDERMAN, 2),
-					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 2),
 				),
 				new WaveMonsters(
-					new MonsterData(DefaultMonsters::ZOMBIE, 4),
-					new MonsterData(DefaultMonsters::ATTACKER, 1),
-					new MonsterData(DefaultMonsters::SPIDER, 1),
-					new MonsterData(DefaultMonsters::CREEPER, 2),
-					new MonsterData(DefaultMonsters::SKELETON, 1),
-					new MonsterData(DefaultMonsters::PIGLIN, 3)
+					new MonsterData(DefaultMonsters::ATTACKER, 7),
+					new MonsterData(DefaultMonsters::ENDERMAN, 20),
+					new MonsterData(DefaultMonsters::CREEPER, 6),
 				),
 				new WaveMonsters(
-					new MonsterData(DefaultMonsters::ZOMBIE, 2),
+					new MonsterData(DefaultMonsters::ENDERMAN, 20),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 10),
+					new MonsterData(DefaultMonsters::CREEPER, 6),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::ENDERMAN, 20),
+					new MonsterData(DefaultMonsters::CREEPER, 6),
 					new MonsterData(DefaultMonsters::ATTACKER, 3),
-					new MonsterData(DefaultMonsters::CREEPER, 3),
-					new MonsterData(DefaultMonsters::SKELETON, 3),
-					new MonsterData(DefaultMonsters::PIGLIN, 3),
-					new MonsterData(DefaultMonsters::ENDERMAN, 3),
-					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 1),
 				)
 			),
 			12 => new WaveData(
@@ -507,6 +495,55 @@ class Game implements CooltimeAttachable {
 					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 5),
 				)
 			),
+			14 => new WaveData(
+				$defaultTitleFormat,
+				new CustomWaveStart(function (WaveController $wc) {
+					$wc->getGame()->broadcastMessage("§l§cモンスターの大群がレーン §e1 §cに接近中！！");
+				}),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::HUSK, 40),
+					new MonsterData(DefaultMonsters::SPIDER, 9),
+					new MonsterData(DefaultMonsters::SKELETON, 4),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 10),
+					new MonsterData(DefaultMonsters::CREEPER, 34),
+					new MonsterData(DefaultMonsters::PIGLIN, 12),
+					new MonsterData(DefaultMonsters::DEFENDER, 3),
+					new MonsterData(DefaultMonsters::ATTACKER, 20),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::CREEPER, 10),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::CREEPER, 10),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::CREEPER, 10),
+				)
+			),
+			15 => new WaveData(
+				$defaultTitleFormat,
+				new CustomWaveStart(function (WaveController $wc) {
+					$wc->getGame()->broadcastMessage("§l§cジャイアントアタッカーがレーン §e1 §cに接近中！！");
+					$wc->getGame()->broadcastMessage("§l§cメイジピグリンの大群が接近中！！");
+				}),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::GIANT_ATTACKER, 1),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 20),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::CREEPER, 5),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 10),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::CREEPER, 5),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 10),
+				),
+				new WaveMonsters(
+					new MonsterData(DefaultMonsters::CREEPER, 5),
+					new MonsterData(DefaultMonsters::MAGE_PIGLIN, 10),
+				)
+			),
+
 		]);
 	}
 
@@ -590,25 +627,18 @@ class Game implements CooltimeAttachable {
 	}
 
 	public function onPlayerJoin(Player $player) {
-		if ($player->getWorld() === $this->world) {
-			$this->log("§a{$player->getName()} has joined the game!");
-			$this->broadcastMessage("§a{$player->getName()} がゲームに参加しました！");
-
-			$this->players[spl_object_hash($player)] = $player;
-		}
+		$this->log("§a{$player->getName()} has joined the game!");
+		$this->broadcastMessage("§a{$player->getName()} がゲームに参加しました！");
+		$this->players[spl_object_hash($player)] = $player;
 	}
 
 	public function onPlayerLeave(Player $player) {
-		if ($player->getWorld() !== $this->world) {
-			$this->log("§c{$player->getName()} has left the game");
-			$this->broadcastMessage("§c{$player->getName()} がゲームから去りました");
-
-			if ($this->bossBar->isShowed($player)) {
-				$this->bossBar->hideFromPlayer($player);
-			}
-
-			unset($this->players[spl_object_hash($player)]);
+		$this->log("§c{$player->getName()} has left the game");
+		$this->broadcastMessage("§c{$player->getName()} がゲームから去りました");
+		if ($this->bossBar->isShowed($player)) {
+			$this->bossBar->hideFromPlayer($player);
 		}
+		unset($this->players[spl_object_hash($player)]);
 
 		if (count($this->getPlayers()) <= 0 && !$this->canJoin(null) && !$this->closed) {
 			$this->end(1 * 20);

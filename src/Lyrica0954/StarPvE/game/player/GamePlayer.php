@@ -144,15 +144,19 @@ class GamePlayer {
 		}
 	}
 
+	public function leaveGameInternal() {
+		$this->setGame(null);
+		$this->resetAll();
+	}
+
 	public function leaveGame() {
 		PlayerUtil::reset($this->player);
 		PlayerUtil::teleportToLobby($this->player);
 
 		StarPvE::getInstance()->getJobManager()->setJob($this->player, null);
 
-		$this->resetAll();
 		$this->player->setGamemode(GameMode::ADVENTURE());
-		$this->setGame(null);
+		$this->leaveGameInternal();
 	}
 
 	public function setGameFromId(?string $id) {

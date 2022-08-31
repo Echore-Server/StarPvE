@@ -88,19 +88,20 @@ class Tank extends PlayerJob implements AlwaysAbility, Listener {
 	public function getAlAbilityDescription(): string {
 		return
 			"ダメージを受けると、受けたダメージの量(防具や能力によるダメージ軽減、ダメージ増加は考慮しない)エネルギーが蓄積する。
+上限は §c800§f で、
 スキルの発動中は蓄積しない。
 
 スキルの発動中、エネルギーの蓄積量によっていろいろな追加能力が発動する。
 
 ・§c200§f 以上の場合
-§c0.5秒§f 毎にフィールド内のランダムな敵 §c1体§f に防具貫通の §c1♡§f ダメージを与える攻撃を行う。
+§c0.5秒§f 毎にフィールド内のランダムな敵 §c1体§f に防具貫通の §c2♡§f ダメージを与える攻撃を行う。
 
 ・§c300§f 以上の場合
 エネルギーフィールドの範囲が §c1.5倍§f になる。
 
 ・§c400§f 以上の場合
-特殊アビリティに防具貫通 §c4♡§f ダメージを与える攻撃を追加するが、
-消費エネルギーが §c2倍§f になる。
+特殊アビリティに防具貫通 §c16♡§f ダメージを与える攻撃を追加するが、
+消費エネルギーが §c3倍§f になる。
 ";
 	}
 
@@ -124,8 +125,9 @@ class Tank extends PlayerJob implements AlwaysAbility, Listener {
 	}
 
 	public function setEnergy(float $energy): void {
-		$this->energy = max(0, $energy);
+		$this->energy = min(800, max(0, $energy));
 		$this->actionLine->setText(sprintf(self::ENERGY_FORMAT, $this->energy));
+		$this->action->setChanged();
 	}
 
 	public function addEnergy(float $energy): void {

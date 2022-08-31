@@ -16,7 +16,7 @@ use pocketmine\form\Form;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 
-class JobInformationForm implements Form {
+class JobInformationForm extends AdvancedForm {
 
 	public function __construct(protected Player $player, protected PlayerJob $job) {
 	}
@@ -51,24 +51,31 @@ class JobInformationForm implements Form {
 				],
 				[
 					"text" => "§b§lスペル"
+				],
+				[
+					"text" => "§aステータス"
 				]
 			]
 		];
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
+
 		if ($player === $this->player) {
 			if ($data !== null) {
 				if ($data == 0) {
-					TaskUtil::delayed(new ClosureTask(function () use ($player) {
-						$jobIdentity = new JobIdentityForm($player, $this->job);
-						$player->sendForm($jobIdentity);
-					}), 1);
+					$form = new JobIdentityForm($player, $this->job, $this->job->getIdentityGroup()->getAll());
+					$form->setChildForm($this);
+					$player->sendForm($form);
 				} elseif ($data == 1) {
-					TaskUtil::delayed(new ClosureTask(function () use ($player) {
-						$jobIdentity = new SpellListForm($this->job->getSpells());
-						$player->sendForm($jobIdentity);
-					}), 1);
+					$form = new SpellListForm($this->job->getSpells());
+					$form->setChildForm($this);
+					$player->sendForm($form);
+				} elseif ($data == 2) {
+					$form = new JobStatusForm($player, $this->job);
+					$form->setChildForm($this);
+					$player->sendForm($form);
 				}
 			}
 		} else {

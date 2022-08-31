@@ -19,6 +19,7 @@ use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\SlowdownRunIds;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Entity;
@@ -26,7 +27,6 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
-
 
 class EMPAbility extends Ability {
 
@@ -42,20 +42,29 @@ class EMPAbility extends Ability {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$damage = DescriptionTranslator::health($this->damage);
 		$percentage = DescriptionTranslator::percentage($this->percentage);
+		$duration = DescriptionTranslator::second($this->duration);
 		return
-			sprintf('§b発動時:§f %1$s いないの敵に対して効果を発動させる。
-§b発動時§f: %1$s 以内の特殊投擲物を消滅させる。
+			sprintf(
+				mb_convert_encoding('
+§b発動時:§f %1$s 以内の敵に対して §b効果§f を発動させる
+§b発動時:§f %1$s 以内の特殊投擲物を消滅させる
 
-§b効果§f: 体力が %3$s 以内の敵に最大体力分の防具貫通ダメージを与える。
-§b効果§f: (防御点 * §c1§f) のダメージを与える。
-§b効果§f: 敵が §dクリーパー§f の場合、%2$s のダメージを与える。
-', $area, $damage, $percentage);
+§b効果§f: 体力が %3$s§f 以内の敵に最大体力分の防具貫通ダメージを与える。
+§b効果§f: %4$s 移動速度を §c25%%%%§f 低下させる。
+§b効果§f: 敵が §dクリーパー§f の場合、 %2$s ダメージを与える。
+', "UTF-8", "UTF-8"),
+				$area,
+				$damage,
+				$percentage,
+				$duration
+			);
 	}
 
 	protected function init(): void {
 		$this->area = new AbilityStatus(8.0);
 		$this->damage = new AbilityStatus(20.0);
 		$this->percentage = new AbilityStatus(0.14);
+		$this->duration = new AbilityStatus(20 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -77,12 +86,7 @@ class EMPAbility extends Ability {
 				}
 
 				if ($entity instanceof LivingBase) {
-					$pointDmg = $entity->getArmorPoints() * 1;
-					if ($pointDmg > 0) {
-						$source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageEvent::CAUSE_MAGIC, $pointDmg, [], 0);
-						$source->setAttackCooldown(0);
-						$entity->attack($source);
-					}
+					EntityUtil::slowdown($entity, (int) $this->duration->get(), 0.75, SlowdownRunIds::get($this::class));
 					if ($entity->getHealth() <= ($entity->getMaxHealth() * $this->percentage->get())) {
 						$source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageEvent::CAUSE_MAGIC, $entity->getMaxHealth(), [], 0);
 						$source->setAttackCooldown(0);

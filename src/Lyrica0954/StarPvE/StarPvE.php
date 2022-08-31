@@ -50,6 +50,8 @@ use Lyrica0954\StarPvE\service\indicator\PlayerHealthIndicatorService;
 use Lyrica0954\StarPvE\service\message\GenericLevelupMessageService;
 use Lyrica0954\StarPvE\service\message\JobLevelupMessageService;
 use Lyrica0954\StarPvE\service\message\PlayerAdviceMessageService;
+use Lyrica0954\StarPvE\service\message\TipMessageService;
+use Lyrica0954\StarPvE\service\player\DamageCooldownPerPlayerService;
 use Lyrica0954\StarPvE\service\player\PlayerChatService;
 use Lyrica0954\StarPvE\utils\BuffUtil;
 use Lyrica0954\StarPvE\utils\EntityUtil;
@@ -219,8 +221,8 @@ final class StarPvE extends PluginBase {
 		$this->gameManager->deleteUnusedWorld();
 
 		$this->log("Loading Commands...");
-		CommandLoader::load($this);
 		CommandLoader::registerPermissions();
+		CommandLoader::load($this);
 	}
 
 	protected function onEnable(): void {
@@ -271,6 +273,8 @@ final class StarPvE extends PluginBase {
 		$session->add(new PlayerAdviceMessageService($session));
 		$session->add(new ExpIndicatorService($session));
 		$session->add(new PlayerChatService($session));
+		$session->add(new TipMessageService($session));
+		$session->add(new DamageCooldownPerPlayerService($session));
 
 		$this->log("Starting Service Session...");
 		$session->start();

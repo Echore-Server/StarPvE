@@ -25,14 +25,14 @@ class SelectSpellForm extends SpellListForm {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::__handleResponse($player, $data);
 		if ($data !== null) {
 			$spell = $this->spells[$data] ?? null;
 			if ($spell !== null) {
 				$form = new SpellInformationSelectableForm($this->job, $spell);
+				$form->setChildForm($this);
 				$player->sendForm($form);
 			}
-		} else {
-			$player->sendForm($this);
 		}
 	}
 }

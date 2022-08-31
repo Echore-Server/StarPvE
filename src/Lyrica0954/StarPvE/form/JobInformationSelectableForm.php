@@ -20,48 +20,30 @@ class JobInformationSelectableForm extends JobInformationForm {
 
 	public function jsonSerialize(): mixed {
 		$parentData = parent::jsonSerialize();
-		array_unshift($parentData["buttons"], ["text" => "§a§lこの職業に就く"]);
-		$parentData["buttons"][] = ["text" => "戻る"];
+		$parentData["buttons"][] = ["text" => "§a§lこの職業に就く"];
 		return $parentData;
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
 		if ($player === $this->player) {
 			if ($data !== null) {
-				if ($data == 0) {
+				if ($data == 3) {
 					if ($this->job->isSelectable($player)) {
 						$class = $this->job::class;
 						StarPvE::getInstance()->getJobManager()->setJob($player, $class);
 						$player->sendMessage(Messanger::talk("職業", "§a{$this->job->getName()} を選択しました！"));
 						$jobInstance = StarPvE::getInstance()->getJobManager()->getJob($player);
 						if (count($jobInstance->getDefaultSpells()) > 0) {
-							TaskUtil::delayed(new ClosureTask(function () use ($player, $jobInstance) {
-								$form = new SelectSpellForm($jobInstance);
-								$player->sendForm($form);
-							}), 1);
+							$form = new SelectSpellForm($jobInstance);
+							$form->setChildForm($form); #loop
+							$player->sendForm($form);
 						}
 					} else {
 						$player->sendMessage(Messanger::talk("職業", "§c{$this->job->getName()} を選択できません"));
 					}
-				} elseif ($data == 1) {
-					TaskUtil::delayed(new ClosureTask(function () use ($player) {
-						$jobIdentity = new JobIdentityForm($player, $this->job);
-						$player->sendForm($jobIdentity);
-					}), 1);
-				} elseif ($data == 2) {
-					TaskUtil::delayed(new ClosureTask(function () use ($player) {
-						$jobIdentity = new SpellListForm($this->job->getSpells());
-						$player->sendForm($jobIdentity);
-					}), 1);
-				} else {
-					TaskUtil::delayed(new ClosureTask(function () use ($player) {
-						$jobSelect = new JobSelectForm($player);
-						$player->sendForm($jobSelect);
-					}), 1);
 				}
 			}
-		} else {
-			Messanger::error($player, "Invalid Sender", Messanger::getIdFromObject($this, "handleResponse"));
 		}
 	}
 }

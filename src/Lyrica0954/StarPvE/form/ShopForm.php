@@ -11,7 +11,7 @@ use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class ShopForm implements Form {
+class ShopForm extends AdvancedForm {
 
 	public function __construct(private Player $player, private Shop $shop) {
 	}
@@ -56,6 +56,8 @@ class ShopForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
+
 		if ($data !== null) {
 			$contents = array_values($this->shop->getContents());
 			$pressedContent = $contents[$data] ?? null;

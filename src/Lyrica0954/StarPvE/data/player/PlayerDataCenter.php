@@ -43,7 +43,8 @@ class PlayerDataCenter extends DataCenter implements Listener {
 			GenericConfigAdapter::EXP => 0,
 			GenericConfigAdapter::NEXT_EXP => GenericConfigAdapter::getExpToCompleteLevel(1),
 			GenericConfigAdapter::PERMS => [],
-			GenericConfigAdapter::RANKS => []
+			GenericConfigAdapter::RANKS => [],
+			GenericConfigAdapter::WARN => 0
 		];
 
 		$this->jobDefault = [
@@ -140,7 +141,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		}
 	}
 
-	public function createGenericConfig(Player $player) {
+	public function createGenericConfig(Player $player): Config {
 		$info = [
 			GenericConfigAdapter::USERNAME => $player->getName(),
 			GenericConfigAdapter::FIRST_PLAYED => $player->getFirstPlayed(),
@@ -205,6 +206,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		$dataFolder = StarPvE::getInstance()->getDataFolder();
 		@mkdir($dataFolder . "player_data/{$player->getXuid()}/job", 0777, true);
 
-		$this->data[$player->getXuid()] = new PlayerConfig($this->createGenericConfig($player), $this->createSettingConfig($player), $this->createBagConfig($player), $this->createArtifactConfig($player), [], $player->getXuid());
+		$generic = $this->createGenericConfig($player);
+		$this->data[$player->getXuid()] = new PlayerConfig($generic, $this->createSettingConfig($player), $this->createBagConfig($player), $this->createArtifactConfig($player), [], $player->getXuid());
 	}
 }

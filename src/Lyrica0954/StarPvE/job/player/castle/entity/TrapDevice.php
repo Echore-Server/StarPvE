@@ -13,6 +13,7 @@ use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\SlowdownRunIds;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -74,7 +75,8 @@ class TrapDevice extends GhostItemEntity {
 							$motion->y = 0;
 							$entity->setMotion($motion->multiply(-1.5));
 						}
-						EntityUtil::slowdown($entity, (1 * 20), 0.7);
+						$hash = SlowdownRunIds::get($this::class);
+						EntityUtil::slowdown($entity, (1 * 20), 0.7, $hash);
 						$k = spl_object_hash($entity);
 						if (!isset($this->attackTick[$k])) {
 							$this->attackTick[$k] = [0, 20];

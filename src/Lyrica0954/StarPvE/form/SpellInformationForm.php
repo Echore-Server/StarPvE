@@ -10,7 +10,7 @@ use Lyrica0954\StarPvE\job\Spell;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class SpellInformationForm implements Form {
+class SpellInformationForm extends AdvancedForm {
 
 	public function __construct(protected Spell $spell) {
 	}
@@ -40,5 +40,6 @@ class SpellInformationForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
 	}
 }

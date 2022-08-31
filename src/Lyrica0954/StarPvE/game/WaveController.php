@@ -131,6 +131,8 @@ class WaveController implements CooltimeAttachable, Listener {
 		$this->serviceSession->start();
 
 		$this->spawnTasks = [];
+
+		$this->expMultiplier = $game->getOption()->getXpMultiplier();
 	}
 
 	public function getKillCounter(): PlayerCounterService {
@@ -218,6 +220,8 @@ class WaveController implements CooltimeAttachable, Listener {
 							$this->getGame()->broadcastMessage("§7{$entity->getName()} §fは モンスターに やられてしまった");
 							$entity->setGamemode(GameMode::fromString("3"));
 							$entity->sendTitle("死んでしまった...", "20秒後にリスポーンします");
+							GenericConfigAdapter::fetch($entity)?->addInt(GenericConfigAdapter::DEATHS, 1);
+							JobConfigAdapter::fetchCurrent($entity)?->addInt(JobConfigAdapter::DEATHS, 1);
 							PlayerUtil::flee($entity);
 							StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($entity) {
 								if (!$this->game->isClosed()) {
@@ -548,6 +552,9 @@ class WaveController implements CooltimeAttachable, Listener {
 			foreach ($this->game->getWorld()->getPlayers() as $player) {
 				PlayerUtil::playSound($player, "random.levelup", 1.0, 0.5);
 				$player->sendTitle("§eWave Clear!", "§7Next wave in 30 seconds...");
+
+				$effect = new EffectInstance(VanillaEffects::REGENERATION(), 25 * 20, 0, false);
+				$player->getEffects()->add($effect);
 
 				if ($lastReinforce !== $nextReinforce) {
 					TaskUtil::delayed(new ClosureTask(function () use ($player, $lastReinforce, $nextReinforce, $percentage) {

@@ -16,6 +16,7 @@ use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\SlowdownRunIds;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -59,7 +60,7 @@ class StrikeSpell extends AbilitySpell {
 				ParticleUtil::send($par, $entity->getWorld()->getPlayers(), Position::fromObject($ppos, $entity->getWorld()), ParticleOption::spawnPacket("starpve:lightning_sparkler", ""));
 				$source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->damage->get(), [], 0);
 				$entity->attack($source);
-				EntityUtil::slowdown($entity, (int) $this->duration->get(), max(0.0, 0.5 - $this->percentage->get()));
+				EntityUtil::slowdown($entity, (int) $this->duration->get(), max(0.0, 0.5 - $this->percentage->get()), SlowdownRunIds::get($this::class));
 			}
 		}
 		return ActionResult::SUCCEEDED();

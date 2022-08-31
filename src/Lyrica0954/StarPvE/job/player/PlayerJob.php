@@ -100,7 +100,7 @@ abstract class PlayerJob extends Job {
 					$changed = $this->action->hasChanged();
 					$this->action->update(1);
 					#print_r($this->action->getSorted());
-					if ($changed || Server::getInstance()->getTick() - $this->lastActionUpdate >= 40) {
+					if (($changed || Server::getInstance()->getTick() - $this->lastActionUpdate >= 40) && $this->action->hasContent()) {
 						$this->lastActionUpdate = Server::getInstance()->getTick();
 
 						$player->sendTip($this->action->getText());

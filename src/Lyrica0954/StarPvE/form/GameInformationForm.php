@@ -18,7 +18,7 @@ use pocketmine\form\Form;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 
-class GameInformationForm implements Form {
+class GameInformationForm extends AdvancedForm {
 
 	public function __construct(private Game $game) {
 	}
@@ -57,15 +57,14 @@ class GameInformationForm implements Form {
 				],
 				[
 					"text" => "§9観戦する"
-				],
-				[
-					"text" => "戻る"
 				]
 			]
 		];
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
+
 		if ($data !== null) {
 			if ($data == 0) {
 				if ($this->game->canJoin($player)) {
@@ -122,11 +121,6 @@ class GameInformationForm implements Form {
 				} else {
 					$player->sendMessage("§cエラー: ゲームを観戦できませんでした");
 				}
-			} else {
-				TaskUtil::delayed(new ClosureTask(function () use ($player) {
-					$jobSelect = new GameSelectForm();
-					$player->sendForm($jobSelect);
-				}), 1);
 			}
 		}
 	}

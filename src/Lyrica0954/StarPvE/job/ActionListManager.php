@@ -67,6 +67,15 @@ class ActionListManager {
 		}
 	}
 
+	public function hasContent(): bool {
+		foreach ($this->lines as $line) {
+			if ($line->getText() !== "") {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function getMin(): int {
 		return $this->min;
 	}
@@ -82,6 +91,7 @@ class ActionListManager {
 		$this->internalSetLine($line, $option);
 
 		$this->lines = $this->process($this->lines, $this->mode);
+		$this->changed = true;
 	}
 
 	public function getMode(): int {
@@ -175,6 +185,10 @@ class ActionListManager {
 
 	public function hasChanged(): bool {
 		return $this->changed;
+	}
+
+	public function setChanged(bool $changed = true): void {
+		$this->changed = $changed;
 	}
 
 	public function getText(): string {

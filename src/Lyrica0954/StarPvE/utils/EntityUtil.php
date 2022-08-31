@@ -206,6 +206,7 @@ class EntityUtil implements Listener {
 							unset(self::$immobile[$h]);
 						}), $duration)
 					];
+					return;
 				}
 			}
 			$entity->setImmobile(true);
@@ -220,11 +221,12 @@ class EntityUtil implements Listener {
 		}
 	}
 
-	public static function slowdown(Living $entity, int $duration, float $multiplier) {
+	public static function slowdown(Living $entity, int $duration, float $multiplier, int|string $runId) {
 		$duration = max(0, $duration);
 		if ($duration > 0) {
 			$h = spl_object_hash($entity);
-			$data = self::$slowdown[$h] ?? [0 => null, 1 => null];
+			self::$slowdown[$h][$runId] ?? self::$slowdown[$h] = [];
+			$data = self::$slowdown[$h][$runId] ?? [0 => null, 1 => null];
 			$tick = $data[0];
 			$handler = $data[1];
 			if ($handler instanceof TaskHandler && is_int($tick)) {
@@ -232,24 +234,25 @@ class EntityUtil implements Listener {
 				$remain = $handler->getDelay() - $elapsed;
 				if ($remain < $duration) {
 					$handler->cancel();
-					self::$slowdown[$h] = [
+					self::$slowdown[$h][$runId] = [
 						0 => Server::getInstance()->getTick(),
-						1 => TaskUtil::delayed(new ClosureTask(function () use ($entity, $h, $multiplier) {
+						1 => TaskUtil::delayed(new ClosureTask(function () use ($entity, $h, $multiplier, $runId) {
 							$entity->setMovementSpeed($entity->getMovementSpeed() / $multiplier);
-							unset(self::$slowdown[$h]);
+							unset(self::$slowdown[$h][$runId]);
 						}), $duration)
 					];
+					return;
 				}
-			} else {
-				$entity->setMovementSpeed($entity->getMovementSpeed() * $multiplier);
-				self::$slowdown[$h] = [
-					0 => Server::getInstance()->getTick(),
-					1 => TaskUtil::delayed(new ClosureTask(function () use ($entity, $h, $multiplier) {
-						$entity->setMovementSpeed($entity->getMovementSpeed() / $multiplier);
-						unset(self::$slowdown[$h]);
-					}), $duration)
-				];
 			}
+			$entity->setMovementSpeed($entity->getMovementSpeed() * $multiplier);
+
+			self::$slowdown[$h][$runId] = [
+				0 => Server::getInstance()->getTick(),
+				1 => TaskUtil::delayed(new ClosureTask(function () use ($entity, $h, $multiplier, $runId) {
+					$entity->setMovementSpeed($entity->getMovementSpeed() / $multiplier);
+					unset(self::$slowdown[$h][$runId]);
+				}), $duration)
+			];
 		}
 	}
 

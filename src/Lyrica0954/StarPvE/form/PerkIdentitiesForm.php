@@ -22,7 +22,7 @@ use Lyrica0954\StarPvE\utils\Messanger;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class PerkIdentitiesForm implements Form {
+class PerkIdentitiesForm extends AdvancedForm {
 
 	public static function generateIdentities(GamePlayer $gamePlayer): array {
 		$playerJob = StarPvE::getInstance()->getJobManager()->getJob($gamePlayer->getPlayer());
@@ -103,6 +103,7 @@ class PerkIdentitiesForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
 		if ($data !== null) {
 			$identity = $this->identities[$data] ?? null;
 			if ($identity instanceof Identity) {

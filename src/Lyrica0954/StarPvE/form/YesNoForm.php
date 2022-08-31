@@ -16,7 +16,7 @@ use pocketmine\form\Form;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 
-class YesNoForm implements Form {
+class YesNoForm extends AdvancedForm {
 
 	public function __construct(protected string $content, private \Closure $callback) {
 	}
@@ -38,6 +38,7 @@ class YesNoForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
 		($this->callback)($player, $data);
 	}
 }

@@ -43,7 +43,7 @@ class DownPulseAbility extends Ability implements Listener {
 
 	public function getDescription(): string {
 		$area = DescriptionTranslator::number($this->area, "m");
-		$damageAmp = DescriptionTranslator::percentage($this->percentage, true);
+		$damageAmp = DescriptionTranslator::percentage($this->percentage, false, -1.0);
 		return
 			sprintf('§b発動時:§f %1$s 以内の敵の受けるダメージを %2$s 上昇させる。', $area, $damageAmp);
 	}
@@ -53,7 +53,7 @@ class DownPulseAbility extends Ability implements Listener {
 	}
 
 	protected function init(): void {
-		$this->percentage = new AbilityStatus(1.25);
+		$this->percentage = new AbilityStatus(1.3);
 		$this->area = new AbilityStatus(4.0);
 		$this->speed = new AbilityStatus(0.1);
 	}

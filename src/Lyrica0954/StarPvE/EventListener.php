@@ -43,10 +43,12 @@ use pocketmine\inventory\Inventory;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\ItemIds;
+use pocketmine\network\mcpe\protocol\RemoveActorPacket;
 use pocketmine\network\mcpe\raklib\RakLibInterface;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\world\Position;
 
 class EventListener implements Listener {
@@ -225,6 +227,12 @@ class EventListener implements Listener {
 			}
 
 			RankManager::getInstance()->apply($player);
+
+			TaskUtil::delayed(new ClosureTask(function () use ($adapter, $player) {
+				if ($player->isOnline()) {
+					$adapter->warn($player, 0);
+				}
+			}), 30);
 		}
 	}
 
@@ -246,12 +254,11 @@ class EventListener implements Listener {
 	public function onPlayerQuit(\pocketmine\event\player\PlayerQuitEvent $event) {
 		$player = $event->getPlayer();
 		$gamePlayerManager = $this->plugin->getGamePlayerManager();
-		$gamePlayerManager->getGamePlayer($player)?->leaveGame();
+		$gamePlayerManager->getGamePlayer($player)?->leaveGameInternal();
 		$gamePlayerManager->removeGamePlayer($player);
 
 		$jobManager = $this->plugin->getJobManager();
 		$jobManager->setJob($player, null);
-
 
 		$event->setQuitMessage("§c< §7{$player->getName()}");
 	}

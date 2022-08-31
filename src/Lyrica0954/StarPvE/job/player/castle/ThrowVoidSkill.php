@@ -50,7 +50,7 @@ class ThrowVoidSkill extends ThrowEntitySkillBase {
 		$this->speed = new AbilityStatus(0.9);
 		$this->area = new AbilityStatus(8.0);
 		$this->duration = new AbilityStatus(33 * 20);
-		$this->percentage = new AbilityStatus(1.25);
+		$this->percentage = new AbilityStatus(1.5);
 	}
 
 	protected function getEntity(): Entity {

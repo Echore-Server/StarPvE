@@ -32,6 +32,7 @@ class GameCreationForm implements Form {
 		$contents[] = FormUtil::dropdown("ステージ", $stageNames);
 		$contents[] = FormUtil::slider("ゲームの最大参加人数", 1, 32, 1, 6);
 		$contents[] = FormUtil::slider("ゲーム開始の最低人数", 1, 32, 1, 1);
+		$contents[] = FormUtil::slider("経験値倍率", 0, 25.0, 0.2, 1);
 
 		return [
 			"type" => "custom_form",
@@ -52,6 +53,7 @@ class GameCreationForm implements Form {
 			}
 			$maxPlayers = (int) $data[2];
 			$minPlayers = (int) $data[3];
+			$xpMultiplier = (float) $data[4];
 
 			if ($minPlayers > $maxPlayers) {
 				$player->sendMessage("§c最大参加人数より最低人数を大きくすることはできません");
@@ -62,7 +64,7 @@ class GameCreationForm implements Form {
 				$gameId = GameCreationOption::genId(10);
 			}
 			#print_r($data);
-			$option = new GameCreationOption($gameId, $stageName, new GameOption($maxPlayers, $minPlayers));
+			$option = new GameCreationOption($gameId, $stageName, new GameOption($maxPlayers, $minPlayers, $xpMultiplier));
 			StarPvE::getInstance()->getGameManager()->createNewGame($option);
 			$player->sendMessage("§aゲームを作成しました！");
 		}

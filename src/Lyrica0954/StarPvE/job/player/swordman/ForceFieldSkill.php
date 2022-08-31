@@ -49,7 +49,7 @@ class ForceFieldSkill extends Skill {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(6.0);
+		$this->damage = new AbilityStatus(8.0);
 		$this->area = new AbilityStatus(8.0);
 		$this->percentage = new AbilityStatus(1.0);
 	}

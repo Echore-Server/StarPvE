@@ -96,7 +96,9 @@ class PlayerUtil {
 		$player->getInventory()->clearAll();
 		$player->getCraftingGrid()->clearAll();
 		$player->getOffHandInventory()->clearAll();
+		$player->getCursorInventory()->clearAll();
 	}
+
 
 	public static function teleportToLobby(Player $player) {
 		$player->getInventory()->setItem(4, ItemFactory::getInstance()->get(ItemIds::COMPASS));

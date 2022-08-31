@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\data\player\adapter;
 
+use Lyrica0954\PeekAntiCheat\profile\Client;
+use Lyrica0954\PeekAntiCheat\punish\ban\BanManager;
 use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
 use Lyrica0954\StarPvE\data\adapter\SimpleConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerConfig;
@@ -11,7 +13,9 @@ use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
 use Lyrica0954\StarPvE\event\global\GlobalAddExpEvent;
 use Lyrica0954\StarPvE\event\global\GlobalLevelupEvent;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\player\Player;
+use pocketmine\scheduler\ClosureTask;
 
 class GenericConfigAdapter extends PlayerConfigAdapter {
 
@@ -41,6 +45,7 @@ class GenericConfigAdapter extends PlayerConfigAdapter {
 
 	const PERMS = "Perms";
 	const RANKS = "Ranks";
+	const WARN = "Warn";
 
 	public function addExp(float $amount): mixed {
 		$eev = new GlobalAddExpEvent($this, $amount);
@@ -69,5 +74,55 @@ class GenericConfigAdapter extends PlayerConfigAdapter {
 		}
 
 		return $newExp;
+	}
+
+	public function warn(Player $player, int $amount = 1): void {
+		if ($player->getXuid() !== $this->xuid) {
+			return;
+		}
+
+		$current = $this->addInt(self::WARN, $amount);
+		if ($current >= 4) {
+			BanManager::getInstance()->addBan(Client::createFromPlayer($player), null, "警告レベルが最大に達したため", 0);
+			$player->kick("Custom disconnect");
+		} elseif ($amount > 0) {
+			$player->sendMessage("
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+§c§l警告が付与されました。 警告レベル: {$current}
+");
+			TaskUtil::repeatingClosureLimit(function () use ($player) {
+				PlayerUtil::playSound($player, "note.pling", 1.2, 0.2);
+			}, 1, 40);
+
+			TaskUtil::delayed(new ClosureTask(function () use ($player) {
+				PlayerUtil::playSound($player, "item.trident.thunder", 0.6, 0.5);
+			}), 50);
+		}
 	}
 }

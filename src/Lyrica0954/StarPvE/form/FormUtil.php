@@ -25,7 +25,7 @@ class FormUtil {
 		return $json;
 	}
 
-	public static function slider(string $text, int $min, int $max, int $step = -1, int $default = -1): array {
+	public static function slider(string $text, float $min, float $max, float $step = -1, int $default = -1): array {
 		$json = ["type" => "slider", "text" => $text, "min" => $min, "max" => $max];
 
 		if ($step !== -1) {

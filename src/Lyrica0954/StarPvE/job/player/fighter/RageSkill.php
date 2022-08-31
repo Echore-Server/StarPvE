@@ -57,7 +57,7 @@ class RageSkill extends Skill implements Listener {
 	protected function init(): void {
 		$this->duration = new AbilityStatus(34 * 20);
 		$this->damage = new AbilityStatus(3.0);
-		$this->amount = new AbilityStatus(2);
+		$this->amount = new AbilityStatus(1);
 		$this->percentage = new AbilityStatus(0.8);
 	}
 

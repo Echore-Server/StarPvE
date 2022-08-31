@@ -38,7 +38,7 @@ class EnergyPulseAbility extends Ability {
 		if ($skill instanceof EnergyFieldSkill && $job instanceof Tank) {
 			$cost = 15;
 			if ($job->getEnergy() >= 400) {
-				$cost *= 2;
+				$cost *= 3;
 			}
 			$job->addEnergy(-$cost);
 			$area = $skill->getArea()->get();
@@ -48,7 +48,7 @@ class EnergyPulseAbility extends Ability {
 					EntityUtil::immobile($entity, 4 * 20);
 
 					if ($job->getEnergy() >= 400) {
-						$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_MAGIC, 8.0);
+						$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_MAGIC, 32.0);
 						$source->setAttackCooldown(1);
 						$entity->attack($source);
 					}

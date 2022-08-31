@@ -57,7 +57,7 @@ class WaveMonsters {
 		$tasks = [];
 		foreach ($this->monsters as $monster) {
 			$class = $monster->name;
-			$time = 90 * 20;
+			$time = 120 * 20;
 			$period = (int) floor($time / $monster->count);
 			$option = $optionMap[$class];
 			if (!$option instanceof MonsterOption) {

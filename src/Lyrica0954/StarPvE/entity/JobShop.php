@@ -37,7 +37,7 @@ class JobShop extends Human implements Ghost {
 
 	protected $lookTick = 0;
 	protected int $ptick = 0;
-	protected $emoted = array();
+	protected static $emoted = [];
 
 	protected SquareEffect $sq;
 
@@ -106,13 +106,13 @@ class JobShop extends Human implements Ghost {
 				}
 
 				$gamePlayerManager = StarPvE::getInstance()->getGamePlayerManager();
-				if (!in_array($player, $this->emoted, true) && ($gamePlayerManager->getGamePlayer($player) !== null)) {
+				if (!in_array($player, self::$emoted, true) && ($gamePlayerManager->getGamePlayer($player) !== null)) {
 					if ($dist <= 5.0) {
 						$this->lookAt($player->getEyePos());
 						$packet = EmotePacket::create($this->getId(), EmoteIds::WAVE, 1 << 0);
 						$player->getNetworkSession()->sendDataPacket($packet);
 
-						$this->emoted[] = $player;
+						self::$emoted[] = $player;
 
 						$par = new SingleParticle;
 						ParticleUtil::send(

@@ -15,13 +15,6 @@ use pocketmine\Server;
 
 class CommandLoader {
 
-	const PERM_OWNER = "starpve.group.owner";
-	const PERM_ADMIN = "starpve.team.admin";
-	const PERM_TRUSTED = "starpve.team.trusted_admin";
-
-	const PERM_BUILDER = "starpve.team.builder";
-	const PERM_TEAM = "starpve.team";
-
 	public static function load(StarPvE $p) {
 		$cmd = $p->getServer()->getCommandMap()->getCommand("op");
 		$cmd?->setPermission(DefaultPermissions::ROOT_CONSOLE);
@@ -36,20 +29,24 @@ class CommandLoader {
 		new PlayerStatusCommand("stats", $p, $p);
 		new SettingCommand("setting", $p, $p);
 		new PartyCommand("party", $p, $p);
+		new WarnCommand("warn", $p, $p);
 
 		new TaskInfoCommand("taskinfo", $p, $p);
 	}
 
 	public static function registerPermissions(): void {
 		$console = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_CONSOLE);
+		$operator = PermissionManager::getInstance()->getPermission(DefaultPermissionNames::GROUP_OPERATOR);
+		$operator->addChild(PermissionNames::COMMAND_WARN, true);
 
-		$owner = (new Permission(self::PERM_OWNER, "StarPvE Owner", [
-			DefaultPermissions::ROOT_OPERATOR => true
+		$owner = (new Permission(PermissionNames::OWNER, "StarPvE Owner", [
+			DefaultPermissions::ROOT_OPERATOR => true,
+			PermissionNames::TRUSTED => true
 		]));
-		DefaultPermissions::registerPermission($owner, [$console]);
+		DefaultPermissions::registerPermission($owner);
 
-		$trusted = (new Permission(self::PERM_TRUSTED, "StarPvE Trusted Admin", [
-			self::PERM_ADMIN => true,
+		$trusted = (new Permission(PermissionNames::TRUSTED, "StarPvE Trusted Admin", [
+			PermissionNames::ADMIN => true,
 			DefaultPermissionNames::COMMAND_EFFECT => true,
 			DefaultPermissionNames::COMMAND_ENCHANT => true,
 			DefaultPermissionNames::COMMAND_GIVE => true,
@@ -60,8 +57,9 @@ class CommandLoader {
 		]));
 		DefaultPermissions::registerPermission($trusted);
 
-		$admin = (new Permission(self::PERM_ADMIN, "StarPvE Admin", [
-			self::PERM_BUILDER => true,
+		$admin = (new Permission(PermissionNames::ADMIN, "StarPvE Admin", [
+			PermissionNames::BUILDER => true,
+			PermissionNames::COMMAND_WARN => true,
 			DefaultPermissionNames::COMMAND_STOP => true,
 			DefaultPermissionNames::COMMAND_KICK => true,
 			DefaultPermissionNames::COMMAND_KILL_SELF => true,
@@ -69,7 +67,7 @@ class CommandLoader {
 		]));
 		DefaultPermissions::registerPermission($admin);
 
-		$team = (new Permission(self::PERM_TEAM, "StarPvE Team", [
+		$team = (new Permission(PermissionNames::TEAM, "StarPvE Team", [
 			DefaultPermissionNames::BROADCAST_ADMIN => true,
 			DefaultPermissionNames::BROADCAST_USER => true,
 			DefaultPermissionNames::COMMAND_CLEAR_SELF => true,
@@ -79,8 +77,8 @@ class CommandLoader {
 		]));
 		DefaultPermissions::registerPermission($team);
 
-		$builder = (new Permission(self::PERM_BUILDER, "StarPvE Builder", [
-			self::PERM_TEAM => true,
+		$builder = (new Permission(PermissionNames::BUILDER, "StarPvE Builder", [
+			PermissionNames::TEAM => true,
 			"buildertools.command" => true,
 			"multiworld.command" => true,
 			"multiworld.command.manage" => true,
@@ -133,5 +131,8 @@ class CommandLoader {
 			DefaultPermissionNames::COMMAND_GAMEMODE => true,
 		]));
 		DefaultPermissions::registerPermission($builder);
+
+		$commandWarn = new Permission(PermissionNames::COMMAND_WARN, "StarPvE Command Access: warn");
+		DefaultPermissions::registerPermission($commandWarn);
 	}
 }

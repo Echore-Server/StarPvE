@@ -12,7 +12,7 @@ use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class StatusForm implements Form {
+class StatusForm extends AdvancedForm {
 
 	public function __construct(private Player $player) {
 	}
@@ -21,27 +21,51 @@ class StatusForm implements Form {
 		$content = "";
 
 		foreach ([
-			"モンスターキル: %s" => GenericConfigAdapter::MONSTER_KILLS,
-			"死亡: %s" => GenericConfigAdapter::DEATHS,
-			"ゲームプレイ: %s回" => GenericConfigAdapter::PLAY_COUNT,
-			"勝利: %s回" => GenericConfigAdapter::GAME_WON,
-			"敗北: %s回" => GenericConfigAdapter::GAME_LOST,
-			"経験値: %sEXP" => GenericConfigAdapter::EXP,
-			"合計獲得経験値: %sEXP" => GenericConfigAdapter::TOTAL_EXP,
-			"レベル: %s" => GenericConfigAdapter::LEVEL,
-			"レベルアップに必要な経験値: %sEXP" => GenericConfigAdapter::NEXT_EXP
+			"§c警告レベル: %s" => [
+				GenericConfigAdapter::WARN
+			],
+			"モンスターキル: %s" => [
+				GenericConfigAdapter::MONSTER_KILLS
+			],
+			"死亡回数: %s" => [
+				GenericConfigAdapter::DEATHS
+			],
+			"ゲームプレイ: %s回" => [
+				GenericConfigAdapter::PLAY_COUNT
+			],
+			"勝利: %s回" => [
+				GenericConfigAdapter::GAME_WON
+			],
+			"敗北: %s回" => [
+				GenericConfigAdapter::GAME_LOST
+			],
+			"経験値: %s / %s EXP" => [
+				GenericConfigAdapter::EXP,
+				GenericConfigAdapter::NEXT_EXP
+			],
+			"合計獲得経験値: %sEXP" => [
+				GenericConfigAdapter::TOTAL_EXP
+			],
+			"レベル: %s" => [
+				GenericConfigAdapter::LEVEL
+			],
 		] as $format => $dataEntry) {
-			$data = GenericConfigAdapter::fetch($this->player)?->getConfig()->get($dataEntry, null);
-
-			if ($data === null) {
-				$data = "§c<!>§f";
+			$data = [];
+			foreach ($dataEntry as $entry) {
+				$data[] = GenericConfigAdapter::fetch($this->player)?->getConfig()->get($entry, null);
 			}
 
-			$text = sprintf("§6" . $format, "§a{$data}§f");
+			$dataColored = array_map(function ($d) {
+				if ($d === null) {
+					return "§c§lエラー§f";
+				} else {
+					return "§a{$d}§f";
+				}
+			}, $data);
+			$text = sprintf("§6" . $format, ...$dataColored);
 
 			$content .= "{$text}\n";
 		}
-
 
 		return [
 			"type" => "form",
@@ -52,6 +76,7 @@ class StatusForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
 		if ($data !== null) {
 		}
 	}

@@ -13,7 +13,7 @@ use pocketmine\form\Form;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 
-class JobSelectForm implements Form {
+class JobSelectForm extends AdvancedForm {
 
 	private array $jobs;
 
@@ -41,15 +41,15 @@ class JobSelectForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
 		if ($data !== null) {
 			if (($jobClass = (array_values($this->jobs)[$data] ?? null)) !== null) {
 				$job = new $jobClass(null);
 				if ($job instanceof Job) {
 					if ($job->isSelectable($player)) {
-						StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($player, $job) {
-							$jobInformation = new JobInformationSelectableForm($player, $job);
-							$player->sendForm($jobInformation);
-						}), 1);
+						$jobInformation = new JobInformationSelectableForm($player, $job);
+						$jobInformation->setChildForm($this);
+						$player->sendForm($jobInformation);
 					} else {
 						$player->sendMessage(Messanger::talk("職業", "§cこの職業を選択するには以下の条件を満たす必要があります"));
 						Messanger::condition($player, $job->getSelectableCondition());

@@ -81,7 +81,7 @@ class QuakeAbility extends Ability {
 				$damage *= $job->getCombo();
 			}
 			$source = new EntityDamageByEntityEvent($this->player, $nearest, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
-			$dir = $this->player->getDirectionPlane()->multiply(1.5);
+			$dir = $this->player->getDirectionPlane()->multiply(1.75);
 			$pos = $this->player->getPosition()->add($dir->x, $this->player->getEyeHeight() - 0.2, $dir->y);
 			$entity->teleport($pos);
 			$source->setAttackCooldown(0);

@@ -10,13 +10,16 @@ class GameOption {
 
 	protected int $minPlayers;
 
-	public static function manual(int $maxPlayers = 6, int $minPlayers = 1): self {
-		return new self($maxPlayers, $minPlayers);
+	protected float $xpMultiplier;
+
+	public static function manual(int $maxPlayers = 6, int $minPlayers = 1, float $xpMultiplier = 1.0): self {
+		return new self($maxPlayers, $minPlayers, $xpMultiplier);
 	}
 
-	public function __construct(int $maxPlayers, int $minPlayers) {
+	public function __construct(int $maxPlayers, int $minPlayers, float $xpMultiplier) {
 		$this->maxPlayers = $maxPlayers;
 		$this->minPlayers = $minPlayers;
+		$this->xpMultiplier = $xpMultiplier;
 	}
 
 	public function getMaxPlayers(): int {
@@ -33,5 +36,13 @@ class GameOption {
 
 	public function setMinPlayers(int $minPlayers) {
 		$this->minPlayers = $minPlayers;
+	}
+
+	public function getXpMultiplier(): float {
+		return $this->xpMultiplier;
+	}
+
+	public function setXpMultiplier(float $xpMultiplier): void {
+		$this->xpMultiplier = $xpMultiplier;
 	}
 }

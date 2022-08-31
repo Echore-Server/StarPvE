@@ -60,7 +60,7 @@ class LeapAbility extends Ability implements Ticking, Listener {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(3.0);
+		$this->damage = new AbilityStatus(3.2);
 		$this->area = new AbilityStatus(3.5);
 		$this->activateAngle = new Vector3(0, 0, 0);
 		$this->sneakTick = 0;

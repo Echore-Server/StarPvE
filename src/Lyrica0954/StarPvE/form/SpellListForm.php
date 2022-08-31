@@ -11,7 +11,7 @@ use Lyrica0954\StarPvE\job\Spell;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class SpellListForm implements Form {
+class SpellListForm extends AdvancedForm {
 
 	public function __construct(
 		protected array $spells,
@@ -35,10 +35,12 @@ class SpellListForm implements Form {
 	}
 
 	public function handleResponse(Player $player, $data): void {
+		parent::handleResponse($player, $data);
 		if ($data !== null) {
 			$spell = $this->spells[$data] ?? null;
 			if ($spell !== null) {
 				$form = new SpellInformationForm($spell);
+				$form->setChildForm($this);
 				$player->sendForm($form);
 			}
 		}

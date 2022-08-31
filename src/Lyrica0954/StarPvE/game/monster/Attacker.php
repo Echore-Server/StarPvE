@@ -19,6 +19,7 @@ use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\player\Player;
@@ -68,7 +69,7 @@ class Attacker extends FightingEntity implements Neutral {
 		}
 	}
 
-	protected function selectTarget(array $targets): void {
+	protected function selectTarget(): void {
 	}
 
 	public function avoidCollidingEntities() {
@@ -85,6 +86,10 @@ class Attacker extends FightingEntity implements Neutral {
 
 	public function getAddtionalAttackCooldown(): int {
 		return 40;
+	}
+
+	public function canMoveTo(Vector3 $to, float $div = 1.0): bool {
+		return true;
 	}
 
 	public function moveForward() {

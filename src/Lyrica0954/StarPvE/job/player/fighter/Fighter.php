@@ -129,19 +129,19 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
 
 						$this->combo++;
 						$delay = match (true) {
-							$this->combo >= 19 => 5,
-							$this->combo >= 15 => 6,
-							$this->combo >= 12 => 7,
-							$this->combo >= 9 => 8,
-							$this->combo >= 4 => 9,
-							$this->combo >= 2 => 10,
-							default => 11
+							$this->combo >= 30 => 4,
+							$this->combo >= 25 => 5,
+							$this->combo >= 17 => 6,
+							$this->combo >= 11 => 7,
+							$this->combo >= 5 => 8,
+							$this->combo >= 2 => 9,
+							default => 9
 						};
 						$skillAdjust = ($this->getSkill()->isActive() ? ((int) $this->getSkill()->getAmount()->get()) : 0);
 						$delay -= $skillAdjust;
 						$delay = max(0, $delay);
 
-						$this->comboLevel = (11 - $delay) - $skillAdjust;
+						$this->comboLevel = (10 - $delay) - $skillAdjust;
 						if ($this->comboLevel >= 6) {
 							$this->comboLevel = 6;
 						}

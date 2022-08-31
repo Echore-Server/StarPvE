@@ -60,7 +60,7 @@ class Defender extends FightingEntity implements Neutral {
 		return false;
 	}
 
-	protected function selectTarget(array $targets): void {
+	protected function selectTarget(): void {
 		#助けるけど戦わない
 	}
 
