@@ -44,7 +44,7 @@ class StrikeSpell extends AbilitySpell {
 
 	protected function init(): void {
 		$this->duration = new AbilityStatus(6 * 20);
-		$this->percentage = new AbilityStatus(0.0);
+		$this->percentage = new AbilityStatus(0.5);
 		$this->area = new AbilityStatus(5.0);
 		$this->damage = new AbilityStatus(2.0);
 	}
@@ -60,7 +60,7 @@ class StrikeSpell extends AbilitySpell {
 				ParticleUtil::send($par, $entity->getWorld()->getPlayers(), Position::fromObject($ppos, $entity->getWorld()), ParticleOption::spawnPacket("starpve:lightning_sparkler", ""));
 				$source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->damage->get(), [], 0);
 				$entity->attack($source);
-				EntityUtil::slowdown($entity, (int) $this->duration->get(), max(0.0, 0.5 - $this->percentage->get()), SlowdownRunIds::get($this::class));
+				EntityUtil::slowdown($entity, (int) $this->duration->get(), max(0.0, 1.0 - $this->percentage->get()), SlowdownRunIds::get($this::class));
 			}
 		}
 		return ActionResult::SUCCEEDED();
@@ -74,7 +74,7 @@ class StrikeSpell extends AbilitySpell {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$damage = DescriptionTranslator::health($this->damage);
 		$duration = DescriptionTranslator::second($this->duration);
-		$percentage = DescriptionTranslator::percentage($this->percentage, false, 0.5);
+		$percentage = DescriptionTranslator::percentage($this->percentage, true);
 		return
 			sprintf('§b発動時:§f %1$s 以内の敵に %2$s ダメージを与えて
  %3$s 秒間移動速度を %4$s 低下させる。', $area, $damage, $duration, $percentage);

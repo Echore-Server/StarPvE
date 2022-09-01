@@ -62,11 +62,11 @@ class ForceFieldSkill extends Skill {
 
 		foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
 			if (MonsterData::isMonster($entity)) {
-				$xz = 4.0;
-				$y = 1.8;
+				$xz = 3.5;
+				$y = 1.5;
 				if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-					$xz = 0.75;
-					$y = 0.8;
+					$xz = 1.2;
+					$y = 0.9;
 				}
 
 				$xz *= $this->percentage->get();

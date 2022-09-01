@@ -26,7 +26,7 @@ class MagicRangedStyle extends Style {
 		return $this->entity->getTarget();
 	}
 
-	public function onTick(int $currentTick): void {
+	public function onTick(int $currentTick, int $tickDiff = 1): void {
 		$entity = $this->entity;
 		if ($entity->getTarget() !== null) {
 			$aiming = true;

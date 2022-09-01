@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\event\global\GlobalAddExpEvent;
 use Lyrica0954\StarPvE\event\global\GlobalLevelupEvent;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\service\ListenerService;
+use Lyrica0954\StarPvE\service\player\LevelEffectService;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -59,6 +60,9 @@ class GenericLevelupMessageService extends ListenerService {
 				$player->sendMessage("§6> レベル: §a{$event->getOld()} >> {$event->getNew()}");
 				$player->sendMessage("§6> 次のExp: §a{$exp}§f/§a{$nextExp}");
 				$player->sendMessage("§a-----------------------");
+				$dmgPerc = LevelEffectService::getDamagePerc($player);
+				$perc = round(($dmgPerc - 1.0) * 100, 1);
+				$player->sendMessage("§a攻撃力が上昇しました！ §c与えるダメージ +0.5% §7(合計 +{$perc}%)");
 
 				foreach ($newSelectableJobs as $class) {
 					$job = new $class(null);

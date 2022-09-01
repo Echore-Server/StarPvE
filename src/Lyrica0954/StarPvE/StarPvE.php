@@ -52,6 +52,7 @@ use Lyrica0954\StarPvE\service\message\JobLevelupMessageService;
 use Lyrica0954\StarPvE\service\message\PlayerAdviceMessageService;
 use Lyrica0954\StarPvE\service\message\TipMessageService;
 use Lyrica0954\StarPvE\service\player\DamageCooldownPerPlayerService;
+use Lyrica0954\StarPvE\service\player\LevelEffectService;
 use Lyrica0954\StarPvE\service\player\PlayerChatService;
 use Lyrica0954\StarPvE\utils\BuffUtil;
 use Lyrica0954\StarPvE\utils\EntityUtil;
@@ -275,6 +276,7 @@ final class StarPvE extends PluginBase {
 		$session->add(new PlayerChatService($session));
 		$session->add(new TipMessageService($session));
 		$session->add(new DamageCooldownPerPlayerService($session));
+		$session->add(new LevelEffectService($session));
 
 		$this->log("Starting Service Session...");
 		$session->start();

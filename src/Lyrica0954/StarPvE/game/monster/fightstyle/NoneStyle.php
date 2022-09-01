@@ -8,6 +8,6 @@ use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 
 class NoneStyle extends Style {
 
-	public function onTick(int $currentTick): void {
+	public function onTick(int $currentTick, int $tickDiff = 1): void {
 	}
 }

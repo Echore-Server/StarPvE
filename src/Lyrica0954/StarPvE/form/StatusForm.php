@@ -8,6 +8,7 @@ use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\game\shop\content\ShopContent;
 use Lyrica0954\StarPvE\game\shop\Shop;
+use Lyrica0954\StarPvE\service\player\LevelEffectService;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
@@ -49,10 +50,17 @@ class StatusForm extends AdvancedForm {
 			"レベル: %s" => [
 				GenericConfigAdapter::LEVEL
 			],
+			"攻撃力上昇: %s%%%%" => [
+				round((LevelEffectService::getDamagePerc($this->player) - 1.0) * 100, 1)
+			]
 		] as $format => $dataEntry) {
 			$data = [];
 			foreach ($dataEntry as $entry) {
-				$data[] = GenericConfigAdapter::fetch($this->player)?->getConfig()->get($entry, null);
+				if (is_string($entry)) {
+					$data[] = GenericConfigAdapter::fetch($this->player)?->getConfig()->get($entry, null);
+				} else {
+					$data[] = $entry;
+				}
 			}
 
 			$dataColored = array_map(function ($d) {

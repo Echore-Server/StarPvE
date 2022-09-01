@@ -32,7 +32,7 @@ class GameCreationForm implements Form {
 		$contents[] = FormUtil::dropdown("ステージ", $stageNames);
 		$contents[] = FormUtil::slider("ゲームの最大参加人数", 1, 32, 1, 6);
 		$contents[] = FormUtil::slider("ゲーム開始の最低人数", 1, 32, 1, 1);
-		$contents[] = FormUtil::slider("経験値倍率", 0, 25.0, 0.2, 1);
+		$contents[] = FormUtil::input("経験値倍率", "倍率を入力", "1.0");
 
 		return [
 			"type" => "custom_form",
@@ -53,7 +53,11 @@ class GameCreationForm implements Form {
 			}
 			$maxPlayers = (int) $data[2];
 			$minPlayers = (int) $data[3];
-			$xpMultiplier = (float) $data[4];
+			if (is_numeric($data[4])) {
+				$xpMultiplier = (float) $data[4];
+			} else {
+				$xpMultiplier = 1.0;
+			}
 
 			if ($minPlayers > $maxPlayers) {
 				$player->sendMessage("§c最大参加人数より最低人数を大きくすることはできません");
