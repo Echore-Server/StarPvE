@@ -147,8 +147,7 @@ class Game implements CooltimeAttachable {
 				$defaultTitleFormat,
 				null,
 				new WaveMonsters(
-					new MonsterData(DefaultMonsters::ZOMBIE, 2),
-					new MonsterData(DefaultMonsters::GIANT_ATTACKER, 1),
+					new MonsterData(DefaultMonsters::ZOMBIE, 2)
 				),
 				new WaveMonsters(
 					new MonsterData(DefaultMonsters::ZOMBIE, 1),

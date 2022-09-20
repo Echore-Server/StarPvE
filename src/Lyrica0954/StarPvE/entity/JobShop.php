@@ -39,8 +39,6 @@ class JobShop extends Human implements Ghost {
 	protected int $ptick = 0;
 	protected static $emoted = [];
 
-	protected SquareEffect $sq;
-
 	public function getName(): String {
 		return "JobShop";
 	}
@@ -61,8 +59,6 @@ class JobShop extends Human implements Ghost {
 
 	protected function initEntity(CompoundTag $nbt): void {
 		parent::initEntity($nbt);
-
-		$this->sq = new SquareEffect(4, 3);
 	}
 
 	public function entityBaseTick(int $tickDiff = 1): bool {

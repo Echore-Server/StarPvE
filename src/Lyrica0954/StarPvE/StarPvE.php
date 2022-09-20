@@ -42,6 +42,7 @@ use Lyrica0954\StarPvE\job\player\magician\Magician;
 use Lyrica0954\StarPvE\job\player\shaman\Shaman;
 use Lyrica0954\StarPvE\job\player\swordman\Swordman;
 use Lyrica0954\StarPvE\job\player\tank\Tank;
+use Lyrica0954\StarPvE\job\player\warrior\Warrior;
 use Lyrica0954\StarPvE\service\BlockFriendlyFireService;
 use Lyrica0954\StarPvE\service\indicator\ExpIndicatorService;
 use Lyrica0954\StarPvE\service\indicator\InboundDamageService;
@@ -247,6 +248,7 @@ final class StarPvE extends PluginBase {
 		$this->jobManager->register(new Archer(null));
 		$this->jobManager->register(new Tank(null));
 		$this->jobManager->register(new Castle(null));
+		$this->jobManager->register(new Warrior(null));
 
 
 		$this->log("Starting Player Data Center...");

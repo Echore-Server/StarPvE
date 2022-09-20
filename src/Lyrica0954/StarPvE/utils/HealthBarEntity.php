@@ -11,7 +11,7 @@ use pocketmine\nbt\tag\CompoundTag;
 
 trait HealthBarEntity {
 
-	protected int $barPercentage = 18;
+	protected int $barPercentage = 15;
 
 	protected string $hpColor = "§a";
 	protected string $nhpColor = "§c";
