@@ -29,10 +29,6 @@ use pocketmine\Server;
 
 class RageSkill extends Skill implements Listener {
 
-	public function getCooltime(): int {
-		return (96 * 20);
-	}
-
 	public function getName(): String {
 		return "レイジ";
 	}
@@ -55,10 +51,11 @@ class RageSkill extends Skill implements Listener {
 	}
 
 	protected function init(): void {
-		$this->duration = new AbilityStatus(34 * 20);
+		$this->duration = new AbilityStatus(26 * 20);
 		$this->damage = new AbilityStatus(3.0);
 		$this->amount = new AbilityStatus(1);
 		$this->percentage = new AbilityStatus(0.8);
+		$this->cooltime = new AbilityStatus(96 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -72,7 +69,7 @@ class RageSkill extends Skill implements Listener {
 			$fogRemove = PlayerFogPacket::create([]);
 			$this->player->getNetworkSession()->sendDataPacket($fogRemove);
 			PlayerUtil::playSound($this->player, "random.fizz", 0.5);
-			$this->player->getEffects()->add(new EffectInstance(VanillaEffects::HUNGER(), 2 * 20, 255, false));
+			$this->player->getEffects()->add(new EffectInstance(VanillaEffects::HUNGER(), 2 * 20, 5, false));
 			$this->active = false;
 		}), (int) $this->duration->get());
 

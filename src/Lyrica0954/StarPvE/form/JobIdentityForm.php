@@ -28,30 +28,33 @@ class JobIdentityForm extends AdvancedForm {
 
 		$buttons[] = ["text" => "特性とは？ §7(ヘルプに進みます)"];
 
-		$activateableIdentity = [];
+		$applicableIdentity = [];
 		$identityCount = count($this->defaults);
 		$conditionMap = [];
 
 		$configName = (new \ReflectionClass($this->job))->getShortName();
 
 		foreach ($this->defaults as $identity) {
-			$activateable = $identity->isApplicable();
+			$applicable = $identity->isApplicable();
 
 			if ($identity instanceof PlayerArgIdentity || $identity instanceof JobIdentity) {
-				$activateable = $identity->isApplicableFor($this->player);
+				$applicable = $identity->isApplicableFor($this->player);
 
 				$cond = $identity->getCondition();
 				if ($cond instanceof JobLevelCondition) {
 					$conditionMap[$cond->min] ?? $conditionMap[$cond->min] = [];
 					$conditionMap[$cond->min][] = $identity;
+				} else {
+					$conditionMap[0] ?? $conditionMap[0] = [];
+					$conditionMap[0][] = $identity;
 				}
 			}
 
-			if ($activateable) {
-				$activateableIdentity[] = $identity;
+			if ($applicable) {
+				$applicableIdentity[] = $identity;
 			}
 
-			$desc = $activateable ? "§a有効" : "§c無効";
+			$desc = $applicable ? "§a有効" : "§c無効";
 			$fixed = FormUtil::fixText($identity->getDescription());
 			if (!$this->sort) {
 				$buttons[] = [
@@ -60,7 +63,7 @@ class JobIdentityForm extends AdvancedForm {
 				$this->identities[] = $identity;
 			}
 		}
-		$activateableIdentityCount = count($activateableIdentity);
+		$applicableIdentityCount = count($applicableIdentity);
 
 		if ($this->sort) {
 			foreach ($conditionMap as $level => $identities) {
@@ -82,7 +85,7 @@ class JobIdentityForm extends AdvancedForm {
 		return [
 			"type" => "form",
 			"title" => "ショップ >> 職業 >> {$this->job->getName()} >> 特性",
-			"content" => "現在 §b{$activateableIdentityCount}/{$identityCount} §fの特性が有効です！",
+			"content" => "現在 §b{$applicableIdentityCount}/{$identityCount} §fの特性が有効です！",
 			"buttons" => $buttons
 		];
 	}

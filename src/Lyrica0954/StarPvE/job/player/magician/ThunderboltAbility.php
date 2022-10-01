@@ -55,11 +55,6 @@ class ThunderboltAbility extends Ability implements Ticking {
 	private ?RayTraceEntityResult $boltHitResult = null;
 	private int $chainCount = 0;
 
-
-	public function getCooltime(): int {
-		return (int) ($this->job->getSkill()->isActive() ? (0.35 * 20) : (0.7 * 20)); #スキル依存
-	}
-
 	public function getName(): string {
 		return "サンダーボルト";
 	}
@@ -79,11 +74,12 @@ class ThunderboltAbility extends Ability implements Ticking {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(10.0);
+		$this->damage = new AbilityStatus(5.5);
 		$this->duration = new AbilityStatus(2);
-		$this->chainDamage = new AbilityStatus(6);
-		$this->amount = new AbilityStatus(5);
-		$this->area = new AbilityStatus(8.5);
+		$this->chainDamage = new AbilityStatus(3.5);
+		$this->amount = new AbilityStatus(3);
+		$this->area = new AbilityStatus(5);
+		$this->cooltime = new AbilityStatus(0.7 * 20);
 	}
 
 	public function getChainDamage(): AbilityStatus {
@@ -137,7 +133,7 @@ class ThunderboltAbility extends Ability implements Ticking {
 		if (!$this->closed) {
 			if (!$this->cooltimeHandler->isActive()) {
 				if (!$this->active) {
-					$this->cooltimeHandler->start($this->getCooltime());
+					$this->cooltimeHandler->start($this->getFinalCooltime());
 
 					return $this->onActivate();
 				} else {
@@ -179,7 +175,7 @@ class ThunderboltAbility extends Ability implements Ticking {
 
 					PlayerUtil::broadcastSound($nextPos, "random.glass", 0.8 + ($this->chainCount * 0.15), 1.0);
 					$damage = $this->chainCount == 0 ? $this->damage->get() : $this->chainDamage->get();
-					$source = new EntityDamageByEntityEvent($this->player, $ne, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $damage);
+					$source = new EntityDamageByEntityEvent($this->player, $ne, EntityDamageByEntityEvent::CAUSE_MAGIC, $damage);
 					$source->setAttackCooldown(0);
 					EntityUtil::attackEntity($source, 0, 0);
 
@@ -190,7 +186,7 @@ class ThunderboltAbility extends Ability implements Ticking {
 						$emitter,
 						$ne->getWorld()->getPlayers(),
 						VectorUtil::insertWorld($min, $ne->getWorld()),
-						ParticleOption::spawnPacket("minecraft:sparkler_emitter", "")
+						ParticleOption::spawnPacket("starpve:lightning_sparkler", "")
 					);
 
 					$this->damaged[] = spl_object_hash($ne);

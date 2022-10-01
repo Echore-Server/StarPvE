@@ -32,14 +32,6 @@ class ConcordeSkill extends Skill {
 	 */
 	protected AbilityStatus $heal;
 
-	protected EffectGroup $normalEffects;
-	protected EffectGroup $fighterEffects;
-	protected EffectGroup $villagerEffects;
-
-	public function getCooltime(): int {
-		return (40 * 20);
-	}
-
 	public function getName(): string {
 		return "フュージョン";
 	}
@@ -47,32 +39,15 @@ class ConcordeSkill extends Skill {
 	public function getDescription(): String {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$heal = DescriptionTranslator::health($this->heal);
-		$fighter = DescriptionTranslator::job("Fighter");
-		$normalEffects = DescriptionTranslator::effectGroup($this->normalEffects);
-		$fighterEffects = DescriptionTranslator::effectGroup($this->fighterEffects);
-		$villagerEffects = DescriptionTranslator::effectGroup($this->villagerEffects);
 		return
 			sprintf('§b発動時(1):§f %1$s 以内の味方の中で一番体力が低いプレイヤーを全回復させる。 
-', $area, $heal, $normalEffects, $fighter, $fighterEffects, $villagerEffects);
+', $area, $heal);
 	}
 
 	protected function init(): void {
 		$this->area = new AbilityStatus(12.0);
 		$this->heal = new AbilityStatus(5 * 2);
-		$this->normalEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::ABSORPTION(), (30 * 20), 3),
-			new EffectInstance(VanillaEffects::REGENERATION(), (20 * 20), 2),
-			new EffectInstance(VanillaEffects::RESISTANCE(), (30 * 20), 0)
-		);
-
-		$this->fighterEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::STRENGTH(), (18 * 20), 1),
-			new EffectInstance(VanillaEffects::SPEED(), (18 * 20), 1)
-		);
-
-		$this->villagerEffects = new EffectGroup(
-			new EffectInstance(VanillaEffects::RESISTANCE(), (14 * 20), 255, true)
-		);
+		$this->cooltime = new AbilityStatus(40 * 20);
 	}
 
 	public function getHeal(): AbilityStatus {
@@ -81,61 +56,26 @@ class ConcordeSkill extends Skill {
 
 	protected function onActivate(): ActionResult {
 
-		$par = (new SingleParticle);
-		$linePar = (new LineParticle(VectorUtil::keepAdd($this->player->getPosition(), 0, 0.5, 0), 3));
 		$circlePar = (new CircleParticle($this->area->get(), $this->area->get()));
 		$players = $this->player->getWorld()->getPlayers();
+		$target = null;
+		$targetHealth = PHP_INT_MAX;
 		foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
 			if ($entity instanceof Player) {
 				if ($entity !== $this->player) {
-					$regain = new EntityRegainHealthEvent($entity, $this->heal->get(), EntityRegainHealthEvent::CAUSE_CUSTOM);
-					$entity->heal($regain);
-					$this->normalEffects->apply($entity);
-					$parPos = VectorUtil::keepAdd(
-						$entity->getPosition(),
-						0,
-						($entity->getEyeHeight() + 0.5),
-						0
-					);
-					if (StarPvE::getInstance()->getJobManager()->isJobName($entity, "Fighter")) {
-						$this->fighterEffects->apply($entity);
-						ParticleUtil::send(
-							$par,
-							$players,
-							$parPos,
-							ParticleOption::spawnPacket("minecraft:villager_angry", "")
-						);
-					} else {
-						ParticleUtil::send(
-							$par,
-							$players,
-							$parPos,
-							ParticleOption::spawnPacket("minecraft:heart_particle", "")
-						);
+					if ($targetHealth > $entity->getHealth()) {
+						$target = $entity;
+						$targetHealth = $entity->getHealth();
 					}
-
-					ParticleUtil::send(
-						$linePar,
-						$players,
-						VectorUtil::keepAdd(
-							$entity->getPosition(),
-							0,
-							0.75,
-							0
-						),
-						ParticleOption::spawnPacket("minecraft:villager_happy", "")
-					);
 				}
-
-				PlayerUtil::playSound($entity, "random.orb");
-				PlayerUtil::playSound($entity, "random.totem", 0.75, 0.5);
-			} elseif ($entity instanceof Villager) {
-				$this->villagerEffects->apply($entity);
 			}
 		}
 
-		$selfRegain = new EntityRegainHealthEvent($this->player, $this->player->getMaxHealth(), EntityRegainHealthEvent::CAUSE_CUSTOM);
-		$this->player->heal($selfRegain);
+
+		if ($target instanceof Player) {
+			$heal = new EntityRegainHealthEvent($target, $target->getMaxHealth(), EntityRegainHealthEvent::CAUSE_CUSTOM);
+			$target->heal($heal);
+		}
 
 		ParticleUtil::send(
 			$circlePar,

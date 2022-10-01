@@ -47,6 +47,7 @@ class StrikeSpell extends AbilitySpell {
 		$this->percentage = new AbilityStatus(0.5);
 		$this->area = new AbilityStatus(5.0);
 		$this->damage = new AbilityStatus(2.0);
+		$this->cooltime = new AbilityStatus(10 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -64,10 +65,6 @@ class StrikeSpell extends AbilitySpell {
 			}
 		}
 		return ActionResult::SUCCEEDED();
-	}
-
-	public function getCooltime(): int {
-		return 10 * 20;
 	}
 
 	public function getDescription(): string {

@@ -9,8 +9,12 @@ use Lyrica0954\StarPvE\data\condition\LevelCondition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\identity\player\SpeedPercentageArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 
 class Magician extends PlayerJob {
@@ -30,6 +34,34 @@ class Magician extends PlayerJob {
 		];
 		$idt->addAll($list);
 		return $idt;
+	}
+
+	protected function init(): void {
+		$this->defaultSpells = [
+			new EnergyBurstSpell($this),
+			(new IdentitySpell($this, "1億アンペア"))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					StatusTranslate::STATUS_DURATION,
+					2.25
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					StatusTranslate::STATUS_COOLTIME,
+					1.15
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SKILL,
+					StatusTranslate::STATUS_DURATION,
+					1.5
+				))
+		];
 	}
 
 	public function getName(): string {

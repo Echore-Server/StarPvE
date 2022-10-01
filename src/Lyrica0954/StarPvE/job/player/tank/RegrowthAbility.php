@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\tank;
 
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EffectGroup;
@@ -15,10 +16,6 @@ use pocketmine\entity\effect\VanillaEffects;
 class RegrowthAbility extends Ability {
 
 	protected EffectGroup $effects;
-
-	public function getCooltime(): int {
-		return (16 * 20);
-	}
 
 	public function getName(): string {
 		return "リグロウス";
@@ -34,6 +31,8 @@ class RegrowthAbility extends Ability {
 			new EffectInstance(VanillaEffects::REGENERATION(), (10 * 20), 0),
 			new EffectInstance(VanillaEffects::ABSORPTION(), (10 * 20), 2)
 		);
+
+		$this->cooltime = new AbilityStatus(16 * 20);
 	}
 
 	protected function onActivate(): ActionResult {

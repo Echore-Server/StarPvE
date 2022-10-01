@@ -44,6 +44,7 @@ use Lyrica0954\StarPvE\job\player\swordman\Swordman;
 use Lyrica0954\StarPvE\job\player\tank\Tank;
 use Lyrica0954\StarPvE\job\player\warrior\Warrior;
 use Lyrica0954\StarPvE\service\BlockFriendlyFireService;
+use Lyrica0954\StarPvE\service\CombatSystemService;
 use Lyrica0954\StarPvE\service\indicator\ExpIndicatorService;
 use Lyrica0954\StarPvE\service\indicator\InboundDamageService;
 use Lyrica0954\StarPvE\service\indicator\OutboundDamageService;
@@ -279,6 +280,7 @@ final class StarPvE extends PluginBase {
 		$session->add(new TipMessageService($session));
 		$session->add(new DamageCooldownPerPlayerService($session));
 		$session->add(new LevelEffectService($session));
+		$session->add(new CombatSystemService($session));
 
 		$this->log("Starting Service Session...");
 		$session->start();

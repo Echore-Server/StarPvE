@@ -18,10 +18,6 @@ use pocketmine\item\ItemIds;
 
 class ThrowShieldBallSkill extends ThrowEntitySkillBase {
 
-	public function getCooltime(): int {
-		return (110 * 20);
-	}
-
 	public function getName(): string {
 		return "シールドボール";
 	}
@@ -42,6 +38,7 @@ class ThrowShieldBallSkill extends ThrowEntitySkillBase {
 	protected function init(): void {
 		$this->duration = new AbilityStatus(1 * 20);
 		$this->speed = new AbilityStatus(0.9);
+		$this->cooltime = new AbilityStatus(110 * 20);
 	}
 
 	protected function getEntity(): Entity {

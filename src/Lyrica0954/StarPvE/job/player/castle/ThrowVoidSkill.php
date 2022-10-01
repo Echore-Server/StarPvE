@@ -22,10 +22,6 @@ use pocketmine\item\ItemIds;
 
 class ThrowVoidSkill extends ThrowEntitySkillBase {
 
-	public function getCooltime(): int {
-		return (100 * 20);
-	}
-
 	public function getName(): string {
 		return "ヴォイド";
 	}
@@ -51,6 +47,7 @@ class ThrowVoidSkill extends ThrowEntitySkillBase {
 		$this->area = new AbilityStatus(8.0);
 		$this->duration = new AbilityStatus(33 * 20);
 		$this->percentage = new AbilityStatus(1.5);
+		$this->cooltime = new AbilityStatus(100 * 20);
 	}
 
 	protected function getEntity(): Entity {

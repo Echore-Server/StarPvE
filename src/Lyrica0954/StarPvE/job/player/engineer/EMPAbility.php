@@ -7,7 +7,9 @@ namespace Lyrica0954\StarPvE\job\player\engineer;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SphereParticle;
 use Lyrica0954\SmartEntity\entity\LivingBase;
+use Lyrica0954\StarPvE\entity\EntityStateManager;
 use Lyrica0954\StarPvE\entity\MemoryEntity;
+use Lyrica0954\StarPvE\entity\state\ElectrificationState;
 use Lyrica0954\StarPvE\game\monster\Creeper;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
@@ -20,6 +22,7 @@ use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\SlowdownRunIds;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Entity;
@@ -27,12 +30,9 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
+use pocketmine\scheduler\ClosureTask;
 
 class EMPAbility extends Ability {
-
-	public function getCooltime(): int {
-		return (10 * 20);
-	}
 
 	public function getName(): string {
 		return "EMP";
@@ -43,20 +43,24 @@ class EMPAbility extends Ability {
 		$damage = DescriptionTranslator::health($this->damage);
 		$percentage = DescriptionTranslator::percentage($this->percentage);
 		$duration = DescriptionTranslator::second($this->duration);
+		$amount = DescriptionTranslator::number($this->amount, "体");
 		return
 			sprintf(
 				mb_convert_encoding('
 §b発動時:§f %1$s 以内の敵に対して §b効果§f を発動させる
 §b発動時:§f %1$s 以内の特殊投擲物を消滅させる
 
-§b効果§f: 体力が %3$s§f 以内の敵に最大体力分の防具貫通ダメージを与える。
-§b効果§f: %4$s 移動速度を §c25%%%%§f 低下させる。
-§b効果§f: 敵が §dクリーパー§f の場合、 %2$s ダメージを与える。
+§b効果§f: 体力が %3$s§f 以内の敵に即死ダメージを与える。
+§b効果§f: %4$s §d帯電 §f状態にする。
+§b効果§f: §dクリーパー§f の場合、 %2$s ダメージを与える。
+
+§d帯電§f 状態の敵に攻撃すると、ほかの敵にもダメージを与えることができる。 (最大 %5$s)
 ', "UTF-8", "UTF-8"),
 				$area,
 				$damage,
 				$percentage,
-				$duration
+				$duration,
+				$amount
 			);
 	}
 
@@ -64,7 +68,9 @@ class EMPAbility extends Ability {
 		$this->area = new AbilityStatus(8.0);
 		$this->damage = new AbilityStatus(20.0);
 		$this->percentage = new AbilityStatus(0.14);
-		$this->duration = new AbilityStatus(20 * 20);
+		$this->duration = new AbilityStatus(10 * 20);
+		$this->amount = new AbilityStatus(1);
+		$this->cooltime = new AbilityStatus(10 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -86,12 +92,19 @@ class EMPAbility extends Ability {
 				}
 
 				if ($entity instanceof LivingBase) {
-					EntityUtil::slowdown($entity, (int) $this->duration->get(), 0.75, SlowdownRunIds::get($this::class));
 					if ($entity->getHealth() <= ($entity->getMaxHealth() * $this->percentage->get())) {
 						$source = new EntityDamageByEntityEvent($this->player, $entity, EntityDamageEvent::CAUSE_MAGIC, $entity->getMaxHealth(), [], 0);
 						$source->setAttackCooldown(0);
 						$entity->attack($source);
 					}
+
+					$id = EntityStateManager::nextStateId();
+
+					EntityStateManager::start(new ElectrificationState($entity, (int) $this->amount->get(), $this->area->get()), $id);
+
+					TaskUtil::delayed(new ClosureTask(function () use ($entity, $id) {
+						EntityStateManager::end($entity->getId(), $id);
+					}), (int) $this->duration->get());
 				}
 			} elseif ($entity instanceof MemoryEntity) {
 				$entity->close();

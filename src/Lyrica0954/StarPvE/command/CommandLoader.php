@@ -22,6 +22,9 @@ class CommandLoader {
 		$cmd = $p->getServer()->getCommandMap()->getCommand("deop");
 		$cmd?->setPermission(DefaultPermissions::ROOT_CONSOLE);
 
+		$cmd = $p->getServer()->getCommandMap()->getCommand("kill");
+		$cmd?->setPermission(DefaultPermissions::ROOT_OPERATOR);
+
 		new HubCommand("hub", $p, $p);
 		new GameCommand("game", $p, $p);
 		new JobInfoCommand("jobstats", $p, $p);

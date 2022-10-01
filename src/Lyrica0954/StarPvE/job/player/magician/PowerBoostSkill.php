@@ -36,10 +36,6 @@ class PowerBoostSkill extends Skill {
 
 	protected ?TaskHandler $overdriveTask = null;
 
-	public function getCooltime(): int {
-		return (80 * 20);
-	}
-
 	public function getName(): String {
 		return "パワーブースト";
 	}
@@ -50,23 +46,26 @@ class PowerBoostSkill extends Skill {
 		return
 			sprintf('§b効果時間:§f %1$s
 §b効果: §f移動速度が %2$s 上昇する 
-さらに効果中はアビリティのクールタイムが §c0.35秒§f にスピードアップする。', $duration, $percentage);
+さらに効果中はアビリティのクールタイムが半分になる', $duration, $percentage);
 	}
 
 	protected function init(): void {
 		$this->duration = new AbilityStatus(12 * 20);
 		$this->percentage = new AbilityStatus(1.4);
+		$this->cooltime = new AbilityStatus(80 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
 		PlayerUtil::playSound($this->player, "firework.launch");
 		$this->active = true;
 		$this->player->setMovementSpeed($this->player->getMovementSpeed() * $this->percentage->get());
+		$this->job->getAbility()->getCooltime()->divide(2);
 		StarPvE::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () {
 			PlayerUtil::playSound($this->player, "random.fizz", 0.5);
 			$this->active = false;
 			$this->overdriveTask?->cancel();
 			$this->player->setMovementSpeed($this->player->getMovementSpeed() / $this->percentage->get());
+			$this->job->getAbility()->getCooltime()->multiply(2);
 		}), (int) $this->duration->get());
 
 		$this->overdriveTask = StarPvE::getInstance()->getScheduler()->scheduleRepeatingTask(new ClosureTask(function () {

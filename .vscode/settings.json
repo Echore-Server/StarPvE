@@ -1,6 +1,9 @@
 {
 	"intelephense.environment.includePaths": [
-		"C:\\Users\\fwip9\\OneDrive\\デスクトップ\\EchorePvE\\development\\plugins",
-		"C:\\Users\\fwip9\\OneDrive\\デスクトップ\\EchorePvE\\pmmp_source"
+		"../",
+		"../../../pmmp_source"
+	],
+	"cSpell.words": [
+		"Cooldown"
 	],
 }

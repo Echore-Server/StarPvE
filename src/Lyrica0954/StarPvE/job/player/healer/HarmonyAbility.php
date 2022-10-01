@@ -26,10 +26,6 @@ use pocketmine\player\Player;
 
 class HarmonyAbility extends Ability {
 
-	public function getCooltime(): int {
-		return (5 * 20);
-	}
-
 	public function getName(): string {
 		return "ハーモニー";
 	}
@@ -46,6 +42,7 @@ class HarmonyAbility extends Ability {
 		$this->area = new AbilityStatus(12.0);
 		$this->duration = new AbilityStatus(0.75 * 20);
 		$this->damage = new AbilityStatus(2);
+		$this->cooltime = new AbilityStatus(5 * 20);
 	}
 
 	protected function onActivate(): ActionResult {

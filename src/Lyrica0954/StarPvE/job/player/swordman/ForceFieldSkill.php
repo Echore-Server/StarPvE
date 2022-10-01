@@ -28,10 +28,6 @@ use pocketmine\world\particle\ExplodeParticle;
 
 class ForceFieldSkill extends Skill {
 
-	public function getCooltime(): int {
-		return (18 * 20);
-	}
-
 	public function getName(): String {
 		return "フォースフィールド";
 	}
@@ -39,19 +35,16 @@ class ForceFieldSkill extends Skill {
 	public function getDescription(): String {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$damage = DescriptionTranslator::health($this->damage);
-		$percentage = DescriptionTranslator::percentage($this->percentage, false, -1.0);
-		$op = "";
-		if ($this->percentage->get() > 1.0) {
-			$op = "+";
-		}
+		$percentage = DescriptionTranslator::percentage($this->percentage, false, -1.0, true);
 		return
-			sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、遠くに吹き飛ばす。(ノックバック §c' . $op . '%3$s)', $area, $damage, $percentage);
+			sprintf('§b発動時:§f %1$s 以内の敵に %2$s のダメージを与えて、ノックバックを与える。(§c%3$s)', $area, $damage, $percentage);
 	}
 
 	protected function init(): void {
 		$this->damage = new AbilityStatus(8.0);
 		$this->area = new AbilityStatus(8.0);
 		$this->percentage = new AbilityStatus(1.0);
+		$this->cooltime = new AbilityStatus(18 * 20);
 	}
 
 	protected function onActivate(): ActionResult {

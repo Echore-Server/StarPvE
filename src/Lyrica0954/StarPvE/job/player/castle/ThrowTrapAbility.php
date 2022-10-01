@@ -20,10 +20,6 @@ use pocketmine\item\ItemIds;
 
 class ThrowTrapAbility extends ThrowEntityAbilityBase {
 
-	public function getCooltime(): int {
-		return (21 * 20);
-	}
-
 	public function getName(): string {
 		return "トラップ";
 	}
@@ -38,12 +34,11 @@ class ThrowTrapAbility extends ThrowEntityAbilityBase {
 
 装置が地面につくと、§b効果§f を発動させる。
 
-§b効果: §f装置から敵が %1$s 以内に §c3秒§f 以上とどまると、
+§b効果: §f敵が %1$s 以内に §c3秒§f 以上とどまると、
 その敵に %2$s のダメージを与えて、§c6秒§f スタンさせる。
-一度トラップされた敵はトラップしない。
 
-§b効果: §f装置から %1$s 以内の敵の移動速度を §c30%%%%§f 低下させる。
-§b効果: §f一度効果範囲内に入った敵を範囲内から出れなくする。
+§b効果: %1$s 以内の敵の移動速度を低下させる。
+§b効果: §f敵を範囲内から出れなくする。
 
 効果は、効果が発動してから %4$s 経過するか、敵 %3$s 以上をトラップすることで消滅する。', $area, $damage, $amount, $duration);
 	}
@@ -54,6 +49,7 @@ class ThrowTrapAbility extends ThrowEntityAbilityBase {
 		$this->area = new AbilityStatus(4.0);
 		$this->amount = new AbilityStatus(5.0);
 		$this->duration = new AbilityStatus(19 * 20);
+		$this->cooltime = new AbilityStatus(21 * 20);
 	}
 
 	protected function getEntity(): Entity {

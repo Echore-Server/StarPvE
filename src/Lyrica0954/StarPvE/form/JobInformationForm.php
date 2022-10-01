@@ -29,8 +29,8 @@ class JobInformationForm extends AdvancedForm {
 			$add = "";
 		}
 
-		$abilityCooltime = round($this->job->getAbility()->getCooltime() / 20, 1);
-		$skillCooltime = round($this->job->getSkill()->getCooltime() / 20, 1);
+		$abilityCooltime = round($this->job->getAbility()->getCooltime()->get() / 20, 1);
+		$skillCooltime = round($this->job->getSkill()->getCooltime()->get() / 20, 1);
 		return [
 			"type" => "form",
 			"title" => "ショップ >> 職業 >> {$this->job->getName()}",

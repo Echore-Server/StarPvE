@@ -55,12 +55,14 @@ class EntityUtil implements Listener {
 	 * 
 	 * @return Entity[]
 	 */
-	public static function getWithinRange(Position $pos, float $range): array {
+	public static function getWithinRange(Position $pos, float $range, ?Entity $host = null): array {
 		$entities = [];
 		foreach ($pos->getWorld()->getEntities() as $entity) { #array_filter とかよりforeachのほうが軽いらしい
 			if ($entity->isAlive()) {
 				if ($entity->getPosition()->distance($pos) <= $range) {
-					$entities[] = $entity;
+					if ($host !== $entity) {
+						$entities[] = $entity;
+					}
 				}
 			}
 		}
@@ -395,7 +397,7 @@ class EntityUtil implements Listener {
 		if ($f <= 0) {
 			return new Vector3(0, 0, 0);
 		}
-		if (mt_rand() / mt_getrandmax() > $entity->getAttributeMap()->get(Attribute::KNOCKBACK_RESISTANCE)->getValue()) {
+		if (mt_rand() / mt_getrandmax() > ($entity->getAttributeMap()->get(Attribute::KNOCKBACK_RESISTANCE)?->getValue() ?? 0.0)) {
 			$f = 1 / $f;
 
 			$motion = clone $entity->getMotion();

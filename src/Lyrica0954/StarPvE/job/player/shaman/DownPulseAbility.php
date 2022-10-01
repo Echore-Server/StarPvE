@@ -33,10 +33,6 @@ class DownPulseAbility extends Ability implements Listener {
 	 */
 	public array $effected;
 
-	public function getCooltime(): int {
-		return (20 * 20);
-	}
-
 	public function getName(): string {
 		return "ダウンパルス";
 	}
@@ -56,6 +52,7 @@ class DownPulseAbility extends Ability implements Listener {
 		$this->percentage = new AbilityStatus(1.3);
 		$this->area = new AbilityStatus(4.0);
 		$this->speed = new AbilityStatus(0.1);
+		$this->cooltime = new AbilityStatus(20 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -104,7 +101,7 @@ class DownPulseAbility extends Ability implements Listener {
 								$par = (new SaturatedLineworkEffect(3, 4, 0.6, 7));
 								ParticleUtil::send($par, $entity->getWorld()->getPlayers(), VectorUtil::keepAdd($entity->getPosition(), 0, $entity->getEyeHeight(), 0), ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
 
-								TaskUtil::reapeatingClosureCheck(function () use ($entity) {
+								TaskUtil::repeatingClosureCheck(function () use ($entity) {
 									if ($entity->isAlive() && !$entity->isClosed()) {
 										$min = EntityUtil::getCollisionMin($entity);
 										$par = EmitterParticle::createEmitterForEntity($entity, 0.5, 1);

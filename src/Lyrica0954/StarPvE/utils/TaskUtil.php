@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\utils;
 
+use Closure;
 use DaveRandom\CallbackValidator\ReturnType;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\Task;
 use pocketmine\scheduler\TaskHandler;
+use pocketmine\utils\Utils;
 
 class TaskUtil {
 
@@ -81,8 +83,36 @@ class TaskUtil {
 		return self::repeating($task, $period);
 	}
 
+	public static function repeatingClosureFailure(\Closure $closure, int $period): TaskHandler {
+		$task = new class($closure) extends Task {
 
-	public static function reapeatingClosureCheck(\Closure $closure, int $period, \Closure $checker): TaskHandler {
+			private \Closure $closure;
+
+			public function __construct(\Closure $closure) {
+				Utils::validateCallableSignature(function (Closure $fail): void {
+				}, $closure);
+				$this->closure = $closure;
+			}
+
+			public function onRun(): void {
+				$failed = false;
+				$fail = function () use (&$failed) {
+					$failed = true;
+				};
+
+				($this->closure)($fail);
+
+				if ($failed) {
+					$this->getHandler()->cancel();
+				}
+			}
+		};
+
+		return self::repeating($task, $period);
+	}
+
+
+	public static function repeatingClosureCheck(\Closure $closure, int $period, \Closure $checker): TaskHandler {
 		$task = new class($closure, $checker) extends Task {
 
 			private \Closure $closure;

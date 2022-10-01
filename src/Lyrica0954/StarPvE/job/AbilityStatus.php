@@ -53,7 +53,8 @@ class AbilityStatus {
 	}
 
 	public function multiply(float $m): void {
-		$add = ($this->original * ($m - 1.0));
+		$final = $this->original + ($this->getModifier(self::MODIFIER_MULTIPLY));
+		$add = ($final * ($m - 1.0));
 
 		if (!isset($this->modifiers[self::MODIFIER_MULTIPLY])) {
 			$this->modifiers[self::MODIFIER_MULTIPLY] = 0.0;

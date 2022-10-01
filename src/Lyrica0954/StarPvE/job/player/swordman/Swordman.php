@@ -15,9 +15,11 @@ use Lyrica0954\StarPvE\identity\player\AttackPercentageArgIdentity;
 use Lyrica0954\StarPvE\identity\player\ReducePercentageArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
+use Lyrica0954\StarPvE\job\identity\ability\AbilitySignalIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseAreaIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AddBaseDamageIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\AttachStatusIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseDamageIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\IncreaseStatusIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
@@ -99,9 +101,37 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_PERCENTAGE, 0.0))
 				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 2.25))
 				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 0.5)),
-			(new IdentitySpell($this, "特攻兵"))
+			(new IdentitySpell($this, "槍突進"))
 				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 4.0))
-				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.2))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.2)),
+			(new IdentitySpell($this, "突進シールド"))
+				->addIdentity(
+					new AbilitySignalIdentity(
+						$this,
+						null,
+						AttachStatusIdentityBase::ATTACH_ABILITY,
+						LeapAbility::SIGNAL_PENETRATE,
+						"突進がキャンセルされなくなる"
+					)
+				)
+				->addIdentity(
+					new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_ABILITY,
+						StatusTranslate::STATUS_PERCENTAGE,
+						0.0
+					)
+				)
+				->addIdentity(
+					new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_ABILITY,
+						StatusTranslate::STATUS_DAMAGE,
+						0.35
+					)
+				)
 		];
 	}
 
@@ -123,7 +153,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 
 	public function getAlAbilityDescription(): string {
 		return
-			"自分が受けるダメージを (§c6m§f 以内にいる敵の数 x §c3§f)%% 軽減する(最大§c12体§f分)
+			"自分が受けるダメージを周りにいる敵の数に応じて軽減する(最大§c12体§f分)
 もし受けるダメージが自身の体力の半分以上の場合自身に回復効果を付与する";
 	}
 

@@ -8,6 +8,7 @@ use Exception;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
+use Lyrica0954\StarPvE\job\player\AbilitySignal;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\event\HandlerListManager;
@@ -43,6 +44,10 @@ abstract class Ability {
 	 * @var AbilityStatus
 	 */
 	protected AbilityStatus $percentage;
+	/**
+	 * @var AbilityStatus
+	 */
+	protected AbilityStatus $cooltime;
 
 	protected bool $active;
 
@@ -68,6 +73,11 @@ abstract class Ability {
 	 */
 	protected array $tasks;
 
+	/**
+	 * @var AbilitySignal
+	 */
+	protected AbilitySignal $signal;
+
 	public function __construct(PlayerJob $job) {
 		$this->job = $job;
 		$this->player = $job->getPlayer();
@@ -85,8 +95,10 @@ abstract class Ability {
 		$this->duration = new AbilityStatus(0.0);
 		$this->amount = new AbilityStatus(0.0);
 		$this->percentage = new AbilityStatus(0.0);
-
+		$this->cooltime = new AbilityStatus(0.0);
 		$this->tasks = [];
+
+		$this->signal = new AbilitySignal;
 
 		$this->init();
 	}
@@ -102,6 +114,13 @@ abstract class Ability {
 	 */
 	public function getTasks(): array {
 		return $this->tasks;
+	}
+
+	/**
+	 * @return AbilitySignal
+	 */
+	public function getSignal(): AbilitySignal {
+		return $this->signal;
 	}
 
 	public function registerTask(TaskHandler $handler): void {
@@ -156,14 +175,20 @@ abstract class Ability {
 		return $this->percentage;
 	}
 
-	abstract public function getCooltime(): int;
+	public function getCooltime(): AbilityStatus {
+		return $this->cooltime;
+	}
+
+	public function getFinalCooltime(): int {
+		return (int) $this->cooltime->get();
+	}
 
 	public function activate(): ActionResult {
 		if (!$this->closed) {
 			if (!$this->cooltimeHandler->isActive()) {
 				if (!$this->active) {
-					if ($this->getCooltime() > 0) {
-						$this->cooltimeHandler->start($this->getCooltime());
+					if ($this->getFinalCooltime() > 0) {
+						$this->cooltimeHandler->start($this->getFinalCooltime());
 					}
 					$result = $this->onActivate();
 

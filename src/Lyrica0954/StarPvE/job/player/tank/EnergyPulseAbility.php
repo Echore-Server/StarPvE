@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\job\player\tank;
 
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\translate\DescriptionTranslator;
 use Lyrica0954\StarPvE\utils\EffectGroup;
@@ -17,10 +18,6 @@ use pocketmine\event\entity\EntityDamageEvent;
 
 class EnergyPulseAbility extends Ability {
 
-	public function getCooltime(): int {
-		return (5 * 20);
-	}
-
 	public function getName(): string {
 		return "エネルギーパルス";
 	}
@@ -30,6 +27,7 @@ class EnergyPulseAbility extends Ability {
 	}
 
 	protected function init(): void {
+		$this->cooltime = new AbilityStatus(5 * 20);
 	}
 
 	protected function onActivate(): ActionResult {

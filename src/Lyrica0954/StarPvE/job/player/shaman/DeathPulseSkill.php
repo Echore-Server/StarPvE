@@ -26,10 +26,6 @@ use pocketmine\scheduler\ClosureTask;
 
 class DeathPulseSkill extends Skill {
 
-	public function getCooltime(): int {
-		return (120 * 20);
-	}
-
 	public function getName(): string {
 		return "デスパルス";
 	}
@@ -55,6 +51,7 @@ class DeathPulseSkill extends Skill {
 		$this->speed = new AbilityStatus(0);
 		$this->duration = new AbilityStatus(120);
 		$this->amount = new AbilityStatus(10);
+		$this->cooltime = new AbilityStatus(120 * 20);
 	}
 
 	protected function onActivate(): ActionResult {

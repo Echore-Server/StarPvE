@@ -12,6 +12,7 @@ final class StatusTranslate {
 	const STATUS_DURATION = 3;
 	const STATUS_PERCENTAGE = 4;
 	const STATUS_SPEED = 5;
+	const STATUS_COOLTIME = 6;
 
 	public static function translate(int $status): string {
 		$text = match ($status) {
@@ -21,6 +22,7 @@ final class StatusTranslate {
 			self::STATUS_DURATION => "効果時間",
 			self::STATUS_PERCENTAGE => "倍率",
 			self::STATUS_SPEED => "スピード",
+			self::STATUS_COOLTIME => "クールタイム",
 			default => "unknown"
 		};
 

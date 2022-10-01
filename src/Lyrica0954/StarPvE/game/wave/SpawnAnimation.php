@@ -41,7 +41,7 @@ class SpawnAnimation {
 		$living->spawnToAll();
 
 
-		TaskUtil::reapeatingClosureCheck(function () {
+		TaskUtil::repeatingClosureCheck(function () {
 		}, $this->period, function () use ($living) {
 			return (($this->animator)($living));
 		});

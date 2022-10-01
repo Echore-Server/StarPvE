@@ -64,7 +64,7 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener {
 	}
 
 	public function getAlAbilityDescription(): string {
-		return "自分から半径 §c7m§f 以内にいる味方が攻撃を受けた場合、その攻撃のダメージを §c10%%§f 軽減させる。";
+		return "§c7m§f 以内にいる味方の受けるダメージを §c10%%§f 軽減させる。";
 	}
 
 	public function getSelectableCondition(): ?Condition {

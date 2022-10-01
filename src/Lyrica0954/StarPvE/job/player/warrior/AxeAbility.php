@@ -35,15 +35,12 @@ class AxeAbility extends Ability {
 当たった敵に %1$s ダメージと強いノックバックを与える。';
 	}
 
-	public function getCooltime(): int {
-		return 1 * 20;
-	}
-
 	protected function init(): void {
 		$this->damage = new AbilityStatus(4.0);
 		$this->amount = new AbilityStatus(1);
 		$this->speed = new AbilityStatus(3.0);
 		$this->duration = new AbilityStatus(10 * 20);
+		$this->cooltime = new AbilityStatus(1 * 20);
 	}
 
 	protected function onActivate(): ActionResult {

@@ -34,7 +34,7 @@ class Piglin extends FightingEntity implements Hostile, ProjectileSource {
 		return EntityIds::PIGLIN;
 	}
 
-	protected float $reach = 1.5;
+	protected float $reach = 1.2;
 
 	public function getFollowRange(): float {
 		return 50;

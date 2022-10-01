@@ -75,7 +75,7 @@ abstract class AttachAbilityIdentityBase extends JobIdentity {
 		$this->attachTo = $attachTo;
 	}
 
-	public function isAppicableForAbility(Ability $ability) {
+	public function isApplicableForAbility(Ability $ability) {
 		return true;
 	}
 }

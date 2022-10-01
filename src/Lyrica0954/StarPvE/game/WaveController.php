@@ -152,6 +152,13 @@ class WaveController implements CooltimeAttachable, Listener {
 	}
 
 	/**
+	 * @return TaskHandler[]
+	 */
+	public function getSpawnTasks(): array {
+		return $this->spawnTasks;
+	}
+
+	/**
 	 * @param EntityDamageByEntityEvent $event
 	 * 
 	 * @return [type]
@@ -219,7 +226,7 @@ class WaveController implements CooltimeAttachable, Listener {
 						if (!$ev->isCancelled()) {
 							$this->getGame()->broadcastMessage("§7{$entity->getName()} §fは モンスターに やられてしまった");
 							$entity->setGamemode(GameMode::fromString("3"));
-							$entity->sendTitle("死んでしまった...", "20秒後にリスポーンします");
+							$entity->sendTitle("死んでしまった...", "14秒後にリスポーンします");
 							GenericConfigAdapter::fetch($entity)?->addInt(GenericConfigAdapter::DEATHS, 1);
 							JobConfigAdapter::fetchCurrent($entity)?->addInt(JobConfigAdapter::DEATHS, 1);
 							PlayerUtil::flee($entity);
@@ -235,7 +242,7 @@ class WaveController implements CooltimeAttachable, Listener {
 									$entity->sendTitle("復活しました！");
 									$entity->getEffects()->add(new EffectInstance(VanillaEffects::RESISTANCE(), (6 * 20), 255, false, true));
 								}
-							}), (20 * 20));
+							}), (14 * 20));
 						}
 					}
 				} else {
@@ -465,7 +472,7 @@ class WaveController implements CooltimeAttachable, Listener {
 
 	public function getReinforceValue(int $wave): float {
 		$reinforcePeriod = floor($wave / 2);
-		$reinforce = 1.0 + $reinforcePeriod * 0.05;
+		$reinforce = 1.0 + $reinforcePeriod * 0.15;
 		return $reinforce;
 	}
 
@@ -559,7 +566,6 @@ class WaveController implements CooltimeAttachable, Listener {
 				if ($lastReinforce !== $nextReinforce) {
 					TaskUtil::delayed(new ClosureTask(function () use ($player, $lastReinforce, $nextReinforce, $percentage) {
 						PlayerUtil::playSound($player, "mob.witch.celebrate", 1.0, 0.8);
-						$player->sendMessage("§7モンスターの攻撃力、体力 §c+5%");
 						$player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
 					}), 20);
 				}

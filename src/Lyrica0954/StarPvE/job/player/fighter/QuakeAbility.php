@@ -22,8 +22,11 @@ use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
 use pocketmine\block\BlockLegacyIds;
+use pocketmine\entity\effect\EffectInstance;
+use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
@@ -35,61 +38,30 @@ use pocketmine\world\particle\Particle;
 
 class QuakeAbility extends Ability {
 
-	public function getCooltime(): int {
-		return (int) (1.5 * 20);
-	}
-
 	public function getName(): string {
 		return "クエイク";
 	}
 
 	public function getDescription(): string {
-		$area = DescriptionTranslator::number($this->area, "m");
+		$duration = DescriptionTranslator::second($this->duration);
 		return
-			sprintf('§b発動時:§f 視線の先 %1$s の敵を引き寄せて、 (§c%2$s §fx §cコンボ数§f)  のダメージを与える。', $area, $this->percentage->get());
+			sprintf('§b発動時:§f §c1♡ §fのダメージを受ける。
+§d効果: §f %1$s 間、自身の能力が上昇する。', $duration);
 	}
 
 	protected function init(): void {
-		$this->percentage = new AbilityStatus(0.5);
-		$this->area = new AbilityStatus(6.0);
+		$this->duration = new AbilityStatus(4.0 * 20);
+		$this->cooltime = new AbilityStatus(6 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
 		$world = $this->player->getWorld();
 
-		#変更: MemoryEntity のaabbを変更してそれの衝突を調べる。-> 速度もあるからよりリアルっぽくなる
-		$area = $this->area->get();
-		$nearest = null;
-		$nearestDist = PHP_INT_MAX;
-		foreach (EntityUtil::getLineOfSight($this->player, $this->area->get(), new Vector3(0.3, 0.3, 0.3)) as $result) {
-			$entity = $result->getEntity();
-			if (MonsterData::isMonster($entity)) {
-				$dist = $entity->getPosition()->distance($this->player->getPosition());
-				if ($dist < $nearestDist) {
-					$nearest = $entity;
-					$nearestDist = $dist;
-				}
-			}
-		}
+		$source = new EntityDamageEvent($this->player, EntityDamageEvent::CAUSE_MAGIC, 2);
+		$this->player->attack($source);
 
-		if ($nearest instanceof Entity && MonsterData::isMonster($nearest)) {
-			PlayerUtil::playSound($this->player, "use.chain", 0.7, 1.0);
-			PlayerUtil::playSound($this->player, "mob.irongolem.crack", 0.8, 0.4);
-			$damage = $this->percentage->get();
-			$job = $this->getJob();
-			if ($job instanceof Fighter) {
-				$damage *= $job->getCombo();
-			}
-			$source = new EntityDamageByEntityEvent($this->player, $nearest, EntityDamageByEntityEvent::CAUSE_ENTITY_ATTACK, $damage, [], 0);
-			$dir = $this->player->getDirectionPlane()->multiply(1.75);
-			$pos = $this->player->getPosition()->add($dir->x, $this->player->getEyeHeight() - 0.2, $dir->y);
-			$entity->teleport($pos);
-			$source->setAttackCooldown(0);
-			$entity->attack($source);
-
-			#$heal = new EntityRegainHealthEvent($this->player, 2, EntityRegainHealthEvent::CAUSE_CUSTOM);
-			#$this->player->heal($heal);
-		}
+		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::SPEED(), (int) $this->duration->get(), 2));
+		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::STRENGTH(), (int) $this->duration->get(), 0));
 
 		return ActionResult::SUCCEEDED();
 	}

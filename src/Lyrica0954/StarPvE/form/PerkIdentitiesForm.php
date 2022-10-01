@@ -78,7 +78,7 @@ class PerkIdentitiesForm extends AdvancedForm {
 			if ($identity instanceof AAIB) {
 				$applicable = false;
 				foreach ($identity->getAttaching() as $ability) {
-					if ($identity->isAppicableForAbility($ability)) {
+					if ($identity->isApplicableForAbility($ability)) {
 						$applicable = true;
 						break;
 					}
@@ -111,7 +111,7 @@ class PerkIdentitiesForm extends AdvancedForm {
 				if ($identity instanceof AAIB) {
 					$applicable = false;
 					foreach ($identity->getAttaching() as $ability) {
-						if ($identity->isAppicableForAbility($ability)) {
+						if ($identity->isApplicableForAbility($ability)) {
 							$applicable = true;
 							break;
 						}
@@ -149,7 +149,7 @@ class PerkIdentitiesForm extends AdvancedForm {
 
 						$identity->applyAbility($ability);
 
-						$cooltime = round($ability->getCooltime() / 20, 1);
+						$cooltime = round($ability->getCooltime()->get() / 20, 1);
 
 						$content .= "§d{$ability->getName()} §d({$ability->getCooltimeHandler()->getId()})\n§bクールタイム: §c{$cooltime}秒\n{$ability->getDescription()}\n\n";
 					}

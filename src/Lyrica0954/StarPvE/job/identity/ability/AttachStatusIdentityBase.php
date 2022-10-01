@@ -31,6 +31,7 @@ abstract class AttachStatusIdentityBase extends AttachAbilityIdentityBase {
 			StatusTranslate::STATUS_DURATION => ($ability->getDuration()),
 			StatusTranslate::STATUS_PERCENTAGE => ($ability->getPercentage()),
 			StatusTranslate::STATUS_SPEED => ($ability->getSpeed()),
+			StatusTranslate::STATUS_COOLTIME => ($ability->getCooltime()),
 			default => (throw new \Exception("unknown status type"))
 		};
 
@@ -45,7 +46,7 @@ abstract class AttachStatusIdentityBase extends AttachAbilityIdentityBase {
 		$this->resetStatus($this->getAttachingStatus($ability));
 	}
 
-	public function isAppicableForAbility(Ability $ability) {
+	public function isApplicableForAbility(Ability $ability) {
 		return ($this->getAttachingStatus($ability))->getOriginal() !== 0.0;
 	}
 

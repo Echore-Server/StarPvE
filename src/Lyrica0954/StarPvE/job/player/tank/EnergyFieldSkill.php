@@ -30,10 +30,6 @@ class EnergyFieldSkill extends Skill implements Listener {
 
 	protected int $tick;
 
-	public function getCooltime(): int {
-		return (50 * 20);
-	}
-
 	public function getName(): string {
 		return "エネルギーフィールド";
 	}
@@ -41,6 +37,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 	protected function init(): void {
 		$this->area = new AbilityStatus(6.5);
 		$this->duration = new AbilityStatus(5);
+		$this->cooltime = new AbilityStatus(50 * 20);
 		$this->tick = 0;
 	}
 
@@ -64,8 +61,8 @@ class EnergyFieldSkill extends Skill implements Listener {
 		if (!$this->closed) {
 			if (!$this->cooltimeHandler->isActive()) {
 				if (!$this->active) {
-					if ($this->getCooltime() > 0) {
-						$this->cooltimeHandler->start($this->getCooltime());
+					if ($this->getCooltime()->get() > 0) {
+						$this->cooltimeHandler->start($this->getFinalCooltime());
 					}
 					$result = $this->onActivate();
 
@@ -78,7 +75,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 					if ($this->isActive()) {
 						$this->active = false;
 						$this->tick = 0;
-						$this->cooltimeHandler->start($this->getCooltime());
+						$this->cooltimeHandler->start($this->getFinalCooltime());
 						foreach ($this->tasks as $taskHandler) {
 							if (!$taskHandler->isCancelled()) {
 								$taskHandler->cancel();
@@ -116,7 +113,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 		$this->active = true;
 
 
-		$task = TaskUtil::reapeatingClosureCheck(function () {
+		$task = TaskUtil::repeatingClosureCheck(function () {
 			if (!$this->player->isConnected()) {
 				foreach ($this->tasks as $taskHandler) {
 					if (!$taskHandler->isCancelled()) {
@@ -188,7 +185,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 			}
 
 			if (!$result) {
-				$this->cooltimeHandler->start($this->getCooltime());
+				$this->cooltimeHandler->start($this->getFinalCooltime());
 				$this->active = false;
 				$this->tick = 0;
 				$job->setAbility(new RegrowthAbility($job));

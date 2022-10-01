@@ -38,10 +38,6 @@ class FreezeArrowSkill extends Skill implements Listener {
 	 */
 	protected EffectGroup $explodeEffects;
 
-	public function getCooltime(): int {
-		return (90 * 20);
-	}
-
 	public function getName(): string {
 		return "フリーズアロー";
 	}
@@ -64,6 +60,7 @@ class FreezeArrowSkill extends Skill implements Listener {
 	protected function init(): void {
 		$this->area = new AbilityStatus(10.0);
 		$this->duration = new AbilityStatus(16 * 20);
+		$this->cooltime = new AbilityStatus(90 * 20);
 	}
 
 	public function onShoot(EntityShootBowEvent $event) {

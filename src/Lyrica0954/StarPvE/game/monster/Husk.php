@@ -15,7 +15,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 class Husk extends SmartHusk {
 	use HealthBarEntity;
 
-	protected float $reach = 2.5;
+	protected float $reach = 1.5;
 
 	public function attackEntity(Entity $entity): bool {
 		$range = VectorUtil::distanceToAABB($this->getEyePos(), $entity->getBoundingBox());

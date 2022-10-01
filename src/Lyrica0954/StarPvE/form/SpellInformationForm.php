@@ -19,7 +19,7 @@ class SpellInformationForm extends AdvancedForm {
 	public function jsonSerialize(): mixed {
 		$text = "";
 		if ($this->spell instanceof AbilitySpell) {
-			$cooltime = round($this->spell->getCooltime() / 20, 1);
+			$cooltime = round($this->spell->getCooltime()->get() / 20, 1);
 			$text = "§b{$this->spell->getName()} §d(アビリティ)
 §bクールタイム: §c{$cooltime}秒§f
 {$this->spell->getDescription()}";

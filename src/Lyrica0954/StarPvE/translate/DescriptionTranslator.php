@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\translate;
 
+use Closure;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\utils\EffectGroup;
@@ -53,7 +54,7 @@ class DescriptionTranslator {
 		return TextFormat::RED . round($num, 2) . "秒" . self::diff($diff) . $resetter;
 	}
 
-	public static function percentage(AbilityStatus $stat, bool $reverse = false, float $final = 0.0, string $resetter = TextFormat::WHITE): string {
+	public static function percentage(AbilityStatus $stat, bool $reverse = false, float $final = 0.0, bool $autoOperator = false, string $resetter = TextFormat::WHITE): string {
 		$num = $stat->get();
 		$diff = $stat->getDiff();
 		if ($reverse) {
@@ -61,8 +62,16 @@ class DescriptionTranslator {
 			$diff = -$diff;
 		}
 
+
+		$op = "";
+		if ($num >= 1.0 && $autoOperator) {
+			$op = "+";
+		}
+
+
 		$num += $final;
-		return TextFormat::RED . round($num * 100, 1) . "%%" . self::diff($diff * 100, 1) . $resetter;
+
+		return TextFormat::RED . $op . round($num * 100, 1) . "%%" . self::diff($diff * 100, 1) . $resetter;
 	}
 
 	public static function effect(EffectInstance $instance, string $resetter = TextFormat::WHITE): string {

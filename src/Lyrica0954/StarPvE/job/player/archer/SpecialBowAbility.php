@@ -53,10 +53,6 @@ class SpecialBowAbility extends Ability implements Listener {
 
 	protected Item $bow;
 
-	public function getCooltime(): int {
-		return (int) (1.0 * 20);
-	}
-
 	public function getName(): string {
 		return "トキシックアロー";
 	}
@@ -93,6 +89,8 @@ class SpecialBowAbility extends Ability implements Listener {
 			new EffectInstance(VanillaEffects::SLOWNESS(), 7 * 20, 2, false),
 			new EffectInstance(VanillaEffects::WEAKNESS(), 3 * 20, 1, false)
 		);
+
+		$this->cooltime = new AbilityStatus(1 * 20);
 	}
 
 
