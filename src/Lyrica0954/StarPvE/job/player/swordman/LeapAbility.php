@@ -48,10 +48,9 @@ class LeapAbility extends Ability implements Listener {
 		$duration = DescriptionTranslator::second($this->duration);
 		$percentage = DescriptionTranslator::percentage($this->percentage, false, -1.0, true);
 		return
-			sprintf('§b発動時:§f 視線の先に §c1秒§f 突進する。
-突進中はモンスターによるダメージを受けなくなる。
+			sprintf('§b発動時:§f 視線の先に突進する。無敵(例外あり)になり、
 %1$s の敵に、%2$s ダメージとノックバック(%4$s) を与えて %3$s 秒動けなくさせる。
-一度ダメージを与えると突進はキャンセルされる。', $area, $damage, $duration, $percentage);
+一度ダメージを与えるとキャンセルされる。', $area, $damage, $duration, $percentage);
 	}
 
 	protected function init(): void {

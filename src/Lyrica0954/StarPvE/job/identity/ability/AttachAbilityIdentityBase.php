@@ -63,7 +63,7 @@ abstract class AttachAbilityIdentityBase extends JobIdentity {
 
 	public function reset(): void {
 		foreach ($this->getAttaching() as $ability) {
-			$this->applyAbility($ability);
+			$this->resetAbility($ability);
 		}
 	}
 

@@ -31,16 +31,14 @@ class ThrowTrapAbility extends ThrowEntityAbilityBase {
 		$duration = DescriptionTranslator::second($this->duration);
 		return
 			sprintf('§b発動時: §f特殊な装置を投げる。
-
 装置が地面につくと、§b効果§f を発動させる。
+§b効果範囲:§f %1$s
 
-§b効果: §f敵が %1$s 以内に §c3秒§f 以上とどまると、
-その敵に %2$s のダメージを与えて、§c6秒§f スタンさせる。
+§b効果: §f一定時間いる敵に %2$s のダメージを与えて、§c6秒§f スタンさせる。
+§b効果: §f敵の移動速度を低下させる。
+§b効果: §f敵を出れなくする。
 
-§b効果: %1$s 以内の敵の移動速度を低下させる。
-§b効果: §f敵を範囲内から出れなくする。
-
-効果は、効果が発動してから %4$s 経過するか、敵 %3$s 以上をトラップすることで消滅する。', $area, $damage, $amount, $duration);
+%4$s 経過するか、敵 %3$s 以上をトラップすることで消滅する。', $area, $damage, $amount, $duration);
 	}
 
 	protected function init(): void {

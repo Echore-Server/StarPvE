@@ -179,6 +179,23 @@ abstract class Ability {
 		return $this->cooltime;
 	}
 
+	/**
+	 * @param int $status
+	 * 
+	 * @return AbilityStatus[]
+	 */
+	public function getStatusList(int $status): ?array {
+		return match ($status) {
+			StatusTranslate::STATUS_DAMAGE => [$this->damage],
+			StatusTranslate::STATUS_AREA => [$this->area],
+			StatusTranslate::STATUS_AMOUNT => [$this->amount],
+			StatusTranslate::STATUS_DURATION => [$this->duration],
+			StatusTranslate::STATUS_PERCENTAGE => [$this->percentage],
+			StatusTranslate::STATUS_SPEED => [$this->speed],
+			default => null
+		};
+	}
+
 	public function getFinalCooltime(): int {
 		return (int) $this->cooltime->get();
 	}

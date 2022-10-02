@@ -40,8 +40,8 @@ class RageSkill extends Skill implements Listener {
 		$damageProt = DescriptionTranslator::percentage($this->percentage, true);
 		return
 			sprintf(
-				'発動時: %1$s 間、攻撃速度が %2$s 上昇する(ファイトアップの効果も反映される)
-効果中に攻撃された場合、その敵に(%3$s + §eファイトアップのレベル§f)のダメージとノックバックを与えるカウンター攻撃を行い、受けるダメージを %4$s 軽減する。
+				'発動時: %1$s 間、攻撃速度が %2$s 上昇する
+攻撃された場合、その敵に(%3$s + §eファイトアップのレベル§f)のダメージを与えるカウンター攻撃を行い、受けるダメージを %4$s 軽減する。
 効果終了時、空腹になる。',
 				$duration,
 				$amount,

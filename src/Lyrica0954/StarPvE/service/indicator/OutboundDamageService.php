@@ -68,11 +68,11 @@ class OutboundDamageService extends ListenerService {
 
 				$finalDamage = $event->getFinalDamage();
 
-				$diff = ($finalDamage - $originalDamage);
+				$diff = round(($finalDamage - $originalDamage), 4);
 
 				$diffString = ($diff >= 0 ? "+" : "") . (string) $diff;
 
-				$damager->sendMessage("§a§l>> §r§8{$originalEvent->getOriginalBaseDamage()} §f-> §7{$originalDamage} §f-> §a{$finalDamage} §d({$diffString})");
+				$damager->sendMessage(sprintf('§a§l>> §r§8%1%s §f-> §7%2$s §f-> §a%3$s §d(%4$s)', round($originalEvent->getOriginalBaseDamage(), 3), round($originalDamage, 3), round($finalDamage, 3), $diffString));
 			}
 		}
 	}

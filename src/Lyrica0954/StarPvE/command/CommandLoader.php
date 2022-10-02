@@ -33,6 +33,7 @@ class CommandLoader {
 		new SettingCommand("setting", $p, $p);
 		new PartyCommand("party", $p, $p);
 		new WarnCommand("warn", $p, $p);
+		new HelpCommand("shelp", $p, $p);
 
 		new TaskInfoCommand("taskinfo", $p, $p);
 	}

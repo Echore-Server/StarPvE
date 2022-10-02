@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\form\help;
 
+use Lyrica0954\StarPvE\form\AdvancedForm;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class HelpIdentityForm implements Form {
+class HelpIdentityForm extends AdvancedForm {
 
 	public function __construct() {
 	}

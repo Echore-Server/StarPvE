@@ -21,7 +21,6 @@ class VectorUtil {
 		$hor = new Vector3($x, 0, $z);
 		return $hor->normalize();
 	}
-
 	public static function getDirection(int $facing): Vector3 {
 		switch ($facing) {
 			case Facing::DOWN:

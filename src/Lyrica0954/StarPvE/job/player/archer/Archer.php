@@ -8,13 +8,21 @@ use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
+use Lyrica0954\StarPvE\job\identity\ability\AbilitySignalIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\LineOption;
+use Lyrica0954\StarPvE\job\player\AbilitySignal;
+use Lyrica0954\StarPvE\job\player\archer\entity\ExplodeArrow;
 use Lyrica0954\StarPvE\job\player\archer\entity\FreezeArrow;
 use Lyrica0954\StarPvE\job\player\archer\entity\SpecialArrow;
+use Lyrica0954\StarPvE\job\player\archer\entity\WoundArrow;
 use Lyrica0954\StarPvE\job\player\archer\item\SpecialBow;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\player\swordman\ForceFieldSkill;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
@@ -53,7 +61,7 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 	}
 
 	protected function getInitialSkill(): Skill {
-		return new FreezeArrowSkill($this);
+		return new ArrowPartySkill($this);
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup {
@@ -80,8 +88,7 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 			"§7- §l§9防衛[⚔]§r
 
 弓矢を使って遠くから戦闘の支援や、敵の進行を妨害したりすることができる職業。
-至近距離でなくても攻撃できるのが強み。
-スキルのクールタイムがかなり長いため、使うタイミングに注意しよう。";
+至近距離でなくても攻撃できるのが強み。";
 	}
 
 	public function getAlAbilityName(): string {
@@ -101,22 +108,20 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 		 * @var EntityFactory $f
 		 */
 		$f = EntityFactory::getInstance();
-		$f->register(SpecialArrow::class, function (World $world, CompoundTag $nbt): SpecialArrow {
-			return new SpecialArrow(EntityDataHelper::parseLocation($nbt, $world), null, $nbt->getByte(Arrow::TAG_CRIT, 0) === 1, $nbt);
-		}, ['starpve:special_arrow'], EntityLegacyIds::ARROW);
+		$f->register(ExplodeArrow::class, function (World $world, CompoundTag $nbt): ExplodeArrow {
+			return new ExplodeArrow(EntityDataHelper::parseLocation($nbt, $world), null, $nbt->getByte(Arrow::TAG_CRIT, 0) === 1, $nbt);
+		}, ['starpve:explode_arrow'], EntityLegacyIds::ARROW);
 
-		$f->register(FreezeArrow::class, function (World $world, CompoundTag $nbt): FreezeArrow {
-			return new FreezeArrow(EntityDataHelper::parseLocation($nbt, $world), null, $nbt->getByte(Arrow::TAG_CRIT, 0) === 1, $nbt);
-		}, ['starpve:freeze_arrow'], EntityLegacyIds::ARROW);
+		$f->register(WoundArrow::class, function (World $world, CompoundTag $nbt): WoundArrow {
+			return new WoundArrow(EntityDataHelper::parseLocation($nbt, $world), null, $nbt->getByte(Arrow::TAG_CRIT, 0) === 1, $nbt);
+		}, ['starpve:wound_arrow'], EntityLegacyIds::ARROW);
 	}
 
 	public function onItemUse(Item $item) {
 		if ($item->getId() === ItemIds::BOOK) {
 			$activated = null;
 			if ($this->player->isSneaking()) {
-				#$result = $this->skill->activate();
-				#$activated = $this->skill;
-				$this->player->sendMessage("§cスキルを発動するにはスニークをした状態で最大チャージで矢を発射してください");
+				$this->skill->activate();
 				return;
 			} else {
 				#$result = $this->ability->activate();
@@ -125,6 +130,48 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 				return;
 			}
 		}
+	}
+
+	protected function init(): void {
+		$this->defaultSpells = [
+			(new IdentitySpell($this, "矢筒強化"))
+				->addIdentity(new AbilitySignalIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					SpecialBowAbility::SIGNAL_ARROW_MULTIPLY,
+					"通常時の矢の本数が3本になる"
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					StatusTranslate::STATUS_DAMAGE,
+					0.3
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					StatusTranslate::STATUS_AREA,
+					1.33
+				)),
+			(new IdentitySpell($this, "エンハンスドアロー"))
+				->addIdentity(new AbilitySignalIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					SpecialBowAbility::SIGNAL_ARROW_BOUNCE,
+					"通常時の矢のバウンス回数 +1"
+				))
+				->addIdentity(new AbilitySignalIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SKILL,
+					ArrowPartySkill::SIGNAL_ARROW_BOUNCE,
+					"矢のバウンス回数 +1"
+				))
+		];
 	}
 
 	public function onEntityDamageByEntity(EntityDamageByEntityEvent $event) {

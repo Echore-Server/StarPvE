@@ -43,7 +43,6 @@ class EMPAbility extends Ability {
 		$damage = DescriptionTranslator::health($this->damage);
 		$percentage = DescriptionTranslator::percentage($this->percentage);
 		$duration = DescriptionTranslator::second($this->duration);
-		$amount = DescriptionTranslator::number($this->amount, "体");
 		return
 			sprintf(
 				mb_convert_encoding('
@@ -53,14 +52,11 @@ class EMPAbility extends Ability {
 §b効果§f: 体力が %3$s§f 以内の敵に即死ダメージを与える。
 §b効果§f: %4$s §d帯電 §f状態にする。
 §b効果§f: §dクリーパー§f の場合、 %2$s ダメージを与える。
-
-§d帯電§f 状態の敵に攻撃すると、ほかの敵にもダメージを与えることができる。 (最大 %5$s)
 ', "UTF-8", "UTF-8"),
 				$area,
 				$damage,
 				$percentage,
 				$duration,
-				$amount
 			);
 	}
 
@@ -69,7 +65,6 @@ class EMPAbility extends Ability {
 		$this->damage = new AbilityStatus(20.0);
 		$this->percentage = new AbilityStatus(0.14);
 		$this->duration = new AbilityStatus(10 * 20);
-		$this->amount = new AbilityStatus(1);
 		$this->cooltime = new AbilityStatus(10 * 20);
 	}
 
@@ -100,7 +95,7 @@ class EMPAbility extends Ability {
 
 					$id = EntityStateManager::nextStateId();
 
-					EntityStateManager::start(new ElectrificationState($entity, (int) $this->amount->get(), $this->area->get()), $id);
+					EntityStateManager::start(new ElectrificationState($entity, 1, $this->area->get()), $id);
 
 					TaskUtil::delayed(new ClosureTask(function () use ($entity, $id) {
 						EntityStateManager::end($entity->getId(), $id);

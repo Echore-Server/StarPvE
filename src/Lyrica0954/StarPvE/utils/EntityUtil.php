@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\utils;
 
 use Generator;
 use Lyrica0954\SmartEntity\entity\LivingBase;
+use Lyrica0954\SmartEntity\utils\VectorUtil;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\Entity;
@@ -59,7 +60,7 @@ class EntityUtil implements Listener {
 		$entities = [];
 		foreach ($pos->getWorld()->getEntities() as $entity) { #array_filter とかよりforeachのほうが軽いらしい
 			if ($entity->isAlive()) {
-				if ($entity->getPosition()->distance($pos) <= $range) {
+				if (VectorUtil::distanceToAABB($pos, $entity->getBoundingBox()) <= $range) {
 					if ($host !== $entity) {
 						$entities[] = $entity;
 					}
@@ -80,7 +81,7 @@ class EntityUtil implements Listener {
 		$entities = [];
 		foreach ($pos->getWorld()->getEntities() as $entity) {
 			if ($entity->isAlive()) {
-				$dist = $entity->getPosition()->distance($pos);
+				$dist = VectorUtil::distanceToAABB($pos, $entity->getBoundingBox());
 				if ($dist <= $max && $dist >= $min) {
 					$entities[] = $entity;
 				}

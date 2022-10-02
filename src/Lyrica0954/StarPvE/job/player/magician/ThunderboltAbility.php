@@ -14,6 +14,7 @@ use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\job\ticking\Ticking;
 use Lyrica0954\StarPvE\job\ticking\TickingController;
 use Lyrica0954\StarPvE\particle\ElectricSparkParticle;
@@ -68,9 +69,8 @@ class ThunderboltAbility extends Ability implements Ticking {
 
 		return
 			sprintf('§b発動時:§f 視線の先に§e稲妻§fを放つ。
-稲妻が敵に当たった場合、その敵に %1$s のダメージを与えて %2$s 動けなくする。
-その敵の %3$s 以内に別の敵がいた場合は、その敵にも§e稲妻§fが回っていく(チェイン)。
-チェインによって与えられるダメージは %4$s で、最大 %5$s までチェインできる。', $damage, $duration, $area, $chainDamage, $amount);
+当たった敵に %1$s のダメージを与えて %2$s 動けなくする。
+敵の %3$s 以内の別の敵にも§e稲妻§fが回る。ダメージは %4$s で、最大 %5$s まで。', $damage, $duration, $area, $chainDamage, $amount);
 	}
 
 	protected function init(): void {
@@ -80,6 +80,19 @@ class ThunderboltAbility extends Ability implements Ticking {
 		$this->amount = new AbilityStatus(3);
 		$this->area = new AbilityStatus(5);
 		$this->cooltime = new AbilityStatus(0.7 * 20);
+	}
+
+	public function getStatusList(int $status): ?array {
+		$list = parent::getStatusList($status);
+		if (is_null($list)) {
+			return null;
+		}
+
+		if ($status === StatusTranslate::STATUS_DAMAGE) {
+			$list[] = $this->chainDamage;
+		}
+
+		return $list;
 	}
 
 	public function getChainDamage(): AbilityStatus {

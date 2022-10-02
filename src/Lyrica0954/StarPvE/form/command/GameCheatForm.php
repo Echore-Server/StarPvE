@@ -37,6 +37,9 @@ class GameCheatForm implements Form {
 				],
 				[
 					"text" => "ゲームスタート"
+				],
+				[
+					"text" => "パークを獲得"
 				]
 			]
 		];
@@ -100,6 +103,9 @@ class GameCheatForm implements Form {
 						$this->game->broadcastMessage($pref . "ゲームが開始されました");
 					} else {
 					}
+					break;
+				case 6:
+					break;
 			}
 		}
 	}

@@ -23,31 +23,37 @@ abstract class AttachStatusIdentityBase extends AttachAbilityIdentityBase {
 		$this->attachStatus = $attachStatus;
 	}
 
-	public function getAttachingStatus(Ability $ability): AbilityStatus {
-		$status = match ($this->attachStatus) {
-			StatusTranslate::STATUS_DAMAGE => ($ability->getDamage()),
-			StatusTranslate::STATUS_AREA => ($ability->getArea()),
-			StatusTranslate::STATUS_AMOUNT => ($ability->getAmount()),
-			StatusTranslate::STATUS_DURATION => ($ability->getDuration()),
-			StatusTranslate::STATUS_PERCENTAGE => ($ability->getPercentage()),
-			StatusTranslate::STATUS_SPEED => ($ability->getSpeed()),
-			StatusTranslate::STATUS_COOLTIME => ($ability->getCooltime()),
-			default => (throw new \Exception("unknown status type"))
-		};
-
-		return $status;
+	/**
+	 * @param Ability $ability
+	 * 
+	 * @return AbilityStatus[]
+	 */
+	public function getAttachingStatus(Ability $ability): array {
+		return $ability->getStatusList($this->attachStatus) ?? throw new \Exception("unknown status type");
 	}
 
 	public function applyAbility(Ability $ability): void {
-		$this->applyStatus($this->getAttachingStatus($ability));
+		foreach ($this->getAttachingStatus($ability) as $status) {
+			$this->applyStatus($status);
+		}
 	}
 
 	public function resetAbility(Ability $ability): void {
-		$this->resetStatus($this->getAttachingStatus($ability));
+		foreach ($this->getAttachingStatus($ability) as $status) {
+			$this->resetStatus($status);
+		}
 	}
 
 	public function isApplicableForAbility(Ability $ability) {
-		return ($this->getAttachingStatus($ability))->getOriginal() !== 0.0;
+		$found = false;
+		foreach ($this->getAttachingStatus($ability) as $status) {
+			if ($status->getOriginal() !== 0.0) {
+				$found = true;
+				break;
+			}
+		}
+
+		return $found;
 	}
 
 	abstract public function applyStatus(AbilityStatus $status): void;

@@ -69,7 +69,7 @@ class Tank extends PlayerJob implements AlwaysAbility, Listener {
 
 	public function getDescription(): string {
 		$pulseAbility = new EnergyPulseAbility($this);
-		$ct = round($pulseAbility->getCooltime() / 20, 1);
+		$ct = round($pulseAbility->getFinalCooltime() / 20, 1);
 		return
 			"§7- §l§a支援§r
 

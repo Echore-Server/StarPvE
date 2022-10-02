@@ -71,7 +71,7 @@ class InboundDamageService extends ListenerService {
 
 				$diffString = ($diff >= 0 ? "+" : "") . (string) $diff;
 
-				$entity->sendMessage("§c§l<< §r§8{$originalEvent->getOriginalBaseDamage()} §f-> §7{$originalDamage} §f-> §c{$finalDamage} §d({$diffString})");
+				$entity->sendMessage(sprintf('§c§l<< §r§8%1%s §f-> §7%2$s §f-> §a%3$s §d(%4$s)', round($originalEvent->getOriginalBaseDamage(), 3), round($originalDamage, 3), round($finalDamage, 3), $diffString));
 			}
 		}
 	}

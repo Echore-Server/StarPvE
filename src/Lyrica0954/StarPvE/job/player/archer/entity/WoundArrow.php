@@ -7,12 +7,17 @@ namespace Lyrica0954\StarPvE\job\player\archer\entity;
 use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\EmitterParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
+use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\MagicParticle\utils\MolangUtil;
+use Lyrica0954\StarPvE\entity\EntityStateManager;
+use Lyrica0954\StarPvE\entity\state\FatalWoundState;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EffectGroup;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
@@ -23,69 +28,48 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\ProjectileHitBlockEvent;
 use pocketmine\event\entity\ProjectileHitEntityEvent;
+use pocketmine\event\entity\ProjectileHitEvent;
 use pocketmine\math\Facing;
 use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
 use pocketmine\math\VoxelRayTrace;
 use pocketmine\player\Player;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\timings\Timings;
 
-class SpecialArrow extends Arrow {
+class WoundArrow extends Arrow {
 
 	protected $pickupMode = self::PICKUP_NONE;
 
-	protected int $age = 0;
-	protected bool $activated = false;
-	protected ?Vector3 $activatePosition = null;
-	protected int $activateFace = -1;
-	protected int $activeTick = 0;
-	protected int $particleTick = 1000;
+	public float $hitDamage = 0.0;
 
-	public ?EffectGroup $areaEffects = null;
-	public ?EffectGroup $hitEffects = null;
-	public float $area = 4.0;
-	public float $areaDamage = 1.0;
-	public int $duration = (8 * 20);
-	public int $period = 10;
+	protected array $damaged = [];
+
+	public float $area = 0.0;
+
+	public int $duration = 0;
 
 	public function getResultDamage(): int {
-		$base = parent::getResultDamage();
-
-		if ($this->isCritical()) {
-			return ($base * 1.2);
-		} else {
-			return $base;
-		}
+		return -1;
 	}
 
 	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult): void {
-		parent::onHitBlock($blockHit, $hitResult);
-		$this->pickupMode = self::PICKUP_NONE;
-		$face = $hitResult->getHitFace();
-		$bb = $hitResult->getBoundingBox();
-		$dir = VectorUtil::getDirection($face);
-		$dir = VectorUtil::reAdd($dir, 0.15);
-
-		$pos = $hitResult->getHitVector();
-		$pos->y = $blockHit->getPosition()->getY();
-		$pos = $pos->addVector($dir);
-		$this->activateFace = $face;
-		$this->activatePosition = $pos;
-		$this->activated = true;
-
-		if (($owning = $this->getOwningEntity()) instanceof Player) {
-			PlayerUtil::playSound($owning, "hit.nylium", 1.5, 1.0);
-			PlayerUtil::playSound($owning, "item.trident.riptide_1", 1.0, 0.5);
-		}
+		$this->flagForDespawn();
 	}
 
 	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult): void {
-		parent::onHitEntity($entityHit, $hitResult);
-		$effects = ($this->areaEffects ?? (new EffectGroup()));
-		$effects->apply($entityHit);
+		if (!in_array($entityHit->getId(), $this->damaged)) {
+			$source = new EntityDamageByEntityEvent($this->getOwningEntity() ?? $this, $entityHit, EntityDamageEvent::CAUSE_PROJECTILE, $this->hitDamage, [], 0.0);
+			$entityHit->attack($source);
+			$state = new FatalWoundState($entityHit, 1.5);
+			$id = EntityStateManager::nextStateId();
+			EntityStateManager::start($state, $id);
 
-		if (($owning = $this->getOwningEntity()) instanceof Player) {
-			PlayerUtil::playSound($owning, "hit.nylium", 1.5, 1.0);
+			TaskUtil::delayed(new ClosureTask(function () use ($entityHit, $id) {
+				EntityStateManager::end($entityHit->getId(), $id);
+			}), max(0, $this->duration));
+
+			$this->damaged[] = $entityHit->getId();
 		}
 	}
 
@@ -171,9 +155,6 @@ class SpecialArrow extends Arrow {
 					$this->onHitBlock($ev->getBlockHit(), $ev->getRayTraceResult());
 				}
 			}
-
-			$this->isCollided = $this->onGround = true;
-			$this->motion = new Vector3(0, 0, 0);
 		} else {
 			$this->isCollided = $this->onGround = false;
 			$this->blockHit = null;
@@ -195,54 +176,13 @@ class SpecialArrow extends Arrow {
 	protected function entityBaseTick(int $tickDiff = 1): bool {
 		$update = parent::entityBaseTick($tickDiff);
 
-		$min = EntityUtil::getCollisionMin($this);
-		$emitter = EmitterParticle::createEmitterForEntity($this, 0.1, 1);
 		$players = $this->getWorld()->getPlayers();
-		$pos = VectorUtil::insertWorld($min, $this->getWorld());
-		ParticleUtil::send($emitter, $players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_red_sand_particle", ""));
-		ParticleUtil::send($emitter, $players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_sand_particle", ""));
-		ParticleUtil::send($emitter, $players, $pos, ParticleOption::spawnPacket("minecraft:falling_dust_top_snow_particle", ""));
-
-		if ($this->activated) {
-			$vec = $this->activatePosition;
-			if ($vec instanceof Vector3) {
-				$this->activeTick += $tickDiff;
-				$this->age += $tickDiff;
-				$this->particleTick += $tickDiff;
-
-				if ($this->age >= $this->duration) {
-					$this->kill();
-				}
-
-				if ($this->activeTick >= $this->period) {
-					$this->activeTick = 0;
-					PlayerUtil::broadcastSound($this, "damage.fallbig", 1.0, 0.3);
-
-					foreach (EntityUtil::getWithinRange($pos, $this->area) as $entity) {
-						if (MonsterData::isMonster($entity) && $entity instanceof Living) {
-							$effects = ($this->areaEffects ?? (new EffectGroup()));
-							$effects->apply($entity);
-							$source = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_PROJECTILE, $this->areaDamage, [], 0);
-							$entity->attack($source);
-						}
-					}
-				}
-
-				if ($this->particleTick >= 50) {
-					$this->particleTick = 0;
-
-					$par = (new CircleParticle($this->area, 12, 0));
-					$pos = VectorUtil::insertWorld($vec, $this->getWorld());
-					ParticleUtil::send($par, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("starpve:border_limit", ""));
-					ParticleUtil::send($par, $this->getWorld()->getPlayers(), $pos, ParticleOption::spawnPacket("minecraft:villager_happy", ""));
-				}
-			}
-		}
+		ParticleUtil::send(new SingleParticle, $players, $this->getPosition(), ParticleOption::spawnPacket("minecraft:sonic_explosion", ""));
 
 		return $update;
 	}
 
 	public function canCollideWith(Entity $entity): bool {
-		return ($entity instanceof Living && (!$entity instanceof Player && !$entity instanceof Villager)) && !$this->onGround;
+		return ($entity instanceof Living && (!$entity instanceof Player && !$entity instanceof Villager)) && !$this->onGround && !in_array($entity->getId(), $this->damaged);
 	}
 }
