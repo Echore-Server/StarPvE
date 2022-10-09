@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
 use Lyrica0954\StarPvE\job\identity\ability\AbilitySignalIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AbilityValueSignalIdentity;
 use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
 use Lyrica0954\StarPvE\job\IdentitySpell;
@@ -135,12 +136,13 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 	protected function init(): void {
 		$this->defaultSpells = [
 			(new IdentitySpell($this, "矢筒強化"))
-				->addIdentity(new AbilitySignalIdentity(
+				->addIdentity(new AbilityValueSignalIdentity(
 					$this,
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					SpecialBowAbility::SIGNAL_ARROW_MULTIPLY,
-					"通常時の矢の本数が3本になる"
+					2,
+					"通常時の矢の本数"
 				))
 				->addIdentity(new PercentageStatusIdentity(
 					$this,
@@ -148,28 +150,23 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					StatusTranslate::STATUS_DAMAGE,
 					0.3
-				))
-				->addIdentity(new PercentageStatusIdentity(
-					$this,
-					null,
-					AttachAbilityIdentityBase::ATTACH_ABILITY,
-					StatusTranslate::STATUS_AREA,
-					1.33
 				)),
 			(new IdentitySpell($this, "エンハンスドアロー"))
-				->addIdentity(new AbilitySignalIdentity(
+				->addIdentity(new AbilityValueSignalIdentity(
 					$this,
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					SpecialBowAbility::SIGNAL_ARROW_BOUNCE,
-					"通常時の矢のバウンス回数 +1"
+					1,
+					"通常時の矢のバウンス回数"
 				))
-				->addIdentity(new AbilitySignalIdentity(
+				->addIdentity(new AbilityValueSignalIdentity(
 					$this,
 					null,
 					AttachAbilityIdentityBase::ATTACH_SKILL,
 					ArrowPartySkill::SIGNAL_ARROW_BOUNCE,
-					"矢のバウンス回数 +1"
+					1,
+					"矢のバウンス回数"
 				))
 		];
 	}

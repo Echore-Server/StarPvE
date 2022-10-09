@@ -73,9 +73,7 @@ class ArrowPartySkill extends Skill {
 				$entity = new ExplodeArrow($location, $this->player, false);
 				$entity->area = $area;
 				$entity->areaDamage = $damage;
-				if ($this->signal->has(self::SIGNAL_ARROW_BOUNCE)) {
-					$entity->bounceCount++;
-				}
+				$entity->bounceCount += $this->signal->get(self::SIGNAL_ARROW_BOUNCE);
 				$entity->setMotion($dir->multiply(0.65));
 				$entity->spawnToAll();
 			}

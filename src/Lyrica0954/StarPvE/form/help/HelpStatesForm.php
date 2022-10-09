@@ -18,10 +18,10 @@ class HelpStatesForm extends AdvancedForm {
 			"type" => "form",
 			"title" => "ヘルプ >> 状態異常",
 			"content" => "
-§7> §d帯電
+§7> §d帯電§f
 この状態の敵に攻撃すると、ほかの敵にもダメージを与えることができる。
 
-§7> §d致命傷
+§7> §d致命傷§f
 この状態の敵に対しての物理ダメージが一定倍率上昇する。
 ",
 			"buttons" => []

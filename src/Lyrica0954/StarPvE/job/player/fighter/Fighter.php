@@ -10,11 +10,17 @@ use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\data\condition\LevelCondition;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\AttackPercentageArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
+use Lyrica0954\StarPvE\job\identity\ability\AbilitySignalIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\player\swordman\ForceFieldSkill;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\MathUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
@@ -52,6 +58,45 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
 
 	protected function getInitialSkill(): Skill {
 		return new RageSkill($this);
+	}
+
+	protected function init(): void {
+		$this->defaultSpells = [
+			(new IdentitySpell($this, "覚醒"))
+				->addIdentity(new AbilitySignalIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					QuakeAbility::SIGNAL_NO_DAMAGE,
+					"ダメージを受けなくなる"
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					StatusTranslate::STATUS_DURATION,
+					1.75
+				)),
+			(new IdentitySpell($this, "基礎能力"))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SKILL,
+					StatusTranslate::STATUS_DAMAGE,
+					2.0
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					StatusTranslate::STATUS_COOLTIME,
+					1.25
+				))
+				->addIdentity(new AttackPercentageArgIdentity(
+					null,
+					0.16
+				))
+		];
 	}
 
 	public function getName(): string {
@@ -129,13 +174,13 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
 
 						$this->combo++;
 						$delay = match (true) {
-							$this->combo >= 30 => 4,
-							$this->combo >= 25 => 5,
-							$this->combo >= 17 => 6,
-							$this->combo >= 11 => 7,
-							$this->combo >= 5 => 8,
-							$this->combo >= 2 => 9,
-							default => 9
+							$this->combo >= 30 => 3,
+							$this->combo >= 25 => 4,
+							$this->combo >= 17 => 5,
+							$this->combo >= 11 => 6,
+							$this->combo >= 5 => 7,
+							$this->combo >= 2 => 8,
+							default => 8
 						};
 						$skillAdjust = ($this->getSkill()->isActive() ? ((int) $this->getSkill()->getAmount()->get()) : 0);
 						$delay -= $skillAdjust;

@@ -78,13 +78,13 @@ class SpecialBowAbility extends Ability implements Listener {
 	protected function init(): void {
 		$this->duration = new AbilityStatus(7 * 20);
 		$this->area = new AbilityStatus(2.0);
-		$this->damage = new AbilityStatus(12.0);
-		$this->explodeDamage = new AbilityStatus(8.5);
+		$this->damage = new AbilityStatus(15.0);
+		$this->explodeDamage = new AbilityStatus(8.9);
 		$this->bow = ItemFactory::getInstance()->get(ItemIds::BOW);
 		if ($this->bow instanceof Bow) {
 			$this->bow->setUnbreakable(true);
 			$this->bow->addEnchantment(new EnchantmentInstance(VanillaEnchantments::INFINITY()));
-			$this->bow->setCustomName("§r§dToxic Bow");
+			$this->bow->setCustomName("§r§dSpecial Bow");
 		}
 
 		$this->cooltime = new AbilityStatus(18 * 20);
@@ -142,10 +142,20 @@ class SpecialBowAbility extends Ability implements Listener {
 				} else {
 					$yaw = $entity->getLocation()->getYaw();
 					$pitch = $entity->getLocation()->getPitch();
-					$all = [0];
-					if ($this->signal->has(self::SIGNAL_ARROW_MULTIPLY)) {
-						$all[] = -15;
-						$all[] = 15;
+					$all = [];
+					$range = 15;
+					$count = 1 + $this->signal->get(self::SIGNAL_ARROW_MULTIPLY);
+					if ($count <= 1) {
+						$all[] = 0;
+					} else {
+						$step = ($range * 2) / ($count - 1);
+
+						$start = -$range;
+
+						for ($i = 0; $i < $count; $i++) {
+							$diff = $start + $i * $step;
+							$all[] = $diff;
+						}
 					}
 
 					foreach ($all as $diff) {
@@ -153,10 +163,8 @@ class SpecialBowAbility extends Ability implements Listener {
 						$new = new ExplodeArrow($projectile->getLocation(), $projectile->getOwningEntity(), $projectile->isCritical(), $projectile->saveNBT());
 						$new->setMotion($dir->multiply($event->getForce()));
 						$new->area = $this->area->get();
-						$new->areaDamage = 4 + ($this->explodeDamage->get() * ($event->getForce() / 3.0));
-						if ($this->signal->has(self::SIGNAL_ARROW_BOUNCE)) {
-							$new->bounceCount++;
-						}
+						$new->areaDamage = 1.15 + ($this->explodeDamage->get() * ($event->getForce() / 3.0));
+						$new->bounceCount += $this->signal->get(self::SIGNAL_ARROW_BOUNCE);
 						$new->spawnToAll();
 					}
 

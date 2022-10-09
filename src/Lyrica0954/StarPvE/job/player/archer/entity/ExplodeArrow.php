@@ -85,7 +85,7 @@ class ExplodeArrow extends Arrow {
 			$motion->x *= $axis === Axis::X ? -1 : 1;
 			$motion->y *= $axis === Axis::Y ? -1 : 1;
 			$motion->z *= $axis === Axis::Z ? -1 : 1;
-			$this->setMotion($motion->multiply(0.5));
+			$this->setMotion($motion->multiply(0.7));
 			$this->setPosition($this->getPosition()->addVector($motion->multiply(0.5)));
 		} else {
 			$this->flagForDespawn();

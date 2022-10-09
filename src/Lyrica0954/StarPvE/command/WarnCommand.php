@@ -37,7 +37,7 @@ final class WarnCommand extends PluginCommandNoAuth {
 			$victimName = $args[0];
 			$victim = Server::getInstance()->getPlayerByPrefix($victimName);
 			if ($victim instanceof Player) {
-				$amount = (int) $args[1] ?? 1;
+				$amount = (int) ($args[1] ?? 1);
 				if ($amount <= 0) {
 					$sender->sendMessage("§camount は1以上である必要があります");
 					return;

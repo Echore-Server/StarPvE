@@ -5,5 +5,5 @@ main: Lyrica0954\StarPvE\StarPvE
 api: 4.0.5
 author: Lyrica0954
 
-depend: ["SmartEntity", "MagicParticle", "PeekAntiCheatLite"]
+depend: ["SmartEntity", "MagicParticle", "Fadix"]
 softdepend: ["VanillaCommands"]

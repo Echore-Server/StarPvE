@@ -192,6 +192,7 @@ abstract class Ability {
 			StatusTranslate::STATUS_DURATION => [$this->duration],
 			StatusTranslate::STATUS_PERCENTAGE => [$this->percentage],
 			StatusTranslate::STATUS_SPEED => [$this->speed],
+			StatusTranslate::STATUS_COOLTIME => [$this->cooltime],
 			default => null
 		};
 	}

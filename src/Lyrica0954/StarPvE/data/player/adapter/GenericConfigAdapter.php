@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\data\player\adapter;
 
-use Lyrica0954\PeekAntiCheat\profile\Client;
-use Lyrica0954\PeekAntiCheat\punish\ban\BanManager;
+use Lyrica0954\Fadix\ban\BanAPI;
+use Lyrica0954\Fadix\ban\ExecuteBanOption;
 use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
 use Lyrica0954\StarPvE\data\adapter\SimpleConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerConfig;
@@ -83,7 +83,7 @@ class GenericConfigAdapter extends PlayerConfigAdapter {
 
 		$current = $this->addInt(self::WARN, $amount);
 		if ($current >= 4) {
-			BanManager::getInstance()->addBan(Client::createFromPlayer($player), null, "警告レベルが最大に達したため", 0);
+			BanAPI::execute($player, ExecuteBanOption::now("警告が最大レベルに達したため", true));
 			$player->kick("Custom disconnect");
 		} elseif ($amount > 0) {
 			$player->sendMessage("

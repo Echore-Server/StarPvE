@@ -61,7 +61,7 @@ class WoundArrow extends Arrow {
 		if (!in_array($entityHit->getId(), $this->damaged)) {
 			$source = new EntityDamageByEntityEvent($this->getOwningEntity() ?? $this, $entityHit, EntityDamageEvent::CAUSE_PROJECTILE, $this->hitDamage, [], 0.0);
 			$entityHit->attack($source);
-			$state = new FatalWoundState($entityHit, 1.5);
+			$state = new FatalWoundState($entityHit, 2.0);
 			$id = EntityStateManager::nextStateId();
 			EntityStateManager::start($state, $id);
 

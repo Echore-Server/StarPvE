@@ -38,6 +38,8 @@ use pocketmine\world\particle\Particle;
 
 class QuakeAbility extends Ability {
 
+	const SIGNAL_NO_DAMAGE = 0;
+
 	public function getName(): string {
 		return "クエイク";
 	}
@@ -46,22 +48,22 @@ class QuakeAbility extends Ability {
 		$duration = DescriptionTranslator::second($this->duration);
 		return
 			sprintf('§b発動時:§f §c1♡ §fのダメージを受ける。
-§d効果: §f %1$s 間、自身の能力が上昇する。', $duration);
+§d効果: §f%1$s 間、自身の能力が上昇する。', $duration);
 	}
 
 	protected function init(): void {
 		$this->duration = new AbilityStatus(4.0 * 20);
-		$this->cooltime = new AbilityStatus(6 * 20);
+		$this->cooltime = new AbilityStatus(12 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
-		$world = $this->player->getWorld();
-
-		$source = new EntityDamageEvent($this->player, EntityDamageEvent::CAUSE_MAGIC, 2);
-		$this->player->attack($source);
+		if (!$this->signal->has(self::SIGNAL_NO_DAMAGE)) {
+			$source = new EntityDamageEvent($this->player, EntityDamageEvent::CAUSE_MAGIC, 2);
+			$this->player->attack($source);
+		}
 
 		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::SPEED(), (int) $this->duration->get(), 2));
-		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::STRENGTH(), (int) $this->duration->get(), 0));
+		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::STRENGTH(), (int) $this->duration->get(), 1));
 
 		return ActionResult::SUCCEEDED();
 	}
