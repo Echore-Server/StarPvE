@@ -71,7 +71,7 @@ class MemoryEntity extends Entity {
 		$update = parent::entityBaseTick($tickDiff);
 		$this->age += $tickDiff;
 		foreach ($this->tickHook as $hook) {
-			($hook)($this);
+			($hook)($this, $tickDiff);
 		}
 		return $update;
 	}

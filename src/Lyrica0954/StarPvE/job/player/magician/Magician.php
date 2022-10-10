@@ -39,13 +39,13 @@ class Magician extends PlayerJob {
 	protected function init(): void {
 		$this->defaultSpells = [
 			new EnergyBurstSpell($this),
-			(new IdentitySpell($this, "1億アンペア"))
+			(new IdentitySpell($this, "ダブルボルト"))
 				->addIdentity(new PercentageStatusIdentity(
 					$this,
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					StatusTranslate::STATUS_DURATION,
-					2.25
+					2.75
 				))
 				->addIdentity(new PercentageStatusIdentity(
 					$this,

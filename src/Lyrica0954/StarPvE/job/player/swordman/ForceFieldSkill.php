@@ -44,7 +44,7 @@ class ForceFieldSkill extends Skill {
 		$this->damage = new AbilityStatus(8.0);
 		$this->area = new AbilityStatus(8.0);
 		$this->percentage = new AbilityStatus(1.0);
-		$this->cooltime = new AbilityStatus(18 * 20);
+		$this->cooltime = new AbilityStatus(16 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -58,7 +58,7 @@ class ForceFieldSkill extends Skill {
 				$xz = 3.5;
 				$y = 1.5;
 				if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-					$xz = 1.2;
+					$xz = 1.1;
 					$y = 0.9;
 				}
 

@@ -12,6 +12,7 @@ use Lyrica0954\StarPvE\entity\EntityState;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
+use Lyrica0954\StarPvE\utils\PlayerUtil;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\HandlerListManager;
@@ -32,6 +33,7 @@ class FatalWoundState extends EntityState implements Listener {
 	public function onDamage(EntityDamageEvent $event) {
 		$entity = $event->getEntity();
 		if ($entity === $this->entity && $event->canBeReducedByArmor()) {
+			PlayerUtil::broadcastSound($entity, "mob.irongolem.repair", 1.2, 0.7);
 			EntityUtil::multiplyFinalDamage($event, $this->multiplier);
 		}
 	}

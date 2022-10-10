@@ -7,8 +7,10 @@ namespace Lyrica0954\StarPvE\job\player\engineer;
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
+use Lyrica0954\StarPvE\job\player\engineer\entity\ToxicBin;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\Skill;
 use pocketmine\data\bedrock\EntityLegacyIds;
@@ -31,7 +33,7 @@ class Engineer extends PlayerJob {
 	}
 
 	protected function getInitialSkill(): Skill {
-		return new ThrowShieldBallSkill($this);
+		return new ThrowToxicBinSkill($this);
 	}
 
 	public function getName(): string {
@@ -40,15 +42,18 @@ class Engineer extends PlayerJob {
 
 	public function getDescription(): string {
 		return
-			"§7- §l§9防衛§r
+			"§7- §l§a支援[⚔]§r
 
-特殊なアビリティーを持つエンジニア。
-シールドで味方を守ったり、敵の進行を止めたりできる優秀な職業だが、
-どのアビリティでもダメージを与えることができないため、敵の殲滅にはあまり向いていない。";
+敵に状態異常をかけることができる職業。
+戦闘の支援や、進行の妨害が得意。";
 	}
 
 	public function getSelectableCondition(): ?Condition {
 		return null;
+	}
+
+	protected function init(): void {
+		$this->defaultSpells = [];
 	}
 
 	public function __construct(?Player $player) {
@@ -84,5 +89,11 @@ class Engineer extends PlayerJob {
 			$entity->close();
 			return $entity;
 		}, ['starpve:shield_ball'], EntityLegacyIds::ITEM);
+
+		$f->register(ToxicBin::class, function (World $world, CompoundTag $nbt): ToxicBin {
+			$entity = new ToxicBin(EntityDataHelper::parseLocation($nbt, $world), null, $nbt);
+			$entity->close();
+			return $entity;
+		}, ['starpve:toxic_bin'], EntityLegacyIds::SPLASH_POTION);
 	}
 }

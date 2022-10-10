@@ -86,9 +86,9 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 
 	public function getDescription(): string {
 		return
-			"§7- §l§9防衛[⚔]§r
+			"§7- §l§c戦闘§r
 
-弓矢を使って遠くから戦闘の支援や、敵の進行を妨害したりすることができる職業。
+弓矢を使って遠くから戦闘の支援、範囲攻撃、状態異常付与ができる職業。
 至近距離でなくても攻撃できるのが強み。";
 	}
 

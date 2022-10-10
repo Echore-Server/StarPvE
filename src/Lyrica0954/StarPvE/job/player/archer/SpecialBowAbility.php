@@ -64,7 +64,7 @@ class SpecialBowAbility extends Ability implements Listener {
 			sprintf('§6最大チャージ + スニーク時 ------------§f
 クールタイム使用
 
-§b発動時:§f 即着弾で、敵を貫通する矢を発射する。
+§b発動時:§f 敵を貫通する矢を発射する。
 当たった敵に %1$s ダメージと §d致命傷§f 状態を %2$s 与える。
 
 §6通常時 ------------§f
@@ -78,7 +78,7 @@ class SpecialBowAbility extends Ability implements Listener {
 	protected function init(): void {
 		$this->duration = new AbilityStatus(7 * 20);
 		$this->area = new AbilityStatus(2.0);
-		$this->damage = new AbilityStatus(15.0);
+		$this->damage = new AbilityStatus(22.0);
 		$this->explodeDamage = new AbilityStatus(8.9);
 		$this->bow = ItemFactory::getInstance()->get(ItemIds::BOW);
 		if ($this->bow instanceof Bow) {

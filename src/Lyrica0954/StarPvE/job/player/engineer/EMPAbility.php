@@ -47,7 +47,6 @@ class EMPAbility extends Ability {
 			sprintf(
 				mb_convert_encoding('
 §b発動時:§f %1$s 以内の敵に対して §b効果§f を発動させる
-§b発動時:§f %1$s 以内の特殊投擲物を消滅させる
 
 §b効果§f: 体力が %3$s§f 以内の敵に即死ダメージを与える。
 §b効果§f: %4$s §d帯電 §f状態にする。
@@ -63,9 +62,9 @@ class EMPAbility extends Ability {
 	protected function init(): void {
 		$this->area = new AbilityStatus(8.0);
 		$this->damage = new AbilityStatus(20.0);
-		$this->percentage = new AbilityStatus(0.14);
-		$this->duration = new AbilityStatus(10 * 20);
-		$this->cooltime = new AbilityStatus(10 * 20);
+		$this->percentage = new AbilityStatus(0.1);
+		$this->duration = new AbilityStatus(6 * 20);
+		$this->cooltime = new AbilityStatus(14 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -101,8 +100,6 @@ class EMPAbility extends Ability {
 						EntityStateManager::end($entity->getId(), $id);
 					}), (int) $this->duration->get());
 				}
-			} elseif ($entity instanceof MemoryEntity) {
-				$entity->close();
 			}
 		}
 
