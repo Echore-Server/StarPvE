@@ -19,14 +19,10 @@ use pocketmine\event\Listener;
 use pocketmine\Server;
 use pocketmine\world\Position;
 
-class ElectrificationState extends EntityState implements Listener {
+class ElectrificationState extends ListenerState {
 
 	public function __construct(Entity $entity, protected int $count, protected float $range) {
 		parent::__construct($entity);
-	}
-
-	public function start(): void {
-		Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
 	}
 
 	public function onDamage(EntityDamageEvent $event) {
@@ -56,9 +52,5 @@ class ElectrificationState extends EntityState implements Listener {
 				}
 			}
 		}
-	}
-
-	public function close(): void {
-		HandlerListManager::global()->unregisterAll($this);
 	}
 }

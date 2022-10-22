@@ -63,26 +63,26 @@ class CommandLoader {
 
 		$admin = (new Permission(PermissionNames::ADMIN, "StarPvE Admin", [
 			PermissionNames::BUILDER => true,
+			DefaultPermissionNames::BROADCAST_ADMIN => true,
 			PermissionNames::COMMAND_WARN => true,
 			DefaultPermissionNames::COMMAND_STOP => true,
 			DefaultPermissionNames::COMMAND_KICK => true,
 			DefaultPermissionNames::COMMAND_KILL_SELF => true,
-			DefaultPermissionNames::COMMAND_WHITELIST_LIST => true
+			DefaultPermissionNames::COMMAND_WHITELIST_LIST => true,
+			"vanillacommands.all" => true
 		]));
 		DefaultPermissions::registerPermission($admin);
 
 		$team = (new Permission(PermissionNames::TEAM, "StarPvE Team", [
-			DefaultPermissionNames::BROADCAST_ADMIN => true,
 			DefaultPermissionNames::BROADCAST_USER => true,
-			DefaultPermissionNames::COMMAND_CLEAR_SELF => true,
 			DefaultPermissionNames::COMMAND_STATUS => true,
-			DefaultPermissionNames::COMMAND_TELEPORT => true,
-			"vanillacommands.all" => true
+			DefaultPermissionNames::COMMAND_TELEPORT => true
 		]));
 		DefaultPermissions::registerPermission($team);
 
 		$builder = (new Permission(PermissionNames::BUILDER, "StarPvE Builder", [
 			PermissionNames::TEAM => true,
+			DefaultPermissionNames::COMMAND_CLEAR_SELF => true,
 			"buildertools.command" => true,
 			"multiworld.command" => true,
 			"multiworld.command.manage" => true,

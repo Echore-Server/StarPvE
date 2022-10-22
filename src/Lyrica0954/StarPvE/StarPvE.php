@@ -6,8 +6,12 @@ namespace Lyrica0954\StarPvE;
 
 use Lyrica0954\MagicParticle\ParticleHost;
 use Lyrica0954\MagicParticle\ParticleSender;
+use Lyrica0954\Ranking\Ranking;
+use Lyrica0954\Ranking\RankingManager;
 use Lyrica0954\Service\ServiceHost;
 use Lyrica0954\StarPvE\command\CommandLoader;
+use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
+use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCenter;
 use Lyrica0954\StarPvE\entity\item\MonsterDropItem;
 use Lyrica0954\StarPvE\entity\JobShop;
@@ -43,6 +47,8 @@ use Lyrica0954\StarPvE\job\player\shaman\Shaman;
 use Lyrica0954\StarPvE\job\player\swordman\Swordman;
 use Lyrica0954\StarPvE\job\player\tank\Tank;
 use Lyrica0954\StarPvE\job\player\warrior\Warrior;
+use Lyrica0954\StarPvE\player\ranking\RankingEntry;
+use Lyrica0954\StarPvE\player\ranking\Rankings;
 use Lyrica0954\StarPvE\service\BlockFriendlyFireService;
 use Lyrica0954\StarPvE\service\CombatSystemService;
 use Lyrica0954\StarPvE\service\indicator\ExpIndicatorService;
@@ -56,6 +62,7 @@ use Lyrica0954\StarPvE\service\message\TipMessageService;
 use Lyrica0954\StarPvE\service\player\DamageCooldownPerPlayerService;
 use Lyrica0954\StarPvE\service\player\LevelEffectService;
 use Lyrica0954\StarPvE\service\player\PlayerChatService;
+use Lyrica0954\StarPvE\service\ranking\RankingUpdateService;
 use Lyrica0954\StarPvE\utils\BuffUtil;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use pocketmine\block\Gravel;
@@ -66,22 +73,34 @@ use pocketmine\entity\EntityFactory;
 use pocketmine\entity\Skin;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\item\Item;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\upnp\UPnP;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Internet;
 use pocketmine\world\World;
+use Ramsey\Uuid\Validator\GenericValidator;
 use xenialdan\apibossbar\API;
 
 final class StarPvE extends PluginBase {
 
+	/**
+	 * @var StarPvE|null
+	 */
 	private static ?StarPvE $instance = null;
 
 	public static function getInstance(): ?StarPvE {
 		return self::$instance;
 	}
 
+	/**
+	 * @var World
+	 */
 	public World $map;
+
+	/**
+	 * @var World
+	 */
 	public World $hub;
 
 	private JobManager $jobManager;
@@ -90,6 +109,8 @@ final class StarPvE extends PluginBase {
 	private PlayerDataCenter $playerDataCenter;
 	private ServiceHost $serviceHost;
 	private ParticleHost $particleHost;
+
+	private RankingUpdateService $rankingService;
 
 	public function getJobManager(): JobManager {
 		return $this->jobManager;
@@ -113,6 +134,10 @@ final class StarPvE extends PluginBase {
 
 	public function getParticleHost(): ParticleHost {
 		return $this->particleHost;
+	}
+
+	public function getRankingService(): RankingUpdateService {
+		return $this->rankingService;
 	}
 
 	private function registerEntities() {
@@ -238,6 +263,8 @@ final class StarPvE extends PluginBase {
 		$wm->loadWorld("hub", true);
 		$this->map = $wm->getWorldByName("map");
 		$this->hub = $wm->getWorldByName("hub");
+		$this->hub->setTime(7000);
+		$this->hub->stopTime();
 
 		$this->log("Registering Jobs...");
 		$this->jobManager->register(new Swordman(null));
@@ -281,6 +308,50 @@ final class StarPvE extends PluginBase {
 		$session->add(new DamageCooldownPerPlayerService($session));
 		$session->add(new LevelEffectService($session));
 		$session->add(new CombatSystemService($session));
+
+		$this->rankingService = new RankingUpdateService($session, $this->hub);
+		$session->add($this->rankingService);
+
+		$rankingFormat = '§e%d. §f%s §7: §c%s';
+
+		$this->rankingService->add(Rankings::generic(
+			$this->playerDataCenter,
+			new Vector3(41.5, 55, 5.0),
+			$rankingFormat,
+			"§c§lキルランキング§r",
+			GenericConfigAdapter::MONSTER_KILLS
+		));
+
+		$this->rankingService->add(Rankings::generic(
+			$this->playerDataCenter,
+			new Vector3(41.5, 55, 1.5),
+			$rankingFormat,
+			"§a§lレベルランキング§r",
+			GenericConfigAdapter::LEVEL
+		));
+
+		$this->rankingService->add(Rankings::generic(
+			$this->playerDataCenter,
+			new Vector3(41.5, 55, -2.0),
+			$rankingFormat,
+			"§9§lプレイ回数ランキング§r",
+			GenericConfigAdapter::PLAY_COUNT
+		));
+
+		$this->rankingService->add(Rankings::normal(
+			$this->playerDataCenter,
+			new Vector3(41.5, 55, 8.5),
+			$rankingFormat,
+			"§6§lキルデスレシオランキング§r",
+			Rankings::calculationConfigConsumer(
+				$this->playerDataCenter,
+				"generic",
+				function (PlayerConfigAdapter $adapter): float {
+					$perc = $adapter->getConfig()->get(GenericConfigAdapter::MONSTER_KILLS, 0) / max(1, $adapter->getConfig()->get(GenericConfigAdapter::DEATHS, 0));
+					return round($perc, 1);
+				}
+			)
+		));
 
 		$this->log("Starting Service Session...");
 		$session->start();

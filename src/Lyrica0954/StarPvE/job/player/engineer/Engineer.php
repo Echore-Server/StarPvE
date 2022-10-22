@@ -7,8 +7,11 @@ namespace Lyrica0954\StarPvE\job\player\engineer;
 use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\identity\ability\AbilitySignalIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
 use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
+use Lyrica0954\StarPvE\job\player\engineer\entity\GrenadeEntity;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ToxicBin;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -53,7 +56,17 @@ class Engineer extends PlayerJob {
 	}
 
 	protected function init(): void {
-		$this->defaultSpells = [];
+		$this->defaultSpells = [
+			new GrenadeSpell($this),
+			(new IdentitySpell($this, "衝撃波"))
+				->addIdentity(new AbilitySignalIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					EMPAbility::SIGNAL_SHOCKWAVE,
+					"EMPが敵をノックバック/移動速度低下させるようになる"
+				))
+		];
 	}
 
 	public function __construct(?Player $player) {

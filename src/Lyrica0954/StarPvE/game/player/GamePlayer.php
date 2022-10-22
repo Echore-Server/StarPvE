@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\game\player;
 
 use Lyrica0954\StarPvE\form\PerkIdentitiesForm;
+use Lyrica0954\StarPvE\form\SelectSpellForm;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\player\equipment\ArmorEquipment;
 use Lyrica0954\StarPvE\game\player\equipment\SwordEquipment;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
+use Lyrica0954\StarPvE\job\Spell;
 use Lyrica0954\StarPvE\player\party\Party;
 use Lyrica0954\StarPvE\player\party\PartyManager;
 use Lyrica0954\StarPvE\StarPvE;
@@ -32,10 +35,17 @@ class GamePlayer {
 
 	protected int $perkAvailable;
 
+	protected int $masteryAvailable;
+
 	/**
 	 * @var Identity[]
 	 */
 	protected array $perkIdentities;
+
+	/**
+	 * @var Spell[]
+	 */
+	protected array $masterySpells;
 
 	public function __construct(Player $player) {
 		$this->player = $player;
@@ -46,9 +56,12 @@ class GamePlayer {
 
 		$this->identityGroup = new IdentityGroup();
 		$this->perkIdentities = [];
+		$this->masterySpells = [];
 		$this->rollPerkIdentities();
+		$this->rollMasterySpells();
 
 		$this->perkAvailable = 0;
+		$this->masteryAvailable = 0;
 	}
 
 	public function getPerkAvailable(): int {
@@ -62,8 +75,41 @@ class GamePlayer {
 		}
 	}
 
+	public function sendMasteryForm(): void {
+		$playerJob = StarPvE::getInstance()->getJobManager()->getJob($this->player);
+		if ($playerJob instanceof PlayerJob) {
+			$form = new SelectSpellForm($playerJob, $this->masterySpells);
+			$form->setChildForm($form);
+			$this->player->sendForm($form);
+		}
+	}
+
 	public function rollPerkIdentities(): void {
 		$this->perkIdentities = PerkIdentitiesForm::generateIdentities($this);
+	}
+
+	public function rollMasterySpells(): void {
+		$playerJob = StarPvE::getInstance()->getJobManager()->getJob($this->player);
+		if (!$playerJob instanceof PlayerJob) {
+			return;
+		}
+
+		$all = $playerJob->getMasterySpells();
+		$count = min(3, count($all));
+
+		$result = [];
+		for ($i = 0; $i < $count; $i++) {
+			$k = array_rand($all);
+			$spell = clone $all[$k];
+			if ($spell instanceof IdentitySpell && !$spell->isApplicable()) {
+				continue;
+			}
+
+			unset($all[$k]);
+			$result[] = $spell;
+		}
+
+		$this->masterySpells = $result;
 	}
 
 	public function setPerkAvailable(int $count): void {
@@ -168,5 +214,27 @@ class GamePlayer {
 				$this->setGame($game);
 			}
 		}
+	}
+
+	/**
+	 * Get the value of masteryAvailable
+	 *
+	 * @return int
+	 */
+	public function getMasteryAvailable(): int {
+		return $this->masteryAvailable;
+	}
+
+	/**
+	 * Set the value of masteryAvailable
+	 *
+	 * @param int $masteryAvailable
+	 *
+	 * @return self
+	 */
+	public function setMasteryAvailable(int $masteryAvailable): self {
+		$this->masteryAvailable = $masteryAvailable;
+
+		return $this;
 	}
 }

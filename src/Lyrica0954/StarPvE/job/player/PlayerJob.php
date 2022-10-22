@@ -4,8 +4,17 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player;
 
+use Lyrica0954\StarPvE\entity\state\DeathBellState;
+use Lyrica0954\StarPvE\entity\state\DullKnifeState;
+use Lyrica0954\StarPvE\entity\state\ExecutionState;
+use Lyrica0954\StarPvE\entity\state\MagicResistanceState;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\IdentityUtil;
+use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
+use Lyrica0954\StarPvE\identity\player\AddStateIdentity;
+use Lyrica0954\StarPvE\identity\player\AttackPercentageArgIdentity;
 use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
+use Lyrica0954\StarPvE\identity\player\SpeedPercentageArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilitySpell;
 use Lyrica0954\StarPvE\job\ActionBarManager;
@@ -14,11 +23,15 @@ use Lyrica0954\StarPvE\job\Skill;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeAttachable;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeHandler;
 use Lyrica0954\StarPvE\job\cooltime\CooltimeNotifier;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\IncreaseStatusIdentity;
+use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
 use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\Job;
 use Lyrica0954\StarPvE\job\JobIdentityGroup;
 use Lyrica0954\StarPvE\job\LineOption;
 use Lyrica0954\StarPvE\job\Spell;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\Skin;
@@ -46,6 +59,11 @@ abstract class PlayerJob extends Job {
 	 * @var Spell[]
 	 */
 	protected array $defaultSpells;
+
+	/**
+	 * @var Spell[]
+	 */
+	protected array $masterySpells;
 
 	protected IdentityGroup $identityGroup;
 
@@ -81,6 +99,8 @@ abstract class PlayerJob extends Job {
 		$this->skill = $this->getInitialSkill();
 		$this->spells = [];
 		$this->defaultSpells = [];
+		$this->masterySpells = [];
+
 		$this->identityGroup = $this->getInitialIdentityGroup();
 		$this->action = new ActionListManager();
 		$this->lastActionUpdate = 0;
@@ -110,6 +130,119 @@ abstract class PlayerJob extends Job {
 				}
 			}, 1);
 
+			$this->masterySpells = [
+				(new IdentitySpell($this, "くちなし"))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_ABILITY,
+						StatusTranslate::STATUS_COOLTIME,
+						0.9
+					))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_SKILL,
+						StatusTranslate::STATUS_COOLTIME,
+						0.9
+					))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_SPELL,
+						StatusTranslate::STATUS_COOLTIME,
+						0.8
+					)),
+				(new IdentitySpell($this, "ルビー(赤)"))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_ABILITY,
+						StatusTranslate::STATUS_DAMAGE,
+						2.0
+					)),
+				(new IdentitySpell($this, "ルビー(青)"))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_SKILL,
+						StatusTranslate::STATUS_DAMAGE,
+						2.0
+					)),
+				(new IdentitySpell($this, "ルビー(緑)"))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_ABILITY,
+						StatusTranslate::STATUS_DAMAGE,
+						1.2
+					))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_SPELL,
+						StatusTranslate::STATUS_DAMAGE,
+						2.5
+					)),
+				(new IdentitySpell($this, "切れ味の悪いナイフ"))
+					->addIdentity(new AddStateIdentity(
+						null,
+						new DullKnifeState($this->player, 0.14),
+						"一度に受けるダメージを最大HP §c14% §f分までに制限する"
+					)),
+				(new IdentitySpell($this, "魔法耐性"))
+					->addIdentity(new AddStateIdentity(
+						null,
+						new MagicResistanceState($this->player, 0.4),
+						"被魔法ダメージ §c-60%"
+					)),
+				(new IdentitySpell($this, "遺伝子地図"))
+					->addIdentity(new AddMaxHealthArgIdentity(null, 18))
+					->addIdentity(new SpeedPercentageArgIdentity(null, 1.25)),
+				(new IdentitySpell($this, "死の鐘"))
+					->addIdentity(new AddStateIdentity(
+						null,
+						new DeathBellState($this->player),
+						"リスポーン時範囲内の敵に(自身の最大体力 x 2)分のダメージを与え、一定時間動けなくする。"
+					)),
+				(new IdentitySpell($this, "高速時計"))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_ABILITY,
+						StatusTranslate::STATUS_DURATION,
+						1.4
+					))
+					->addIdentity(new PercentageStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_SKILL,
+						StatusTranslate::STATUS_DURATION,
+						1.4
+					)),
+				(new IdentitySpell($this, "ミラー"))
+					->addIdentity(new IncreaseStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_ABILITY,
+						StatusTranslate::STATUS_AMOUNT,
+						2
+					))
+					->addIdentity(new IncreaseStatusIdentity(
+						$this,
+						null,
+						AttachAbilityIdentityBase::ATTACH_SKILL,
+						StatusTranslate::STATUS_AMOUNT,
+						3
+					)),
+				(new IdentitySpell($this, "血まみれの剣"))
+					->addIdentity(new AddStateIdentity(
+						null,
+						new ExecutionState($this->player, 0.18),
+						"攻撃後、体力が §c18%§f 以下の場合即死させる"
+					))
+			];
+
 			$this->init();
 
 			$this->sortCooltimeNotifier();
@@ -124,6 +257,13 @@ abstract class PlayerJob extends Job {
 	 */
 	public function getDefaultSpells(): array {
 		return $this->defaultSpells;
+	}
+
+	/**
+	 * @return Spell[]
+	 */
+	public function getMasterySpells(): array {
+		return $this->masterySpells;
 	}
 
 	protected function sortCooltimeNotifier(): void {
@@ -144,6 +284,12 @@ abstract class PlayerJob extends Job {
 	public function applyAllSpellEffect(): void {
 		foreach ($this->spells as $spell) {
 			if ($spell instanceof IdentitySpell) {
+				foreach ($spell->getIdentityGroup()->getAll() as $identity) {
+					if ($identity instanceof PlayerArgIdentity) {
+						$identity->setPlayer($this->player);
+					}
+				}
+
 				$spell->getIdentityGroup()->apply();
 			}
 		}
@@ -267,6 +413,11 @@ abstract class PlayerJob extends Job {
 	public function addSpell(Spell $spell): void {
 		$this->spells[] = $spell;
 		if ($spell instanceof IdentitySpell) {
+			foreach ($spell->getIdentityGroup()->getAll() as $identity) {
+				if ($identity instanceof PlayerArgIdentity) {
+					$identity->setPlayer($this->player);
+				}
+			}
 			$spell->getIdentityGroup()->apply();
 		}
 

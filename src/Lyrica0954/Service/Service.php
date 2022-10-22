@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Lyrica0954\Service;
 
+use pocketmine\scheduler\TaskScheduler;
+
 # 小さなサービスを提供するクラス
 
 abstract class Service {
 
+	/**
+	 * @var ServiceSession
+	 */
 	private ServiceSession $session;
 
 	protected bool $enable = false;
@@ -20,7 +25,6 @@ abstract class Service {
 	public function getSession(): ServiceSession {
 		return $this->session;
 	}
-
 
 	protected function init(): void {
 	}

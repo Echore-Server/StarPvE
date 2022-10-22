@@ -6,6 +6,8 @@ namespace Lyrica0954\StarPvE\form\command;
 
 use Lyrica0954\StarPvE\form\FormUtil;
 use Lyrica0954\StarPvE\game\Game;
+use Lyrica0954\StarPvE\game\player\GamePlayer;
+use Lyrica0954\StarPvE\StarPvE;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
@@ -47,6 +49,8 @@ class GameCheatForm implements Form {
 
 	public function handleResponse(Player $player, $data): void {
 		if ($data !== null) {
+			$gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
+			assert($gamePlayer instanceof GamePlayer);
 			if ($this->game->isClosed()) {
 				$player->sendMessage("§cゲームはクローズされています");
 				return;
@@ -105,6 +109,8 @@ class GameCheatForm implements Form {
 					}
 					break;
 				case 6:
+					$gamePlayer->rollMasterySpells();
+					$gamePlayer->sendMasteryForm();
 					break;
 			}
 		}

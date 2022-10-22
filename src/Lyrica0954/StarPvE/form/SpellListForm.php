@@ -21,6 +21,10 @@ class SpellListForm extends AdvancedForm {
 	public function jsonSerialize(): mixed {
 		$buttons = [];
 		foreach ($this->spells as $spell) {
+			if ($spell instanceof IdentitySpell && !$spell->isApplicable()) {
+				continue;
+			}
+
 			$buttons[] = [
 				"text" => "§l§b{$spell->getName()}"
 			];

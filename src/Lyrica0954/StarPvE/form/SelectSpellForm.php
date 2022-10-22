@@ -12,8 +12,9 @@ class SelectSpellForm extends SpellListForm {
 
 	public function __construct(
 		protected PlayerJob $job,
+		array $spells
 	) {
-		parent::__construct($job->getDefaultSpells());
+		parent::__construct($spells);
 	}
 
 	public function jsonSerialize(): mixed {

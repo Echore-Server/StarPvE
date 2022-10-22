@@ -174,7 +174,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::PIGLIN_BRUTE,
-				new MonsterAttribute(450, 30, 0.24),
+				new MonsterAttribute(1500, 4, 0.24),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(20)
@@ -211,7 +211,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::GIANT_ATTACKER,
-				new MonsterAttribute(2400, 5.0, 0.024),
+				new MonsterAttribute(15000, 5.0, 0.024),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(64)

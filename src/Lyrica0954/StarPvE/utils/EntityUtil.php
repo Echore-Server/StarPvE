@@ -324,9 +324,9 @@ class EntityUtil implements Listener {
 		return $entities;
 	}
 
-	public static function modifyKnockback(Entity $entity, Entity $attacker, float $xz = 1.0, float $y = 1.0): Vector3 {
+	public static function modifyKnockback(Entity $entity, Entity|Vector3 $attacker, float $xz = 1.0, float $y = 1.0): Vector3 {
 		$epos = $entity->getPosition();
-		$apos = $attacker->getPosition();
+		$apos = $attacker instanceof Entity ? $attacker->getPosition() : $attacker;
 		$deltaX = $epos->x - $apos->x;
 		$deltaZ = $epos->z - $apos->z;
 		$motion = self::calculateKnockback($entity, $deltaX, $deltaZ);

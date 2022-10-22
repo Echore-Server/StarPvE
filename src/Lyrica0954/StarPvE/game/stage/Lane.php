@@ -19,8 +19,6 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\world\Position;
 
 class Lane {
-	use TaskHolder;
-
 	/**
 	 * @var Attacker[]
 	 */
@@ -39,9 +37,6 @@ class Lane {
 		$this->lastBlocks = [];
 		$this->start = $start;
 		$this->end = $end;
-		#$this->addRepeatingTask(new ClosureTask(function (){
-		#    $this->updateLaneState();
-		#}), 1);
 	}
 
 	public function getStart(): Position {

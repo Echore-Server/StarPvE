@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\form;
 
+use Lyrica0954\StarPvE\command\PermissionNames;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\GameCreationOption;
 use Lyrica0954\StarPvE\StarPvE;
@@ -55,6 +56,10 @@ class GameSelectForm extends AdvancedForm {
 				$player->sendForm($form);
 			} else {
 				if ($data == (count($this->games))) {
+					if (!$player->hasPermission(PermissionNames::TRUSTED)) {
+						$player->sendMessage("§cゲーム作成の権限がありません。");
+						return;
+					}
 					$games = StarPvE::getInstance()->getGameManager()->getGames();
 					if (count($games) < 3) {
 						$id = StarPvE::getInstance()->getGameManager()->createNewGame(GameCreationOption::manual());

@@ -51,7 +51,7 @@ class AxeAbility extends Ability {
 			$dyaw = $yaw + $i;
 			$dir = VectorUtil::getDirectionHorizontal($dyaw);
 
-			$this->player->sendMessage((string) $dir);
+			// $this->player->sendMessage((string) $dir);
 
 			$molang = [];
 			$molang[] = MolangUtil::variable("dx", $dir->x);

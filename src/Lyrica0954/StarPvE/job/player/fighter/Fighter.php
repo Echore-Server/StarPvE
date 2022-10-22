@@ -77,7 +77,7 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
 					StatusTranslate::STATUS_DURATION,
 					1.75
 				)),
-			(new IdentitySpell($this, "基礎能力"))
+			(new IdentitySpell($this, "基礎能力強化"))
 				->addIdentity(new PercentageStatusIdentity(
 					$this,
 					null,

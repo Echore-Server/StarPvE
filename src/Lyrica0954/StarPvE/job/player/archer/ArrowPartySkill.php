@@ -6,6 +6,7 @@ namespace Lyrica0954\StarPvE\job\player\archer;
 
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
+use Lyrica0954\StarPvE\job\LineOption;
 use Lyrica0954\StarPvE\job\player\archer\entity\ExplodeArrow;
 use Lyrica0954\StarPvE\job\player\archer\entity\FreezeArrow;
 use Lyrica0954\StarPvE\job\Skill;
@@ -30,6 +31,7 @@ use pocketmine\player\Player;
 class ArrowPartySkill extends Skill {
 
 	const SIGNAL_ARROW_BOUNCE = 1;
+	const SIGNAL_ARROW_ADDTIONAL_DURATION = 2;
 
 	public function getName(): string {
 		return "アローエクスプロージョン";
@@ -44,11 +46,11 @@ class ArrowPartySkill extends Skill {
 
 	protected function init(): void {
 		$this->cooltime = new AbilityStatus(40 * 20);
-		$this->amount = new AbilityStatus(6);
+		$this->amount = new AbilityStatus(14);
 	}
 
 	protected function onActivate(): ActionResult {
-		$amount = (int) $this->amount->get();
+		$amount = (int) ($this->amount->get() * 10);
 		$loc = Location::fromObject($this->player->getEyePos(), $this->player->getWorld());
 
 		$ability = $this->job->getAbility();
@@ -59,8 +61,15 @@ class ArrowPartySkill extends Skill {
 			$area = $ability->getArea()->get();
 		}
 
-		$run = function (int $amount) use ($loc, $area, $damage) {
-			for ($i = 0; $i < $amount; $i++) {
+		$total = new \stdClass;
+		$total->count = 0;
+		$run = function (int $tamount) use ($loc, $area, $damage, $total, $amount) {
+			for ($i = 0; $i < $tamount; $i++) {
+				if ($total->count > $amount) {
+					break;
+				}
+
+				$total->count++;
 				$yaw = RandomUtil::rand_float(0, 360);
 				$pitch = RandomUtil::rand_float(-90, 0);
 
@@ -78,11 +87,23 @@ class ArrowPartySkill extends Skill {
 				$entity->spawnToAll();
 			}
 		};
-		TaskUtil::repeatingClosureLimit(function () use ($amount, $run) {
-			$run($amount);
-		}, 1, 10 + 1);
 
-		$run($amount);
+		$duration = 10 + $this->signal->get(self::SIGNAL_ARROW_ADDTIONAL_DURATION);
+		$step = $amount / $duration;
+
+		$it = 1;
+		while ($step < 1.0) {
+			$it++;
+			$step = $amount / ($duration / $it);
+		}
+
+		$diff = $step - floor($step);
+
+		TaskUtil::repeatingClosureLimit(function () use ($amount, $run, $step, $total) {
+			$run((int) $step);
+		}, $it, $duration + (int) ($diff * $duration));
+
+		$run((int) $step);
 
 		PlayerUtil::broadcastSound($loc, "respawn_anchor.set_spawn", 1.2, 0.6);
 

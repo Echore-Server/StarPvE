@@ -26,6 +26,9 @@ class PlayerDataCenter extends DataCenter implements Listener {
 	private array $settingDefault;
 	private array $bagDefault;
 
+	/**
+	 * @var array<string, PlayerConfig>
+	 */
 	protected array $data;
 
 	public function __construct(string $folder) {
@@ -76,6 +79,13 @@ class PlayerDataCenter extends DataCenter implements Listener {
 
 	public function get(Player $player): ?PlayerConfig {
 		return $this->data[$player->getXuid()] ?? null;
+	}
+
+	/**
+	 * @return array<string, PlayerConfig>
+	 */
+	public function getAll(): array {
+		return $this->data;
 	}
 
 	public function onJoin(PlayerJoinEvent $event) {

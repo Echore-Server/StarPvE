@@ -26,8 +26,14 @@ class AttackPercentageArgIdentity extends PlayerArgIdentity {
 	}
 
 	public function getDescription(): string {
-		$p = $this->percentage * 100;
-		return "与えるダメージ §c+{$p}%";
+		if ($this->percentage < 0) {
+			$percentage = round((1.0 - $this->percentage) * 100);
+			$oper = "-";
+		} else {
+			$percentage = round(($this->percentage - 1.0) * 100);
+			$oper = "+";
+		}
+		return "与えるダメージ §c{$oper}{$percentage}%";
 	}
 
 	public function apply(): void {

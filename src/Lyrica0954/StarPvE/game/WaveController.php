@@ -20,6 +20,7 @@ use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\event\game\wave\WaveMonsterSpawnEvent;
 use Lyrica0954\StarPvE\event\game\wave\WaveStartEvent;
 use Lyrica0954\StarPvE\event\PlayerDeathOnGameEvent;
+use Lyrica0954\StarPvE\event\PlayerRespawnOnGameEvent;
 use Lyrica0954\StarPvE\form\PerkIdentitiesForm;
 use Lyrica0954\StarPvE\game\monster\Attacker;
 use Lyrica0954\StarPvE\game\player\GamePlayer;
@@ -53,6 +54,7 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDeathEvent;
 use pocketmine\event\HandlerListManager;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\item\Armor;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
@@ -241,6 +243,9 @@ class WaveController implements CooltimeAttachable, Listener {
 									$entity->setGamemode(GameMode::fromString("2"));
 									$entity->sendTitle("復活しました！");
 									$entity->getEffects()->add(new EffectInstance(VanillaEffects::RESISTANCE(), (6 * 20), 255, false, true));
+
+									$ev = new PlayerRespawnOnGameEvent($entity);
+									$ev->call();
 								}
 							}), (14 * 20));
 						}
@@ -448,13 +453,16 @@ class WaveController implements CooltimeAttachable, Listener {
 				}
 			}
 
-			$reinforce = $this->getReinforceValue($this->wave);
-			$percentage = (int) round(($reinforce - 1.0) * 100);
+			$hreinforce = $this->getHealthReinforceValue($this->wave);
+			$hpercentage = (int) round(($hreinforce - 1.0) * 100);
+
+			$dreinforce = $this->getDamageReinforceValue($this->wave);
+			$dpercentage = (int) round(($dreinforce - 1.0) * 100);
 
 			foreach ($this->game->getWorld()->getPlayers() as $player) {
 				PlayerUtil::playSound($player, "mob.evocation_illager.prepare_attack");
 				$player->sendTitle($waveData->parseTitleFormat($this->wave), "§r ");
-				$player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
+				$player->sendMessage("§7モンスター: 攻撃力 §c+{$dpercentage}%§7, 体力 §c+{$hpercentage}%");
 			}
 
 			$this->spawnWaveMonster($this->wave);
@@ -470,18 +478,22 @@ class WaveController implements CooltimeAttachable, Listener {
 		$this->log("§dDemon killed");
 	}
 
-	public function getReinforceValue(int $wave): float {
-		$reinforcePeriod = floor($wave / 2);
+	public function getHealthReinforceValue(int $wave): float {
+		$reinforcePeriod = $wave;
+		$reinforce = 1.0 + $reinforcePeriod * 0.2;
+		return $reinforce;
+	}
+
+	public function getDamageReinforceValue(int $wave): float {
+		$reinforcePeriod = $wave;
 		$reinforce = 1.0 + $reinforcePeriod * 0.15;
 		return $reinforce;
 	}
 
 	public function modifySpawnOption(MonsterOption $option): void {
-		$reinforce = $this->getReinforceValue($this->wave);
-
 		$att = $option->getAttribute();
-		$att->health = (int) round($att->health * $reinforce);
-		$att->damage *= $reinforce;
+		$att->health = (int) round($att->health * $this->getHealthReinforceValue($this->wave));
+		$att->damage *= $this->getDamageReinforceValue($this->wave);
 	}
 
 
@@ -535,15 +547,24 @@ class WaveController implements CooltimeAttachable, Listener {
 
 	public function waveClear() {
 		$nextWave = $this->wave + 1;
-		if ($nextWave % 2 === 0) {
+		if (true) {
 			foreach ($this->game->getPlayers() as $player) {
 				$gamePlayer = StarPvE::getInstance()->getGamePlayerManager()->getGamePlayer($player);
 				if ($gamePlayer instanceof GamePlayer) {
 					$gamePlayer->setPerkAvailable($gamePlayer->getPerkAvailable() + 1);
-					TaskUtil::delayed(new ClosureTask(function () use ($player) {
-						PlayerUtil::playSound($player, "conduit.activate", 1.0, 0.8);
-						$player->sendTitle("§r ", "§7ショップでパークを獲得できます！");
-					}), 100);
+					$player->sendMessage("§7ショップでパークを獲得できます！");
+					if ($nextWave % 6 === 0) {
+						$gamePlayer->rollMasterySpells();
+						$gamePlayer->setMasteryAvailable($gamePlayer->getMasteryAvailable() + 1);
+						TaskUtil::delayed(new ClosureTask(function () use ($player, $gamePlayer) {
+							$player->sendTitle("§r ", "§dマスタリィを獲得しました！\n4秒後に選択フォームを開きます...");
+							TaskUtil::delayed(new ClosureTask(function () use ($gamePlayer, $player) {
+								PlayerUtil::playSound($player, "conduit.activate", 1.0, 0.8);
+								$gamePlayer->sendMasteryForm();
+								$gamePlayer->setMasteryAvailable($gamePlayer->getMasteryAvailable() - 1);
+							}), 80);
+						}), 20);
+					}
 				}
 			}
 		}
@@ -552,9 +573,12 @@ class WaveController implements CooltimeAttachable, Listener {
 		if ($nextWave > $this->getMaxWave()) {
 			$this->game->gameclear();
 		} else {
-			$lastReinforce = $this->getReinforceValue($this->wave);
-			$nextReinforce = $this->getReinforceValue($nextWave);
-			$percentage = (int) round(($nextReinforce - 1.0) * 100);
+			$lastReinforce = $this->getHealthReinforceValue($this->wave);
+			$hreinforce = $this->getHealthReinforceValue($nextWave);
+			$hpercentage = (int) round(($hreinforce - 1.0) * 100);
+
+			$dreinforce = $this->getDamageReinforceValue($nextWave);
+			$dpercentage = (int) round(($dreinforce - 1.0) * 100);
 
 			foreach ($this->game->getWorld()->getPlayers() as $player) {
 				PlayerUtil::playSound($player, "random.levelup", 1.0, 0.5);
@@ -563,10 +587,10 @@ class WaveController implements CooltimeAttachable, Listener {
 				$effect = new EffectInstance(VanillaEffects::REGENERATION(), 25 * 20, 0, false);
 				$player->getEffects()->add($effect);
 
-				if ($lastReinforce !== $nextReinforce) {
-					TaskUtil::delayed(new ClosureTask(function () use ($player, $lastReinforce, $nextReinforce, $percentage) {
+				if ($lastReinforce !== $hreinforce) {
+					TaskUtil::delayed(new ClosureTask(function () use ($player, $lastReinforce, $hpercentage, $dpercentage) {
 						PlayerUtil::playSound($player, "mob.witch.celebrate", 1.0, 0.8);
-						$player->sendMessage("§7モンスター: 攻撃力 §c+{$percentage}%§7, 体力 §c+{$percentage}%");
+						$player->sendMessage("§7モンスター: 攻撃力 §c+{$dpercentage}%§7, 体力 §c+{$hpercentage}%");
 					}), 20);
 				}
 			}

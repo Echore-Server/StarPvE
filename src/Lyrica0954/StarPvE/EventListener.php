@@ -173,10 +173,11 @@ class EventListener implements Listener {
 		$player = $trans->getSource();
 		$inventories = $trans->getInventories();
 
-		if (!$player->isCreative()) {
+		if (!$player->isCreative(true)) {
 			foreach ($inventories as $inventory) {
 				if ($inventory instanceof ArmorInventory) {
 					$event->cancel();
+					break;
 				}
 			}
 		}

@@ -20,14 +20,10 @@ use pocketmine\event\Listener;
 use pocketmine\Server;
 use pocketmine\world\Position;
 
-class FatalWoundState extends EntityState implements Listener {
+class FatalWoundState extends ListenerState {
 
 	public function __construct(Entity $entity, protected float $multiplier) {
 		parent::__construct($entity);
-	}
-
-	public function start(): void {
-		Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
 	}
 
 	public function onDamage(EntityDamageEvent $event) {
@@ -36,9 +32,5 @@ class FatalWoundState extends EntityState implements Listener {
 			PlayerUtil::broadcastSound($entity, "mob.irongolem.repair", 1.2, 0.7);
 			EntityUtil::multiplyFinalDamage($event, $this->multiplier);
 		}
-	}
-
-	public function close(): void {
-		HandlerListManager::global()->unregisterAll($this);
 	}
 }

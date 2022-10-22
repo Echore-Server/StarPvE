@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\archer;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\form\StatusForm;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
@@ -149,7 +150,22 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					StatusTranslate::STATUS_DAMAGE,
-					0.3
+					0.35
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SKILL,
+					StatusTranslate::STATUS_AMOUNT,
+					2.5
+				))
+				->addIdentity(new AbilityValueSignalIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SKILL,
+					ArrowPartySkill::SIGNAL_ARROW_ADDTIONAL_DURATION,
+					260,
+					"召喚にかかる時間 (tick)"
 				)),
 			(new IdentitySpell($this, "エンハンスドアロー"))
 				->addIdentity(new AbilityValueSignalIdentity(
@@ -157,16 +173,15 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					SpecialBowAbility::SIGNAL_ARROW_BOUNCE,
-					1,
+					3,
 					"通常時の矢のバウンス回数"
 				))
-				->addIdentity(new AbilityValueSignalIdentity(
+				->addIdentity(new PercentageStatusIdentity(
 					$this,
 					null,
-					AttachAbilityIdentityBase::ATTACH_SKILL,
-					ArrowPartySkill::SIGNAL_ARROW_BOUNCE,
-					1,
-					"矢のバウンス回数"
+					AttachAbilityIdentityBase::ATTACH_ABILITY,
+					StatusTranslate::STATUS_AREA,
+					0.6
 				))
 		];
 	}

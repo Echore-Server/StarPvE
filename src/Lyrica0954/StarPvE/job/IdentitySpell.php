@@ -21,6 +21,10 @@ class IdentitySpell implements Spell {
 		$this->name = $name;
 	}
 
+	public function isApplicable(): bool {
+		return count($this->identityGroup->getApplicable()) > 0;
+	}
+
 	public function getIdentityGroup(): IdentityGroup {
 		return $this->identityGroup;
 	}

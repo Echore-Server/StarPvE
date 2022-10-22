@@ -8,6 +8,7 @@ use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\data\condition\FalseCondition;
 use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
@@ -64,7 +65,7 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 	}
 
 	public function getSelectableCondition(): ?Condition {
-		return null;
+		return new FalseCondition;
 	}
 
 	protected function causeCollapse(Entity $entity, int $count = 0): void {
