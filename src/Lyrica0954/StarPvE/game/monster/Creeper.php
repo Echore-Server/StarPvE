@@ -64,7 +64,7 @@ class Creeper extends SmartCreeper {
 
 		$list = $this->getWorld()->getNearbyEntities($explosionBB, $this);
 		foreach ($list as $entity) {
-			if ($entity instanceof Player) {
+			if (MonsterData::isActiveAlly($entity)) {
 				$entityPos = $entity->getPosition();
 				$distance = $entityPos->distance($pos) / $explosionSize;
 

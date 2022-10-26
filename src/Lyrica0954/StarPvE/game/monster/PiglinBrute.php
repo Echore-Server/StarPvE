@@ -14,6 +14,7 @@ use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
 use Lyrica0954\StarPvE\entity\MemoryEntity;
 use Lyrica0954\StarPvE\game\Game;
+use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
@@ -86,9 +87,11 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 
 	public function fireMissile(int $count): void {
 		$game = StarPvE::getInstance()->getGameManager()->getGameFromWorld($this->getWorld());
-		$players = $this->getWorld()->getPlayers();
+		$entities = array_filter($this->getWorld()->getEntities(), function (Entity $entity): bool {
+			return MonsterData::isActiveAlly($entity);
+		});
 		if ($game instanceof Game) {
-			$players = $game->getPlayers();
+			$entities = $game->getPlayers();
 		}
 		$full = 0.6;
 		for ($i = 0; $i < $count; $i++) {
@@ -103,8 +106,8 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 			$missile->addCloseHook(function (MemoryEntity $entity) {
 			});
 
-			if (count($players) > 0) {
-				$missileTarget = $players[array_rand($players)];
+			if (count($entities) > 0) {
+				$missileTarget = $entities[array_rand($entities)];
 			} else {
 				$missileTarget = null;
 			}
@@ -121,7 +124,7 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 				PlayerUtil::broadcastSound($entity->getPosition(), "random.explode", 0.7, 0.7);
 
 				foreach (EntityUtil::getWithinRange($entity->getPosition(), 4) as $e) {
-					if ($e instanceof Player) {
+					if (MonsterData::isActiveAlly($entity)) {
 						$source = new EntityDamageEvent($e, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, 5.0);
 						$source->setAttackCooldown(0);
 						$e->attack($source);
@@ -178,7 +181,7 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 				$blockHit = null;
 				$hitResult = null;
 
-				if ($end->distanceSquared($start) > 0.0) {
+				if ($end->distanceSquared($start) > 0.01) {
 					foreach (VoxelRayTrace::betweenPoints($start, $end) as $vector3) {
 						$block = $this->getWorld()->getBlockAt($vector3->x, $vector3->y, $vector3->z);
 
@@ -195,9 +198,11 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 
 				$playerHit = false;
 
-				foreach (EntityUtil::getPlayersInsideVector($entity->getPosition(), new Vector3(1.2, 1.2, 1.2)) as $player) {
-					$playerHit = true;
-					break;
+				foreach (EntityUtil::getEntitiesInsideVector($entity->getPosition(), new Vector3(1.2, 1.2, 1.2)) as $entity) {
+					if (MonsterData::isActiveAlly($entity)) {
+						$playerHit = true;
+						break;
+					}
 				}
 
 				$hit = ($hitResult instanceof RayTraceResult && $blockHit instanceof Block) || $playerHit;

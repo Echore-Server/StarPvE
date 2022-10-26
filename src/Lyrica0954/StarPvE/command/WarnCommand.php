@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\command;
 
+use Lyrica0954\Commato\parameter\BasicParameters;
+use Lyrica0954\Commato\parameter\Parameter;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\form\YesNoForm;
 use Lyrica0954\StarPvE\utils\TaskUtil;
-use NeiroNetwork\VanillaCommands\parameter\BasicParameters;
-use NeiroNetwork\VanillaCommands\parameter\Parameter;
 use pocketmine\command\CommandSender;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;

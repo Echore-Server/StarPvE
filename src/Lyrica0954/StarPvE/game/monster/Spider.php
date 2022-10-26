@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\game\monster;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\walking\Spider as SmartSpider;
+use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
@@ -15,6 +16,7 @@ use pocketmine\entity\animation\ArmSwingAnimation;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\player\Player;
 use pocketmine\world\particle\ExplodeParticle;
@@ -27,8 +29,8 @@ class Spider extends SmartSpider {
 	protected function onTick(int $currentTick, int $tickDiff = 1): void {
 		if ($currentTick % 70 == 0) {
 			foreach (EntityUtil::getWithinRange($this->getPosition(), $this->getAttackRange() * 2.0) as $entity) {
-				if ($entity instanceof Player) {
-					if (!$entity->isSpectator() && $entity->isAlive()) {
+				if (MonsterData::isActiveAlly($entity) && $entity instanceof Living) {
+					if ($entity->isAlive()) {
 						PlayerUtil::playSound($entity, "mob.spider.death", 7.0, 0.6);
 
 						$ef = $entity->getEffects();

@@ -6,4 +6,4 @@ api: 4.0.5
 author: Lyrica0954
 
 depend: ["SmartEntity", "MagicParticle", "Fadix"]
-softdepend: ["VanillaCommands"]
+softdepend: ["Commato"]

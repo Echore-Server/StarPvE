@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\MathUtil;
 use pocketmine\player\Player;
 
 class AddMaxHealthArgIdentity extends PlayerArgIdentity {
@@ -21,11 +22,13 @@ class AddMaxHealthArgIdentity extends PlayerArgIdentity {
 	}
 
 	public function getName(): string {
-		return "最大HP増加";
+		$tr = MathUtil::translateAdd($this->add);
+		return "最大HP{$tr[0]}";
 	}
 
 	public function getDescription(): string {
-		return "最大HP §c+{$this->add}";
+		$tr = MathUtil::translateAdd($this->add);
+		return "最大HP §c{$tr[1]}{$tr[2]}";
 	}
 
 	public function apply(): void {

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\command;
 
+use Lyrica0954\Commato\parameter\BasicParameters;
+use Lyrica0954\Commato\parameter\Parameter;
 use Lyrica0954\StarPvE\form\command\GameCheatForm;
 use Lyrica0954\StarPvE\form\command\GameCreationForm;
 use Lyrica0954\StarPvE\game\Game;
@@ -12,8 +14,6 @@ use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
-use NeiroNetwork\VanillaCommands\parameter\BasicParameters;
-use NeiroNetwork\VanillaCommands\parameter\Parameter;
 use pocketmine\command\CommandSender;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;

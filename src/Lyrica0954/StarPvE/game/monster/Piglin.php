@@ -56,36 +56,11 @@ class Piglin extends FightingEntity implements Hostile, ProjectileSource {
 		return 14;
 	}
 
-	public function attack(EntityDamageEvent $source): void {
-		if ($source instanceof EntityDamageByChildEntityEvent) {
-			$child = $source->getChild();
-			$damager = $source->getDamager();
-			if ($damager instanceof Player) {
-				$vec = $this->getEyePos();
-				$loc = $this->getLocation();
-				$loc->y = $vec->y;
-
-				$tloc = $damager->getLocation();
-				$tloc->y += $damager->getEyeHeight();
-
-				$d = $tloc->subtractVector($loc)->normalize();
-				$projectile = new Arrow($loc, $this, true);
-				$projectile->setMotion($d->multiply(5));
-				$projectile->spawnToAll();
-				$source->setBaseDamage($source->getBaseDamage() / 2);
-			}
-		}
-
-		parent::attack($source);
-	}
-
 	protected function onTick(int $currentTick, int $tickDiff = 1): void {
 	}
 
 	public function hitEntity(Entity $entity, float $range): void {
-		if ($entity instanceof Player) {
-			PlayerUtil::playSound($entity, "random.break", 0.5, 0.75);
-		}
+		PlayerUtil::broadcastSound($entity, "random.break", 0.5, 0.75);
 	}
 
 	public function attackEntity(Entity $entity): bool {

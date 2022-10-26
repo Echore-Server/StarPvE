@@ -36,28 +36,25 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 		return
 			"§7- §l§c戦闘§r
 
-範囲攻撃を得意とする職業で、攻撃もかなり強力だが
+攻撃がかなり強力だが
 アビリティなどが特殊で扱いが難しく上級者向け。";
 	}
 
 	public function getAlAbilityName(): String {
-		return "デスコラプス";
+		return "現実干渉";
 	}
 
 	public function getAlAbilityDescription(): String {
 		return
-			"§b発動条件:§f 敵を倒す
-§b発動時:§f 倒した敵から半径 §c2.3m§f 以内の敵に
-倒した敵の最大体力 §c10%% §f分のダメージを与える。
-倒した敵が §dクリーパー§f の場合は範囲が §c10m§f になり、ダメージが最大体力 §c40%%§f 分になる。";
+			"常時 §d霊体召喚 §fスペルを所持";
 	}
 
 	protected function getInitialAbility(): Ability {
-		return new DownPulseAbility($this);
+		return new AssaultAbility($this);
 	}
 
 	protected function getInitialSkill(): Skill {
-		return new DeathPulseSkill($this);
+		return new SpiritCrushSkill($this);
 	}
 
 	protected function getInitialIdentityGroup(): IdentityGroup {
@@ -65,60 +62,11 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 	}
 
 	public function getSelectableCondition(): ?Condition {
-		return new FalseCondition;
+		return null;
 	}
 
-	protected function causeCollapse(Entity $entity, int $count = 0): void {
-		$pos = $entity->getPosition();
-		$pos->y += 0.75;
-		$players = $entity->getWorld()->getPlayers();
-		ParticleUtil::send(new SingleParticle, $players, $pos, ParticleOption::spawnPacket("minecraft:splash_spell_emitter", ""));
 
-		$range = match ($entity::class) {
-			DefaultMonsters::CREEPER => 10.0,
-			default => 2.3
-		};
-		$per = match ($entity::class) {
-			DefaultMonsters::CREEPER => 0.4,
-			default => 0.1
-		};
-
-		$damage = $entity->getMaxHealth() * $per;
-
-		ParticleUtil::send(new CircleParticle($range, 4, unstableRate: 0.05), $players, $pos, ParticleOption::spawnPacket("minecraft:obsidian_glow_dust_particle", ""));
-
-		PlayerUtil::broadcastSound($pos, "dig.basalt", 0.8, 1.0);
-
-		foreach (EntityUtil::getWithinRange($pos, $range) as $target) {
-			if (MonsterData::isMonster($target)) {
-				if ($target !== $entity) {
-					if (!$target->isClosed()) {
-						$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_CUSTOM, $damage, [], 0);
-						$target->attack($source);
-					}
-				}
-			}
-		}
+	protected function init(): void {
+		$this->addSpell(new SpawnSpiritSpell($this));
 	}
-
-	/**
-	 * @param EntityDamageByEntityEvent $event
-	 * 
-	 * @return void
-	 * 
-	 * @priority MONITOR
-	 */
-	public function onEntityDamageByEntity(EntityDamageByEntityEvent $event): void {
-		$entity = $event->getEntity();
-		$damager = $event->getDamager();
-		if ($damager === $this->player && $this->player instanceof Player) {
-			if ($event->getCause() !== EntityDamageEvent::CAUSE_CUSTOM) {
-				if ($entity->getHealth() <= $event->getFinalDamage() && $entity->isAlive()) {
-					$this->causeCollapse($entity);
-				}
-			}
-		}
-	}
-
-	# collapse 	dig.vines
 }

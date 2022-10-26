@@ -6,7 +6,6 @@ namespace Lyrica0954\StarPvE\command;
 
 use Lyrica0954\StarPvE\form\JobInformationForm;
 use Lyrica0954\StarPvE\StarPvE;
-use NeiroNetwork\VanillaCommands\parameter\Parameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
@@ -69,7 +68,7 @@ class CommandLoader {
 			DefaultPermissionNames::COMMAND_KICK => true,
 			DefaultPermissionNames::COMMAND_KILL_SELF => true,
 			DefaultPermissionNames::COMMAND_WHITELIST_LIST => true,
-			"vanillacommands.all" => true
+			"commato.all" => true
 		]));
 		DefaultPermissions::registerPermission($admin);
 
@@ -96,42 +95,18 @@ class CommandLoader {
 			"multiworld.command.load" => true,
 			"multiworld.command.teleport" => true,
 			"multiworld.command.unload" => true,
-			"buildertools.command.biome" => true,
-			"buildertools.command.blockinfo" => true,
-			"buildertools.command.center" => true,
-			"buildertools.command.clearinventory" => true,
-			"buildertools.command.copy" => true,
-			"buildertools.command.cube" => true,
-			"buildertools.command.cut" => true,
-			"buildertools.command.cylinder" => true,
-			"buildertools.command.decoration" => true,
-			"buildertools.command.draw" => true,
-			"buildertools.command.fill" => true,
-			"buildertools.command.pos1" => true,
-			"buildertools.command.flip" => true,
-			"buildertools.command.help" => true,
-			"buildertools.command.hcube" => true,
-			"buildertools.command.hcylinder" => true,
-			"buildertools.command.hsphere" => true,
-			"buildertools.command.id" => true,
-			"buildertools.command.island" => true,
-			"buildertools.command.merge" => true,
-			"buildertools.command.move" => true,
-			"buildertools.command.naturalize" => true,
-			"buildertools.command.outline" => true,
-			"buildertools.command.paste" => true,
-			"buildertools.command.pyramid" => true,
-			"buildertools.command.redo" => true,
-			"buildertools.command.replace" => true,
-			"buildertools.command.rotate" => true,
-			"buildertools.command.schematic" => true,
-			"buildertools.command.pos2" => true,
-			"buildertools.command.sphere" => true,
-			"buildertools.command.stack" => true,
-			"buildertools.command.tree" => true,
-			"buildertools.command.undo" => true,
-			"buildertools.command.walls" => true,
-			"buildertools.command.wand" => true,
+			"easyedit.edit" => true,
+			"easyedit.generate" => true,
+			"easyedit.history" => true,
+			"easyedit.history.other" => false,
+			"easyedit.clipboard" => true,
+			"easyedit.readdisk" => true,
+			"easyedit.writedisk" => true,
+			"easyedit.manage" => true,
+			"easyedit.select" => true,
+			"easyedit.brush" => true,
+			"easyedit.rod" => true,
+			"easyedit.util" => true,
 			DefaultPermissionNames::COMMAND_GAMEMODE => true,
 		]));
 		DefaultPermissions::registerPermission($builder);

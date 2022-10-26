@@ -24,7 +24,7 @@ class AmpMonsterHealthArgIdentity extends ModifyMonsterArgIdentityBase {
 	public function getDescription(): string {
 		$plus = $this->amp - 1.0;
 		$plus *= 100;
-		return "モンスターの体力 + {$plus}%%";
+		return "モンスターの体力 +{$plus}%%";
 	}
 
 	public function getAmp(): float {

@@ -22,6 +22,8 @@ use Lyrica0954\StarPvE\utils\HealthBarEntity;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\RandomUtil;
+use pocketmine\entity\effect\EffectInstance;
+use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -87,6 +89,7 @@ class ZombieLord extends SmartZombie implements Listener {
 				$entity->setMotion($motion);
 
 				$entity->setMaxHealth(10);
+				$entity->setHealth($entity->getMaxHealth());
 			} else {
 				$entity->setMotion(new Vector3(RandomUtil::rand_float(-1.0, 1.0), 0.4, RandomUtil::rand_float(-1.0, 1.0)));
 			}
@@ -112,6 +115,9 @@ class ZombieLord extends SmartZombie implements Listener {
 		if ($this->callTick >= 320 && !$this->isFriend()) {
 			$this->callTick = 0;
 			$this->callZombie();
+
+			$effect = new EffectInstance(VanillaEffects::SPEED(), 3 * 20, 2);
+			$this->getEffects()->add($effect);
 		}
 
 		if ($this->getHealth() <= ($this->getMaxHealth() / 3) && !$this->isFriend()) {

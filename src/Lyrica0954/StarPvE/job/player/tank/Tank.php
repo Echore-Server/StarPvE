@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lyrica0954\StarPvE\job\player\tank;
 
 use Lyrica0954\StarPvE\data\condition\Condition;
+use Lyrica0954\StarPvE\data\condition\FalseCondition;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\identity\Identity;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
@@ -106,7 +107,7 @@ class Tank extends PlayerJob implements AlwaysAbility, Listener {
 	}
 
 	public function getSelectableCondition(): ?Condition {
-		return null;
+		return new FalseCondition;
 	}
 
 	public function onEntityDamage(EntityDamageEvent $event) {

@@ -39,7 +39,7 @@ abstract class PluginCommandNoAuth extends Command implements PluginOwned {
 		$this->usageMessage = "";
 		$this->init();
 
-		if (Server::getInstance()->getPluginManager()->getPlugin("VanillaCommands") !== null) {
+		if (Server::getInstance()->getPluginManager()->getPlugin("Commato") !== null) {
 			$this->initParameter();
 		}
 

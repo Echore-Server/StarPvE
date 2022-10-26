@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\StatusTranslate;
+use Lyrica0954\StarPvE\utils\MathUtil;
 
 class PercentageStatusIdentity extends AttachStatusIdentityBase {
 
@@ -22,18 +23,17 @@ class PercentageStatusIdentity extends AttachStatusIdentityBase {
 	public function getName(): string {
 		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
-		return "{$name}の{$statusName}増加";
+		$op = MathUtil::translateAdd($this->percentage)[0];
+		return "{$name}の{$statusName}{$op}";
 	}
 
 	public function getDescription(): string {
 		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
-		$perc = round(($this->percentage - 1.0) * 100);
-		$op = "+";
-		if ($this->percentage < 1.0) {
-			$op = "";
-		}
-		return "{$name}の{$statusName} §c{$op}{$perc}%§f";
+		$tr = MathUtil::translatePercentage($this->percentage);
+
+		$perc = round($tr[2] * 100, 0);
+		return "{$name}の{$statusName} §c{$tr[1]}{$perc}%§f";
 	}
 
 	public function applyStatus(AbilityStatus $status): void {

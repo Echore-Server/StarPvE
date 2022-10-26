@@ -45,6 +45,6 @@ class Warrior extends PlayerJob {
 	}
 
 	public function getSelectableCondition(): ?Condition {
-		return null;
+		return new FalseCondition;
 	}
 }

@@ -137,21 +137,21 @@ abstract class PlayerJob extends Job {
 						null,
 						AttachAbilityIdentityBase::ATTACH_ABILITY,
 						StatusTranslate::STATUS_COOLTIME,
-						0.9
+						0.86
 					))
 					->addIdentity(new PercentageStatusIdentity(
 						$this,
 						null,
 						AttachAbilityIdentityBase::ATTACH_SKILL,
 						StatusTranslate::STATUS_COOLTIME,
-						0.9
+						0.86
 					))
 					->addIdentity(new PercentageStatusIdentity(
 						$this,
 						null,
 						AttachAbilityIdentityBase::ATTACH_SPELL,
 						StatusTranslate::STATUS_COOLTIME,
-						0.8
+						0.7
 					)),
 				(new IdentitySpell($this, "ルビー(赤)"))
 					->addIdentity(new PercentageStatusIdentity(
@@ -187,8 +187,8 @@ abstract class PlayerJob extends Job {
 				(new IdentitySpell($this, "切れ味の悪いナイフ"))
 					->addIdentity(new AddStateIdentity(
 						null,
-						new DullKnifeState($this->player, 0.14),
-						"一度に受けるダメージを最大HP §c14% §f分までに制限する"
+						new DullKnifeState($this->player, 0.13),
+						"一度に受けるダメージを最大HP §c13% §f分までに制限する"
 					)),
 				(new IdentitySpell($this, "魔法耐性"))
 					->addIdentity(new AddStateIdentity(
@@ -197,7 +197,7 @@ abstract class PlayerJob extends Job {
 						"被魔法ダメージ §c-60%"
 					)),
 				(new IdentitySpell($this, "遺伝子地図"))
-					->addIdentity(new AddMaxHealthArgIdentity(null, 18))
+					->addIdentity(new AddMaxHealthArgIdentity(null, 24))
 					->addIdentity(new SpeedPercentageArgIdentity(null, 1.25)),
 				(new IdentitySpell($this, "死の鐘"))
 					->addIdentity(new AddStateIdentity(
@@ -211,14 +211,14 @@ abstract class PlayerJob extends Job {
 						null,
 						AttachAbilityIdentityBase::ATTACH_ABILITY,
 						StatusTranslate::STATUS_DURATION,
-						1.4
+						1.6
 					))
 					->addIdentity(new PercentageStatusIdentity(
 						$this,
 						null,
 						AttachAbilityIdentityBase::ATTACH_SKILL,
 						StatusTranslate::STATUS_DURATION,
-						1.4
+						1.6
 					)),
 				(new IdentitySpell($this, "ミラー"))
 					->addIdentity(new IncreaseStatusIdentity(
@@ -298,7 +298,7 @@ abstract class PlayerJob extends Job {
 	public function resetAllSpellEffect(): void {
 		foreach ($this->spells as $spell) {
 			if ($spell instanceof IdentitySpell) {
-				$spell->getIdentityGroup()->apply();
+				$spell->getIdentityGroup()->reset();
 			}
 		}
 	}

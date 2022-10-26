@@ -32,7 +32,7 @@ use pocketmine\event\Listener;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
-use pocketmine\player\Player;
+use pocketmine\entity\Player;
 use pocketmine\Server;
 
 
@@ -40,7 +40,7 @@ use pocketmine\Server;
 class Enderman extends FightingEntity implements Hostile, Listener {
 	use HealthBarEntity;
 
-	protected ?Player $holding = null;
+	protected ?Entity $holding = null;
 
 	protected int $holdDamageTick = 0;
 	protected int $holdTick = 0;
@@ -61,7 +61,7 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 		return "Enderman";
 	}
 
-	public function getHolding(): ?Player {
+	public function getHolding(): ?Entity {
 		return $this->holding;
 	}
 
@@ -78,9 +78,9 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 	}
 
 	public function onPlayerDeath(PlayerDeathOnGameEvent $event) {
-		$player = $event->getPlayer();
+		$entity = $event->getPlayer();
 
-		if ($player === $this->holding) {
+		if ($entity === $this->holding) {
 			$this->release();
 		}
 	}
@@ -112,11 +112,8 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 	public function hitEntity(Entity $entity, float $range): void {
 		parent::hitEntity($entity, $range);
 
-		if ($entity instanceof Player) {
-			PlayerUtil::playSound($entity, "mob.endermen.scream", 1.0, 0.6);
-
-			$this->hold($entity);
-		}
+		PlayerUtil::broadcastSound($entity, "mob.endermen.scream", 1.0, 0.6);
+		$this->hold($entity);
 	}
 
 	public function attackEntity(Entity $entity): bool {
@@ -179,20 +176,20 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 		$this->holding = null;
 	}
 
-	public function hold(Player $player): void {
+	public function hold(Entity $entity): void {
 		if ($this->holdRemain <= 0) {
 			return;
 		}
 		$this->holdRemain--;
-		$this->holding = $player;
+		$this->holding = $entity;
 		$this->setImmobile(true);
 
-		$player->setImmobile(true);
+		$entity->setImmobile(true);
 
 		$pos = $this->getPosition();
 		$dir = $this->getDirectionPlane();
 		$holdPos = $pos->addVector(new Vector3($dir->x, 1.5, $dir->y));
-		$player->teleport($holdPos);
+		$entity->teleport($holdPos);
 	}
 
 	protected function onDispose(): void {

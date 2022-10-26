@@ -13,6 +13,7 @@ use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 use Lyrica0954\SmartEntity\entity\Hostile;
 use Lyrica0954\SmartEntity\entity\Neutral;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
+use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
@@ -127,8 +128,8 @@ class Defender extends FightingEntity implements Neutral {
 		if ($this->atick >= 2) {
 			$this->atick = 0;
 			foreach ($this->getWorld()->getEntities() as $entity) {
-				if ($entity instanceof Player) {
-					if (!$entity->isSpectator() && $entity->isAlive()) {
+				if (MonsterData::isActiveAlly($entity)) {
+					if ($entity->isAlive()) {
 						$epos = $entity->getPosition();
 						$hxz = new Vector3($pos->x, 0, $pos->z);
 						$exz = new Vector3($epos->x, 0, $epos->z);

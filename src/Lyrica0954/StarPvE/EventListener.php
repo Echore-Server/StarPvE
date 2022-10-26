@@ -18,6 +18,7 @@ use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Living;
 use pocketmine\entity\Location;
 use pocketmine\entity\Skin;
 use pocketmine\event\block\BlockBreakEvent;
@@ -107,7 +108,7 @@ class EventListener implements Listener {
 			}
 		}
 
-		if (!$event->isCancelled()) {
+		if (!$event->isCancelled() && $entity instanceof Living) {
 			$par = new SingleParticle;
 			ParticleUtil::send(
 				$par,

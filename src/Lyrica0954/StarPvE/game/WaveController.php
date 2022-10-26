@@ -9,6 +9,7 @@ use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\Service\Service;
 use Lyrica0954\Service\ServiceSession;
+use Lyrica0954\SmartEntity\entity\Friend;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\StarPvE\constant\Formats;
@@ -197,12 +198,13 @@ class WaveController implements CooltimeAttachable, Listener {
 		$entity = $event->getEntity();
 		if ($entity->getWorld() === $this->game->getWorld()) {
 			if ($damager instanceof Player) {
+				$damage = (int) min($entity->getMaxHealth(), $event->getFinalDamage());
 				$counter = $this->getDamageCounter();
-				$counter->add($damager, (int) $event->getFinalDamage());
+				$counter->add($damager, $damage);
 
 				$counter = $this->getEachDamageCounter($entity::class);
 				if ($counter instanceof PlayerCounterService) {
-					$counter->add($damager, (int) $event->getFinalDamage());
+					$counter->add($damager, $damage);
 				}
 			}
 		}
@@ -272,7 +274,7 @@ class WaveController implements CooltimeAttachable, Listener {
 			}
 
 
-			if ($entity instanceof FightingEntity) {
+			if ($entity instanceof FightingEntity && !$entity instanceof Friend) {
 
 				$ldc = $entity->getLastDamageCauseByPlayer();
 				$ldcI = $entity->getLastDamageCause();
@@ -317,8 +319,8 @@ class WaveController implements CooltimeAttachable, Listener {
 					$pp->y += 1.5;
 					ParticleUtil::send($par, $entity->getWorld()->getPlayers(), $pp, ParticleOption::spawnPacket("starpve:totem_jet_particle", ""));
 
-					if ($ldc instanceof EntityDamageByEntityEvent) {
-						$damager = $ldc->getDamager();
+					if ($ldc instanceof EntityDamageByEntityEvent && $ldc->getDamager()?->isAlive()) {
+						$damager = $ldc->getDamager() instanceof Player ? $ldc->getDamager() : $ldc->getDamager()->getOwningEntity();
 						if ($damager instanceof Player) {
 							foreach ($dropEntities as $dropEntity) {
 								$dropEntity->setOwningEntity($damager);
@@ -480,7 +482,7 @@ class WaveController implements CooltimeAttachable, Listener {
 
 	public function getHealthReinforceValue(int $wave): float {
 		$reinforcePeriod = $wave;
-		$reinforce = 1.0 + $reinforcePeriod * 0.2;
+		$reinforce = 1.0 + $reinforcePeriod * 0.24;
 		return $reinforce;
 	}
 

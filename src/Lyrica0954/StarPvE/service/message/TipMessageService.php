@@ -47,7 +47,7 @@ class TipMessageService extends Service {
 			$this->index++;
 
 			Server::getInstance()->broadcastMessage(Messanger::talk("§8Tip", "§7" . $tip), Server::getInstance()->getOnlinePlayers());
-		}, (20 * 20));
+		}, (30 * 20));
 	}
 
 	protected function onDisable(): void {

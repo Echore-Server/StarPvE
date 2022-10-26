@@ -9,6 +9,7 @@ use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\StatusTranslate;
+use Lyrica0954\StarPvE\utils\MathUtil;
 
 class IncreaseStatusIdentity extends AttachStatusIdentityBase {
 
@@ -22,13 +23,15 @@ class IncreaseStatusIdentity extends AttachStatusIdentityBase {
 	public function getName(): string {
 		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
-		return "{$name}の{$statusName}増加";
+		$op = MathUtil::translateAdd($this->add)[0];
+		return "{$name}の{$statusName}{$op}";
 	}
 
 	public function getDescription(): string {
 		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
-		return "{$name}の{$statusName} §c+{$this->add}§f";
+		$tr = MathUtil::translateAdd($this->add);
+		return "{$name}の{$statusName} §c{$tr[0]}{$tr[2]}§f";
 	}
 
 	public function applyStatus(AbilityStatus $status): void {

@@ -190,6 +190,27 @@ class EntityUtil implements Listener {
 		return $players;
 	}
 
+	/**
+	 * @param Position $pos
+	 * @param Vector3|null $expand
+	 * 
+	 * @return Entity[]
+	 */
+	public static function getEntitiesInsideVector(Position $pos, ?Vector3 $expand = null): array {
+		$expand = ($expand === null) ? (new Vector3(0, 0, 0)) : $expand;
+		$entities = [];
+		foreach ($pos->getWorld()->getEntities() as $entity) {
+			if ($entity->isAlive()) {
+				if ($entity->getBoundingBox()->expandedCopy($expand->x, $expand->y, $expand->z)->isVectorInside($pos)) {
+					$players[] = $entity;
+				}
+			}
+		}
+
+		return $entities;
+	}
+
+
 	public static function immobile(Entity $entity, int $duration): void {
 		$duration = max(0, $duration);
 		if ($duration > 0) {

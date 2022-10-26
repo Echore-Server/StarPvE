@@ -74,6 +74,7 @@ class DescriptionTranslator {
 		return TextFormat::RED . $op . round($num * 100, 1) . "%%" . self::diff($diff * 100, 1) . $resetter;
 	}
 
+
 	public static function effect(EffectInstance $instance, string $resetter = TextFormat::WHITE): string {
 		$duration = round($instance->getDuration() / 20, 1);
 		$amp = $instance->getAmplifier();

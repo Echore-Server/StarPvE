@@ -10,6 +10,7 @@ use Lyrica0954\StarPvE\job\JobIdentity;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\utils\BuffUtil;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\MathUtil;
 use pocketmine\player\Player;
 
 class AttackPercentageArgIdentity extends PlayerArgIdentity {
@@ -22,18 +23,15 @@ class AttackPercentageArgIdentity extends PlayerArgIdentity {
 	}
 
 	public function getName(): string {
-		return "ダメージ増加";
+		$tr = MathUtil::translatePercentage($this->percentage, 0.0, 0.0);
+		return "ダメージ{$tr[0]}";
 	}
 
 	public function getDescription(): string {
-		if ($this->percentage < 0) {
-			$percentage = round((1.0 - $this->percentage) * 100);
-			$oper = "-";
-		} else {
-			$percentage = round(($this->percentage - 1.0) * 100);
-			$oper = "+";
-		}
-		return "与えるダメージ §c{$oper}{$percentage}%";
+		$tr = MathUtil::translatePercentage($this->percentage, 0.0, 0.0);
+
+		$perc = round($tr[2] * 100, 0);
+		return "与えるダメージ §c{$tr[1]}{$perc}%";
 	}
 
 	public function apply(): void {

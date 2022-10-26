@@ -13,6 +13,7 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\player\Player;
 use pocketmine\Server;
+use pocketmine\utils\Limits;
 
 class ExpIndicatorService extends ListenerService {
 
@@ -41,7 +42,7 @@ class ExpIndicatorService extends ListenerService {
 
 			$perc = min(1.0, $exp / $nextExp);
 			$expm = $player->getXpManager();
-			$expm->setXpAndProgress($level, $perc);
+			$expm->setXpAndProgress(min(Limits::INT16_MAX, $level), $perc);
 		}
 	}
 
