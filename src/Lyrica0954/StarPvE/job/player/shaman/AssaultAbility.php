@@ -20,7 +20,7 @@ class AssaultAbility extends Ability {
 
 	public function getDescription(): string {
 		return sprintf('§b発動時: §fすべての召喚済みの霊体を自分の方向に突撃させる。
-ダメージ: 霊体攻撃力 x 5');
+ダメージ: 霊体攻撃力 x §c5§f');
 	}
 
 	protected function init(): void {

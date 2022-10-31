@@ -228,6 +228,7 @@ class WaveController implements CooltimeAttachable, Listener {
 						$ev = new PlayerDeathOnGameEvent($entity);
 						$ev->call();
 						if (!$ev->isCancelled()) {
+							PlayerUtil::playSound($entity, "bubble.downinside", 0.3, 1.0);
 							$this->getGame()->broadcastMessage("§7{$entity->getName()} §fは モンスターに やられてしまった");
 							$entity->setGamemode(GameMode::fromString("3"));
 							$entity->sendTitle("死んでしまった...", "14秒後にリスポーンします");

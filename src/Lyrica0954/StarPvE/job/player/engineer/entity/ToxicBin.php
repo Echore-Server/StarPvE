@@ -7,7 +7,9 @@ namespace Lyrica0954\StarPvE\job\player\engineer\entity;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\utils\MolangUtil;
+use Lyrica0954\StarPvE\entity\EntityStateManager;
 use Lyrica0954\StarPvE\entity\MemoryEntity;
+use Lyrica0954\StarPvE\entity\state\ElectrificationState;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
@@ -25,7 +27,12 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\ProjectileHitEvent;
 use pocketmine\item\Durable;
 use pocketmine\math\RayTraceResult;
+use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\AddActorPacket;;
+
+use pocketmine\network\mcpe\protocol\SyncActorPropertyPacket;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
 use pocketmine\world\Position;
 
 class ToxicBin extends Throwable {
@@ -70,6 +77,7 @@ class ToxicBin extends Throwable {
 		$data->damage = $this->areaDamage;
 		$data->duration = $this->duration;
 		$data->damageCount = [];
+		$data->hit = [];
 
 		$entity = new MemoryEntity(Location::fromObject($vec, $this->getWorld()), null, 0, 0);
 		$entity->addTickHook(function (MemoryEntity $e, int $tickDiff = 1) use ($data): void {
@@ -103,11 +111,23 @@ class ToxicBin extends Throwable {
 
 				foreach (EntityUtil::getWithinRange($e->getPosition(), $data->radius, $e) as $target) {
 					if (MonsterData::isMonster($target)) {
+						$damage = $data->damage;
+						if (EntityStateManager::has($target->getId(), ElectrificationState::class)) {
+							if (!isset($data->hit[$target->getId()])) {
+								$pk = AddActorPacket::create(0, Entity::nextRuntimeId(), EntityIds::LIGHTNING_BOLT, $this->getPosition(), Vector3::zero(), 0, 0, 0, 0, [], [], new PropertySyncData([], []), []);
+								foreach ($this->getWorld()->getPlayers() as $player) {
+									$player->getNetworkSession()->sendDataPacket($pk);
+								}
+							}
+
+							$damage *= 2;
+						}
+						$data->hit[$target->getId()] = null;
 						$id = $target->getId();
 						$data->damageCount[$id] ?? $data->damageCount[$id] = 0;
 						$dmgCount = $data->damageCount[$id]++;
 
-						$source = new EntityDamageByEntityEvent($this->getOwningEntity() ?? $e, $target, EntityDamageEvent::CAUSE_MAGIC, $data->damage, [], 0.0);
+						$source = new EntityDamageByEntityEvent($this->getOwningEntity() ?? $e, $target, EntityDamageEvent::CAUSE_MAGIC, $damage, [], 0.0);
 						$source->setAttackCooldown(0);
 						$target->attack($source);
 

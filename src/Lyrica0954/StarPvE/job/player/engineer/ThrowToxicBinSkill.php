@@ -32,6 +32,7 @@ class ThrowToxicBinSkill extends ThrowEntitySkillBase {
 			sprintf('§b発動時:§f 視線の先に雷の雲が入った瓶を投げる。
 §b効果範囲§f: %1$s
 §b効果§f: 範囲内の敵に %2$s ダメージを与える雷の雲を %3$s 間展開する。
+敵が §d帯電 §f状態の時、 §c2§f 倍のダメージを与える。
 §b効果§f: 範囲内の敵の移動速度を §c15%%%%§f 低下させる。', $area, $damage, $duration);
 	}
 

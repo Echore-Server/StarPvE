@@ -23,6 +23,16 @@ class EntityStateManager {
 		$state->start();
 	}
 
+	public static function has(int $entityRuntimeId, string $stateClass): bool {
+		foreach (self::$list[$entityRuntimeId] ?? [] as $stateId => $state) {
+			if ($state::class === $stateClass) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static function end(int $entityRuntimeId, int $stateId): void {
 		self::$list[$entityRuntimeId][$stateId]?->close();
 

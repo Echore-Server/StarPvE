@@ -31,7 +31,7 @@ class IncreaseStatusIdentity extends AttachStatusIdentityBase {
 		$name = $this->getAttachName();
 		$statusName = StatusTranslate::translate($this->attachStatus);
 		$tr = MathUtil::translateAdd($this->add);
-		return "{$name}の{$statusName} §c{$tr[0]}{$tr[2]}§f";
+		return "{$name}の{$statusName} §c{$tr[1]}{$tr[2]}§f";
 	}
 
 	public function applyStatus(AbilityStatus $status): void {

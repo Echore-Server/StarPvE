@@ -54,20 +54,18 @@ class EntityUtil implements Listener {
 	 * @param Position $pos
 	 * @param float $range
 	 * 
-	 * @return Entity[]
+	 * @return Entity[]|Generator
 	 */
-	public static function getWithinRange(Position $pos, float $range, ?Entity $host = null): array {
-		$entities = [];
+	public static function getWithinRange(Position $pos, float $range, ?Entity $host = null): Generator {
 		foreach ($pos->getWorld()->getEntities() as $entity) { #array_filter とかよりforeachのほうが軽いらしい
 			if ($entity->isAlive()) {
 				if (VectorUtil::distanceToAABB($pos, $entity->getBoundingBox()) <= $range) {
 					if ($host !== $entity) {
-						$entities[] = $entity;
+						yield $entity;
 					}
 				}
 			}
 		}
-		return $entities;
 	}
 
 	/**
@@ -307,7 +305,7 @@ class EntityUtil implements Listener {
 	}
 
 	public static function getRandomWithinRange(Position $pos, float $range): ?Entity {
-		$entities = self::getWithinRange($pos, $range);
+		$entities = iterator_to_array(self::getWithinRange($pos, $range));
 		if (count($entities) > 0) {
 			return $entities[array_rand($entities)] ?? null;
 		} else {

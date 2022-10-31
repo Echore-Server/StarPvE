@@ -39,6 +39,7 @@ use pocketmine\math\Vector3;
 use pocketmine\math\VoxelRayTrace;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\particle\HugeExplodeParticle;
@@ -260,7 +261,7 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 
 			PlayerUtil::broadcastSound($this, "random.totem", 1.2, 0.7);
 
-			$pk = AddActorPacket::create(0, Entity::nextRuntimeId(), EntityIds::LIGHTNING_BOLT, $this->getPosition(), Vector3::zero(), 0, 0, 0, 0, [], [], []);
+			$pk = AddActorPacket::create(0, Entity::nextRuntimeId(), EntityIds::LIGHTNING_BOLT, $this->getPosition(), Vector3::zero(), 0, 0, 0, 0, [], [], new PropertySyncData([], []), []);
 			foreach ($this->getWorld()->getPlayers() as $player) {
 				$player->getNetworkSession()->sendDataPacket($pk);
 			}

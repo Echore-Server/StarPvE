@@ -143,7 +143,7 @@ class EnergyFieldSkill extends Skill implements Listener {
 
 				if ($job->getEnergy() >= 200 && $this->tick % 10 == 0) {
 					$entities = array_filter(
-						EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()),
+						iterator_to_array(EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get())),
 						function (Entity $item): bool {
 							return MonsterData::isMonster($item);
 						}

@@ -45,7 +45,7 @@ class Magician extends PlayerJob {
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					StatusTranslate::STATUS_DURATION,
-					2.75
+					4.0
 				))
 				->addIdentity(new PercentageStatusIdentity(
 					$this,
@@ -59,7 +59,7 @@ class Magician extends PlayerJob {
 					null,
 					AttachAbilityIdentityBase::ATTACH_SKILL,
 					StatusTranslate::STATUS_DURATION,
-					1.5
+					2.0
 				))
 		];
 	}

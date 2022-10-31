@@ -116,12 +116,12 @@ class EMPAbility extends Ability {
 
 						if ($this->signal->has(self::SIGNAL_SHOCKWAVE)) {
 							if (!MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-								$motion = EntityUtil::modifyKnockback($entity, $pos, 1.5, 0.0);
+								$motion = EntityUtil::modifyKnockback($entity, $pos, 2.5, 0.0);
 								TaskUtil::repeatingClosureLimit(function () use ($entity, $motion) {
 									$motion = $motion->multiply(0.5);
 									$entity->addMotion($motion->x, $motion->y, $motion->z);
 								}, 1, 6);
-								EntityUtil::slowdown($entity, 4 * 20, 0.2, SlowdownRunIds::get($this::class));
+								EntityUtil::slowdown($entity, 8 * 20, 0.2, SlowdownRunIds::get($this::class));
 							}
 						}
 					}

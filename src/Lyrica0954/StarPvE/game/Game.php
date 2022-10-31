@@ -9,6 +9,7 @@ use Lyrica0954\BossBar\BossBar;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\MagicParticle\SphereParticle;
+use Lyrica0954\MagicParticle\utils\MolangUtil;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\data\player\adapter\JobConfigAdapter;
 use Lyrica0954\StarPvE\data\player\PlayerDataCollector;
@@ -132,7 +133,7 @@ class Game implements CooltimeAttachable {
 		$this->shop->addContent(new PerkContent("パークの取得"));
 		$this->shop->addContent(new PrestageContent("プレステージの実行"));
 
-		$this->createCooltimeHandler("Game Tick", CooltimeHandler::BASE_SECOND, 1);
+		$this->createCooltimeHandler("Game Tick", CooltimeHandler::BASE_TICK, 1);
 
 		$this->lane1 = new Lane(Position::fromObject($stageInfo->getLane1(), $world), $this->centerPos);
 		$this->lane2 = new Lane(Position::fromObject($stageInfo->getLane2(), $world), $this->centerPos);
@@ -700,7 +701,8 @@ class Game implements CooltimeAttachable {
 		TaskUtil::delayed(new ClosureTask(function () {
 			foreach ($this->getPlayers() as $player) {
 				PlayerUtil::reset($player);
-				PlayerUtil::playSound($player, "mob.evocation_illager.prepare_wololo", 1.0, 1.0);
+				PlayerUtil::playSound($player, "elemconstruct.active", 0.2, 1.0);
+				PlayerUtil::playSound($player, "entity.zombie.converted_to_drowned", 0.365, 0.8);
 				GenericConfigAdapter::fetch($player)?->addInt(GenericConfigAdapter::GAME_LOST, 1);
 				GenericConfigAdapter::fetch($player)?->addInt(GenericConfigAdapter::PLAY_COUNT, 1);
 				JobConfigAdapter::fetchCurrent($player)?->addInt(JobConfigAdapter::GAME_LOST, 1);
@@ -851,16 +853,40 @@ class Game implements CooltimeAttachable {
 
 	public function cooltimeTick(CooltimeHandler $cooltimeHandler, int $remain): bool {
 		if ($cooltimeHandler->getId() === "Game Tick") {
+
+			$showJobParticle = function (Player $target): void {
+				return; // todo: 
+				$job = StarPvE::getInstance()->getJobManager()->getJob($target);
+
+				if ($job !== null) {
+					$molang = [];
+					$molang[] = MolangUtil::variable("lifetime", 0.055);
+					$molang[] = MolangUtil::variable("emitter_lifetime", 0.055);
+					$par = "starpve:job_" . strtolower($job->getName());
+
+					ParticleUtil::send(
+						new SingleParticle,
+						$this->world->getPlayers(),
+						Position::fromObject($target->getEyePos()->add(0, 1.5, 0), $target->getWorld()),
+						ParticleOption::spawnPacket($par, MolangUtil::encode($molang))
+					);
+				}
+			};
 			if ($this->hasMinPlayer()) {
 				if ($cooltimeHandler->getRemain() === $cooltimeHandler->getTime()) {
 					$this->log("§7Players Ready!");
 				}
 
-				foreach ($this->world->getPlayers() as $player) {
+
+				$sec = round($remain, 1);
+				foreach ($this->getPlayers() as $player) {
 					if ($cooltimeHandler->getRemain() === $cooltimeHandler->getTime()) {
 						PlayerUtil::playSound($player, "random.click", 0.75, 1.0);
 					}
-					$player->sendActionBarMessage("人数が揃いました！ 準備しています... (残り {$remain}秒 で開始)");
+
+					$showJobParticle($player);
+
+					$player->sendActionBarMessage("人数が揃いました！ 準備しています... (残り {$sec}秒 で開始)");
 				}
 				return true;
 			} else {
@@ -871,6 +897,11 @@ class Game implements CooltimeAttachable {
 					$this->broadcastActionBarMessage("プレイヤーを待っています... (残り {$count}人 で準備開始)");
 				}
 				$cooltimeHandler->reset();
+
+
+				foreach ($this->getPlayers() as $target) {
+					$showJobParticle($target);
+				}
 			}
 		} elseif ($cooltimeHandler->getId() === "Game Start Tick") {
 			foreach ($this->world->getPlayers() as $player) {

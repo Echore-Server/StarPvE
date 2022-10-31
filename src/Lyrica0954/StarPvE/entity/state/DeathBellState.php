@@ -27,7 +27,7 @@ class DeathBellState extends ListenerState {
 		$entity = $event->getPlayer();
 		if ($entity === $this->entity) {
 			PlayerUtil::broadcastSound($entity, "block.bell.hit", 0.25, 0.75);
-			foreach (EntityUtil::getWithinRange($entity->getPosition(), 8, $entity) as $target) {
+			foreach (EntityUtil::getWithinRange($entity->getPosition(), 10, $entity) as $target) {
 				if (MonsterData::isMonster($target)) {
 					$source = new EntityDamageByEntityEvent($entity, $target, EntityDamageEvent::CAUSE_MAGIC, $entity->getMaxHealth() * 2, [], 0.0);
 					$source->setAttackCooldown(0);

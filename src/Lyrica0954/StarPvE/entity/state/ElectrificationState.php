@@ -9,6 +9,7 @@ use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\StarPvE\entity\DamageCause;
 use Lyrica0954\StarPvE\entity\EntityState;
+use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
@@ -28,8 +29,8 @@ class ElectrificationState extends ListenerState {
 	public function onDamage(EntityDamageEvent $event) {
 		$entity = $event->getEntity();
 		if ($entity === $this->entity && $event->getCause() !== DamageCause::CAUSE_ELECTRIFICATION) {
-			$targets = array_filter(EntityUtil::getWithinRange($entity->getPosition(), $this->range, $entity), function (Entity $e): bool {
-				return $e instanceof LivingBase;
+			$targets = array_filter(iterator_to_array(EntityUtil::getWithinRange($entity->getPosition(), $this->range, $entity)), function (Entity $e): bool {
+				return MonsterData::isMonster($e);
 			});
 
 			for ($i = 0; $i < $this->count; $i++) {

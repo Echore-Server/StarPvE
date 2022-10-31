@@ -27,7 +27,7 @@ class SpawnSpiritSpell extends AbilitySpell implements Listener {
 
 	protected ?LineOption $line = null;
 
-	const LINE_FORMAT = "§e幽体の数§f: §c%d §f/ §7%d";
+	const LINE_FORMAT = "§e霊体の数§f: §c%d §f/ §7%d";
 
 	public function getName(): string {
 		return "霊体召喚";
@@ -35,7 +35,7 @@ class SpawnSpiritSpell extends AbilitySpell implements Listener {
 
 	public function getDescription(): string {
 		$damage = DescriptionTranslator::health($this->damage);
-		return sprintf('§b発動時: §f戦闘を助けてくれる幽体(オオカミ)を召喚する。
+		return sprintf('§b発動時: §f戦闘を助けてくれる霊体(オオカミ)を召喚する。
 体力: プレイヤーの最大体力と同じ。
 ダメージ: %1$s
 好物はパン。', $damage);

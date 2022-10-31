@@ -54,7 +54,7 @@ class LeapAbility extends Ability implements Listener {
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(3.0);
+		$this->damage = new AbilityStatus(4.0);
 		$this->area = new AbilityStatus(3.5);
 		$this->duration = new AbilityStatus(1.35 * 20);
 		$this->cooltime = new AbilityStatus(5 * 20 + 10);

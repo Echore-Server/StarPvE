@@ -167,7 +167,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 			if ($entity instanceof Player) {
 
 				$entities = array_filter(
-					EntityUtil::getWithinRange($entity->getPosition(), 6.0),
+					iterator_to_array(EntityUtil::getWithinRange($entity->getPosition(), 6.0)),
 					function (Entity $entity) {
 						return (MonsterData::isMonster($entity));
 					}

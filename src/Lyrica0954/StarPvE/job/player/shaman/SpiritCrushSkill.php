@@ -21,15 +21,15 @@ class SpiritCrushSkill extends Skill {
 	protected ?SpawnSpiritSpell $targetSpell = null;
 
 	public function getName(): string {
-		return "幽体クラッシュ";
+		return "スマッシュ";
 	}
 
 	public function getDescription(): string {
-		return sprintf('');
+		return sprintf('§b発動時: §f霊体が大きくジャンプして、着地地点に 霊体攻撃力 x §c20§f のダメージを与える。');
 	}
 
 	protected function init(): void {
-		$this->cooltime = new AbilityStatus(30);
+		$this->cooltime = new AbilityStatus(20 * 20);
 	}
 
 	protected function onActivate(): ActionResult {
@@ -65,7 +65,7 @@ class SpiritCrushSkill extends Skill {
 					if ($entity instanceof SpiritEntity) {
 						foreach (EntityUtil::getWithinRange($entity->getPosition(), 3, $entity) as $target) {
 							if (MonsterData::isMonster($target)) {
-								$source = new EntityDamageByEntityEvent($entity, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $entity->getAttackDamage() * 10, [], 0);
+								$source = new EntityDamageByEntityEvent($entity, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $entity->getAttackDamage() * 20, [], 0);
 								$target->attack($source);
 								$target->setMotion(new Vector3(0, 0.7, 0));
 							}

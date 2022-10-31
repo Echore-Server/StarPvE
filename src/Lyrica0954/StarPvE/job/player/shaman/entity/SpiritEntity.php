@@ -71,17 +71,21 @@ class SpiritEntity extends Wolf {
 
 			$player->getInventory()->setItemInHand($item);
 
-			$this->healthMultiplier += 0.6;
+			$this->healthMultiplier += 0.75;
 			$baseHealth = $this->getOwningEntity() instanceof Entity ? $this->getOwningEntity()->getMaxHealth() : $this->originalHealth;
 			$this->setMaxHealth((int) ($baseHealth * $this->healthMultiplier));
 
 			$this->setScale(1.0 * (1.0 + $this->healthMultiplier / 12));
 		}
 
-		if ($item->getId() === VanillaItems::EMERALD()->getId() && $this->emeraldGiven < 40) {
+		if ($item->getId() === VanillaItems::EMERALD()->getId() && $this->emeraldGiven < 60) {
 			$this->emeraldGiven++;
-			if ($this->emeraldGiven >= 40) {
+			if ($this->emeraldGiven === 30) {
 				BuffUtil::add($this, BuffUtil::BUFF_DMG_REDUCTION_PERC, 0.4);
+				PlayerUtil::broadcastSound($this, "armor.equip_netherite", 0.2, 1.0);
+				PlayerUtil::broadcastSound($this, "beacon.activate", 0.6, 1.0);
+			} elseif ($this->emeraldGiven === 60) {
+				BuffUtil::add($this, BuffUtil::BUFF_ATK_PERCENTAGE, 0.4);
 				PlayerUtil::broadcastSound($this, "armor.equip_netherite", 0.2, 1.0);
 				PlayerUtil::broadcastSound($this, "beacon.activate", 0.6, 1.0);
 			} else {
@@ -96,14 +100,29 @@ class SpiritEntity extends Wolf {
 
 
 		$ownerName = $this->getOwningEntity()?->getNameTag() ?? "None";
-		$powerStr = "§a{$this->emeraldGiven} §f/ §740 Eme";
-		if ($this->emeraldGiven >= 40) {
-			$powerStr = "§d-40% dmg";
+		$powerStr = "§a{$this->emeraldGiven}";
+		if ($this->emeraldGiven >= 30) {
+			$powerStr .= " §d-40% IncDmg";
+			if ($this->emeraldGiven >= 60) {
+				$powerStr .= ", §d+40% OutDmg";
+			} else {
+				$powerStr .= " §f/ §760 Eme";
+			}
+		} else {
+			$powerStr .= " §f/ §730 Eme";
 		}
-		$tag = "{$powerStr} §8| §7{$ownerName}";
+		$tag = "{$powerStr}";
 		$this->setNameTag($tag);
 
 		return true;
+	}
+
+	public function attack(EntityDamageEvent $source): void {
+		if ($source instanceof EntityDamageByEntityEvent && $source->getDamager() instanceof Player) {
+			$source->cancel();
+		}
+
+		parent::attack($source);
 	}
 
 	public function checkTarget(Entity $entity, float $range): bool {
