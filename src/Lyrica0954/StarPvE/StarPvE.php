@@ -353,6 +353,14 @@ final class StarPvE extends PluginBase {
 			)
 		));
 
+		$this->rankingService->add(Rankings::generic(
+			$this->playerDataCenter,
+			new Vector3(41.5, 55, 12.0),
+			$rankingFormat,
+			"§2§l試合勝利数ランキング§r",
+			GenericConfigAdapter::GAME_WON
+		));
+
 		$this->log("Starting Service Session...");
 		$session->start();
 

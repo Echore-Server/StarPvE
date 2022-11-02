@@ -26,18 +26,24 @@ class PlayerConfig {
 	private ItemConfigAdapter $bag;
 	private ItemConfigAdapter $artifact;
 
+	private PlayerConfigAdapter $metadata;
+
 	private string $xuid;
 
-	/**
-	 * @param Config $generic
-	 * @param Config[] $jobs
-	 * @param string $xuid
-	 */
-	public function __construct(Config $generic, Config $setting, Config $bag, Config $artifact, array $jobs, string $xuid) {
+	public function __construct(
+		Config $generic,
+		Config $setting,
+		Config $bag,
+		Config $artifact,
+		Config $metadata,
+		array $jobs,
+		string $xuid
+	) {
 		$this->generic = new GenericConfigAdapter($xuid, $generic);
 		$this->setting = new PlayerConfigAdapter($xuid, $setting);
 		$this->bag = new ItemConfigAdapter($xuid, $bag);
 		$this->artifact = new ItemConfigAdapter($xuid, $artifact, 6);
+		$this->metadata = new PlayerConfigAdapter($xuid, $metadata);
 		$this->jobs = [];
 		$this->xuid = $xuid;
 		foreach ($jobs as $name => $jobConfig) {
@@ -74,5 +80,14 @@ class PlayerConfig {
 
 	public function addJob(string $name, Config $job): void {
 		$this->jobs[strtolower($name)] = new JobConfigAdapter($this->xuid, $job);
+	}
+
+	/**
+	 * Get the value of metadata
+	 *
+	 * @return PlayerConfigAdapter
+	 */
+	public function getMetadata(): PlayerConfigAdapter {
+		return $this->metadata;
 	}
 }

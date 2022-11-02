@@ -40,11 +40,17 @@ class PartyManager {
 		$this->inviteExpireTask = TaskUtil::repeatingClosure(function () {
 			foreach ($this->invites as $k1 => $senders) {
 				foreach ($senders as $k2 => $invite) {
+					/**
+					 * @var PartyInvite $invite
+					 */
 					$tick = Server::getInstance()->getTick();
 					if ($tick - $invite->getTick() > (2 * 60 * 20)) {
 						$invite->expired = true;
 						unset($this->invites[$k1][$k2]);
-						$invite->getInviter()->sendMessage(Messanger::talk("Party", "§c{$invite->getVictim()->getName()} への招待が無効になりました (2分経過)"));
+
+						if ($invite->getInviter()->isOnline()) {
+							$invite->getInviter()->sendMessage(Messanger::talk("Party", "§c{$invite->getVictim()->getName()} への招待が無効になりました (2分経過)"));
+						}
 					}
 				}
 			}
@@ -73,6 +79,10 @@ class PartyManager {
 		$party = $invite->getParty();
 		$vxuid = $victim->getXuid();
 		$ixuid = $inviter->getXuid();
+
+		if (!$victim->isOnline() || !$inviter->isOnline()) {
+			return false;
+		}
 
 		$this->invites[$vxuid] ?? $this->invites[$vxuid] = [];
 		$ainvite = $this->invites[$vxuid][$ixuid] ?? null;

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\monster;
 
+use Lyrica0954\MagicParticle\CircleParticle;
+use Lyrica0954\MagicParticle\CoveredParticle;
+use Lyrica0954\MagicParticle\PartDelayedParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\fightstyle\MeleeStyle;
@@ -43,6 +46,7 @@ use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\particle\HugeExplodeParticle;
+use pocketmine\world\Position;
 
 class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 	use HealthBarEntity;
@@ -125,7 +129,7 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 				PlayerUtil::broadcastSound($entity->getPosition(), "random.explode", 0.7, 0.7);
 
 				foreach (EntityUtil::getWithinRange($entity->getPosition(), 4) as $e) {
-					if (MonsterData::isActiveAlly($entity)) {
+					if (MonsterData::isActiveAlly($e)) {
 						$source = new EntityDamageEvent($e, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, 5.0);
 						$source->setAttackCooldown(0);
 						$e->attack($source);
@@ -197,16 +201,8 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 				}
 
 
-				$playerHit = false;
 
-				foreach (EntityUtil::getEntitiesInsideVector($entity->getPosition(), new Vector3(1.2, 1.2, 1.2)) as $entity) {
-					if (MonsterData::isActiveAlly($entity)) {
-						$playerHit = true;
-						break;
-					}
-				}
-
-				$hit = ($hitResult instanceof RayTraceResult && $blockHit instanceof Block) || $playerHit;
+				$hit = ($hitResult instanceof RayTraceResult && $blockHit instanceof Block);
 
 				if ($hit && $age >= 14) {
 					($onHit)($entity, $blockHit, $hitResult);
@@ -241,17 +237,29 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 			}
 		}
 
-		if ($this->missileTick >= 200) {
-			$this->fireMissile(1);
+		if ($this->missileTick >= 300) {
+			if ($this->missileTick >= 340) {
+				$this->setMotion(new Vector3(0, 0, 0));
+				$this->fireMissile(1);
 
-			$count = 10;
-			if ($this->awake) {
-				$count = 60;
+				$count = 10;
+				if ($this->awake) {
+					$count = 60;
+				}
+
+				if ($this->missileTick >= (340 + $count)) {
+					$this->missileTick = 0;
+				}
+			} else {
+				$this->addMotion(0, 0.1, 0);
 			}
 
-			if ($this->missileTick >= (200 + $count)) {
-				$this->missileTick = 0;
-			}
+			ParticleUtil::send(
+				new SingleParticle,
+				$this->getWorld()->getPlayers(),
+				$this->getPosition(),
+				ParticleOption::spawnPacket("starpve:jetpack_flame_emitter")
+			);
 		}
 
 		if ($this->getHealth() <= $this->getMaxHealth() * 0.25 && !$this->awake) {
@@ -268,22 +276,48 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 			$this->awake = true;
 		}
 
-		$period = 10;
-		$amount = 1;
-		if ($this->awake) {
-			$period = 1;
-			$amount = 1.2;
-		}
 
-		if ($this->healTick >= $period) {
-			$this->healTick = 0;
-			#$source = new EntityRegainHealthEvent($this, $amount, EntityRegainHealthEvent::CAUSE_CUSTOM);
-			#$this->heal($source);
+		if ($this->healTick >= 120) {
+			if ($this->healTick < 125) {
+				$particle = new CircleParticle(3.7, 12);
+				ParticleUtil::send(
+					$particle,
+					$this->getWorld()->getPlayers(),
+					Position::fromObject($this->getPosition()->add(0, 0.7, 0), $this->getWorld()),
+					ParticleOption::spawnPacket("minecraft:basic_smoke_particle")
+				);
+
+				PlayerUtil::broadcastSound($this, "random.fizz", 1.5, 0.5);
+			}
+
+			if ($this->healTick >= 150) {
+				$this->healTick = 0;
+				$particle = new PartDelayedParticle(new CoveredParticle(new CircleParticle(3.7, 12), Position::fromObject($this->getPosition()->add(0, 0.7, 0), $this->getWorld())), 1);
+				$particle->addDrawHook(function (Vector3 $vec): void {
+					$pos = Position::fromObject($vec, $this->getWorld());
+					foreach (EntityUtil::getWithinRange($pos, 2.0, $this) as $entity) {
+						if (MonsterData::isActiveAlly($entity)) {
+							$source = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 12, []);
+							EntityUtil::attackEntity($source, 2.25, 1.25);
+						}
+					}
+
+					PlayerUtil::broadcastSound($pos, "balloon.pop", 0.45, 0.4);
+				});
+
+				ParticleUtil::send(
+					$particle,
+					$this->getWorld()->getPlayers(),
+					null,
+					ParticleOption::spawnPacket("minecraft:falling_dust_scaffolding_particle")
+				);
+			}
 		}
 	}
 
 	public function hitEntity(Entity $entity, float $range): void {
 		if ($entity instanceof Player) {
+			$entity->setOnFire(4);
 			PlayerUtil::playSound($entity, "random.break", 0.3, 0.75);
 		}
 	}

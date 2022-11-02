@@ -26,7 +26,7 @@ class SpellListForm extends AdvancedForm {
 			}
 
 			$buttons[] = [
-				"text" => "§l§b{$spell->getName()}"
+				"text" => "§l§b{$spell->getName()}\n§r§8クリックで詳細を表示"
 			];
 		}
 

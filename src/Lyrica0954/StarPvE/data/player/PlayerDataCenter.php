@@ -26,12 +26,14 @@ class PlayerDataCenter extends DataCenter implements Listener {
 	private array $settingDefault;
 	private array $bagDefault;
 
+	private array $metadataDefault;
+
 	/**
 	 * @var array<string, PlayerConfig>
 	 */
 	protected array $data;
 
-	public function __construct(string $folder) {
+	public function __construct(protected string $folder) {
 		self::$instance = $this;
 		$this->data = [];
 
@@ -45,8 +47,6 @@ class PlayerDataCenter extends DataCenter implements Listener {
 			GenericConfigAdapter::TOTAL_EXP => 0,
 			GenericConfigAdapter::EXP => 0,
 			GenericConfigAdapter::NEXT_EXP => GenericConfigAdapter::getExpToCompleteLevel(1),
-			GenericConfigAdapter::PERMS => [],
-			GenericConfigAdapter::RANKS => [],
 			GenericConfigAdapter::WARN => 0
 		];
 
@@ -68,6 +68,11 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		];
 
 		$this->bagDefault = [];
+
+		$this->metadataDefault = [
+			MetadataVariables::PERMS => [],
+			MetadataVariables::RANKS => []
+		];
 
 		$this->load($folder);
 		StarPvE::getInstance()->getServer()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
@@ -100,6 +105,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 			$setting = new Config("{$pdFolder}/setting.yml", Config::YAML, $this->settingDefault);
 			$bag = new Config("{$pdFolder}/bag.yml", Config::YAML, $this->bagDefault);
 			$artifact = new Config("{$pdFolder}/artifact.yml", Config::YAML, $this->bagDefault);
+			$metadata = new Config("{$pdFolder}/metadata.yml", Config::YAML, $this->metadataDefault);
 			$jobs = [];
 			foreach (glob($pdFolder . '/job/*.yml') as $jobFile) {
 				$jobs[pathinfo(basename($jobFile), PATHINFO_FILENAME)] = new Config($jobFile, Config::YAML);
@@ -107,7 +113,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 			#print_r($jobs);
 			$xuid = basename($pdFolder);
 			if (strlen($xuid) == 16) {
-				$this->data[$xuid] = new PlayerConfig($generic, $setting, $bag, $artifact, $jobs, $xuid);
+				$this->data[$xuid] = new PlayerConfig($generic, $setting, $bag, $artifact, $metadata, $jobs, $xuid);
 				$count++;
 			} else {
 				$this->log("§eData Corrupt: {$xuid}");
@@ -151,6 +157,10 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		}
 	}
 
+	public function getFile(string $xuid, string $entryName): string {
+		return $this->folder . "player_data/{$xuid}/{$entryName}.yml";
+	}
+
 	public function createGenericConfig(Player $player): Config {
 		$info = [
 			GenericConfigAdapter::USERNAME => $player->getName(),
@@ -158,8 +168,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 			GenericConfigAdapter::LAST_PLAYED => $player->getLastPlayed(),
 		];
 		$default = array_merge($info, $this->genericDefault);
-		$dataFolder = StarPvE::getInstance()->getDataFolder();
-		$file = $dataFolder . "player_data/{$player->getXuid()}/generic.yml";
+		$file = $this->getFile($player->getXuid(), "generic");
 		$generic = new Config($file, Config::YAML, $default);
 		return $generic;
 	}
@@ -169,8 +178,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 			JobConfigAdapter::NAME => $name
 		];
 		$default = array_merge($info, $this->jobDefault);
-		$dataFolder = StarPvE::getInstance()->getDataFolder();
-		$file = $dataFolder . "player_data/{$player->getXuid()}/job/{$name}.yml";
+		$file = $this->getFile($player->getXuid(), "job/{$name}");
 		$job = new Config($file, Config::YAML, $default);
 		return $job;
 	}
@@ -181,8 +189,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		];
 
 		$default = array_merge($info, $this->settingDefault);
-		$dataFolder = StarPvE::getInstance()->getDataFolder();
-		$file = $dataFolder . "player_data/{$player->getXuid()}/setting.yml";
+		$file = $this->getFile($player->getXuid(), "setting");
 		$setting = new Config($file, Config::YAML, $default);
 		return $setting;
 	}
@@ -193,8 +200,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		];
 
 		$default = array_merge($info, $this->bagDefault);
-		$dataFolder = StarPvE::getInstance()->getDataFolder();
-		$file = $dataFolder . "player_data/{$player->getXuid()}/bag.yml";
+		$file = $this->getFile($player->getXuid(), "bag");
 		$setting = new Config($file, Config::YAML, $default);
 		return $setting;
 	}
@@ -205,10 +211,20 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		];
 
 		$default = array_merge($info, $this->bagDefault);
-		$dataFolder = StarPvE::getInstance()->getDataFolder();
-		$file = $dataFolder . "player_data/{$player->getXuid()}/artifact.yml";
+		$file = $this->getFile($player->getXuid(), "artifact");
 		$setting = new Config($file, Config::YAML, $default);
 		return $setting;
+	}
+
+	public function createMetadataConfig(Player $player) {
+		$info = [
+			"Username" => $player->getName()
+		];
+
+		$default = array_merge($info, $this->bagDefault);
+		$file = $this->getFile($player->getXuid(), "metadata");
+		$meta = new Config($file, Config::YAML, $default);
+		return $meta;
 	}
 
 
@@ -217,6 +233,14 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		@mkdir($dataFolder . "player_data/{$player->getXuid()}/job", 0777, true);
 
 		$generic = $this->createGenericConfig($player);
-		$this->data[$player->getXuid()] = new PlayerConfig($generic, $this->createSettingConfig($player), $this->createBagConfig($player), $this->createArtifactConfig($player), [], $player->getXuid());
+		$this->data[$player->getXuid()] = new PlayerConfig(
+			$generic,
+			$this->createSettingConfig($player),
+			$this->createBagConfig($player),
+			$this->createArtifactConfig($player),
+			$this->createMetadataConfig($player),
+			[],
+			$player->getXuid()
+		);
 	}
 }

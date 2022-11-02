@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\job\player\engineer\entity;
 
+use Lyrica0954\MagicParticle\ParticleOption;
+use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\MagicParticle\utils\MolangUtil;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\entity\projectile\Throwable;
@@ -41,6 +45,16 @@ class GrenadeEntity extends Throwable {
 				EntityUtil::immobile($entity, 3 * 20);
 			}
 		}
+
+		$molang = [];
+		$molang[] = MolangUtil::variable("size", $this->range);
+
+		ParticleUtil::send(
+			new SingleParticle,
+			$this->getWorld()->getPlayers(),
+			$this->getPosition(),
+			ParticleOption::spawnPacket("starpve:red_explosion", MolangUtil::encode($molang))
+		);
 
 		$this->flagForDespawn();
 	}

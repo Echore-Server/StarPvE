@@ -12,11 +12,16 @@ use Lyrica0954\StarPvE\data\condition\FalseCondition;
 use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
+use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AlwaysAbility;
+use Lyrica0954\StarPvE\job\identity\ability\AttachAbilityIdentityBase;
+use Lyrica0954\StarPvE\job\identity\ability\PercentageStatusIdentity;
+use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
 use Lyrica0954\StarPvE\job\player\swordman\ForceFieldSkill;
 use Lyrica0954\StarPvE\job\Skill;
+use Lyrica0954\StarPvE\job\StatusTranslate;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
@@ -68,5 +73,27 @@ class Shaman extends PlayerJob implements Listener, AlwaysAbility {
 
 	protected function init(): void {
 		$this->addSpell(new SpawnSpiritSpell($this));
+
+		$this->defaultSpells = [
+			(new IdentitySpell($this, "クローン"))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SPELL,
+					StatusTranslate::STATUS_COOLTIME,
+					0.2
+				))
+				->addIdentity(new AddMaxHealthArgIdentity(
+					null,
+					-10
+				))
+				->addIdentity(new PercentageStatusIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SPELL,
+					StatusTranslate::STATUS_AMOUNT,
+					1.4
+				))
+		];
 	}
 }

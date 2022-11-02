@@ -43,8 +43,6 @@ class GenericConfigAdapter extends PlayerConfigAdapter {
 	const FIRST_PLAYED = "FirstPlayed";
 	const LAST_PLAYED = "LastPlayed";
 
-	const PERMS = "Perms";
-	const RANKS = "Ranks";
 	const WARN = "Warn";
 
 	public function addExp(float $amount): mixed {
@@ -83,7 +81,7 @@ class GenericConfigAdapter extends PlayerConfigAdapter {
 
 		$current = $this->addInt(self::WARN, $amount);
 		if ($current >= 4) {
-			BanAPI::execute($player, ExecuteBanOption::now("警告が最大レベルに達したため", true));
+			BanAPI::execute($player, ExecuteBanOption::now("Warn System", "警告が最大レベルに達したため", true));
 			$player->kick("Custom disconnect");
 		} elseif ($amount > 0) {
 			$player->sendMessage("

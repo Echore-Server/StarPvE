@@ -41,7 +41,7 @@ class MonsterData {
 	}
 
 	public static function isActiveAlly(Entity $entity): bool {
-		return self::isAlly($entity) && ($entity instanceof Player ? ($entity->isSurvival(true) || $entity->isAdventure(true)) : true);
+		return self::isAlly($entity) && ($entity instanceof Player ? ($entity->hasFiniteResources()) : true);
 	}
 
 	public static function equal(Entity $entity, string $class) {

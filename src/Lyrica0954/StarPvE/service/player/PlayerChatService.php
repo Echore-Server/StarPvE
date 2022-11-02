@@ -8,6 +8,7 @@ use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\game\player\GamePlayer;
 use Lyrica0954\StarPvE\service\ListenerService;
 use Lyrica0954\StarPvE\StarPvE;
+use pocketmine\console\ConsoleCommandSender;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\network\mcpe\protocol\ToastRequestPacket;
@@ -27,7 +28,16 @@ class PlayerChatService extends ListenerService {
 				$isForceGlobal = str_starts_with($event->getMessage(), "!");
 				if ($game !== null && !$isForceGlobal) {
 					$channel = "ゲーム";
+
+					$recipients = $event->getRecipients();
 					$event->setRecipients($game->getWorld()->getPlayers());
+
+					foreach ($recipients as $sender) {
+						if ($sender instanceof ConsoleCommandSender) {
+							$event->setRecipients(array_merge($event->getRecipients(), [$sender]));
+							break;
+						}
+					}
 				} else {
 					$channel = "グローバル";
 				}

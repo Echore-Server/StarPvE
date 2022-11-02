@@ -7,8 +7,11 @@ namespace Lyrica0954\StarPvE;
 use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\SmartEntity\utils\MetadataUtil;
 use Lyrica0954\StarPvE\command\CommandLoader;
+use Lyrica0954\StarPvE\data\adapter\PlayerConfigAdapter;
 use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
+use Lyrica0954\StarPvE\data\player\MetadataVariables;
 use Lyrica0954\StarPvE\entity\Ghost;
 use Lyrica0954\StarPvE\entity\JobShop;
 use Lyrica0954\StarPvE\form\GameSelectForm;
@@ -213,13 +216,13 @@ class EventListener implements Listener {
 			$jobShop->spawnToAll();
 		}
 
-		$adapter = GenericConfigAdapter::fetch($player);
-		if ($adapter instanceof GenericConfigAdapter) {
-			foreach ($adapter->getConfig()->get(GenericConfigAdapter::PERMS, []) as $perm) {
+		$adapter = MetadataVariables::fetch($player);
+		if ($adapter instanceof PlayerConfigAdapter) {
+			foreach ($adapter->getConfig()->get(MetadataVariables::PERMS, []) as $perm) {
 				$player->setBasePermission($perm, true);
 			}
 
-			foreach ($adapter->getConfig()->get(GenericConfigAdapter::RANKS, []) as $id) {
+			foreach ($adapter->getConfig()->get(MetadataVariables::RANKS, []) as $id) {
 				$rank = RankManager::getInstance()->get($id);
 				if ($rank !== null) {
 					RankManager::getInstance()->add($player, $rank);
@@ -230,11 +233,14 @@ class EventListener implements Listener {
 
 			RankManager::getInstance()->apply($player);
 
-			TaskUtil::delayed(new ClosureTask(function () use ($adapter, $player) {
-				if ($player->isOnline()) {
-					$adapter->warn($player, 0);
-				}
-			}), 30);
+			$genericAdapter = GenericConfigAdapter::fetch($player);
+			if ($genericAdapter instanceof GenericConfigAdapter) {
+				TaskUtil::delayed(new ClosureTask(function () use ($genericAdapter, $player) {
+					if ($player->isOnline()) {
+						$genericAdapter->warn($player, 0);
+					}
+				}), 30);
+			}
 		}
 	}
 
