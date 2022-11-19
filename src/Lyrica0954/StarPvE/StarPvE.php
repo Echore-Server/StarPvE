@@ -41,8 +41,10 @@ use Lyrica0954\StarPvE\job\player\engineer\Engineer;
 use Lyrica0954\StarPvE\job\player\engineer\entity\GravityBall;
 use Lyrica0954\StarPvE\job\player\engineer\entity\ShieldBall;
 use Lyrica0954\StarPvE\job\player\fighter\Fighter;
+use Lyrica0954\StarPvE\job\player\hawk\Hawk;
 use Lyrica0954\StarPvE\job\player\healer\Healer;
 use Lyrica0954\StarPvE\job\player\magician\Magician;
+use Lyrica0954\StarPvE\job\player\priest\Priest;
 use Lyrica0954\StarPvE\job\player\shaman\Shaman;
 use Lyrica0954\StarPvE\job\player\swordman\Swordman;
 use Lyrica0954\StarPvE\job\player\tank\Tank;
@@ -263,7 +265,7 @@ final class StarPvE extends PluginBase {
 		$wm->loadWorld("hub", true);
 		$this->map = $wm->getWorldByName("map");
 		$this->hub = $wm->getWorldByName("hub");
-		$this->hub->setTime(7000);
+		$this->hub->setTime(World::TIME_MIDNIGHT);
 		$this->hub->stopTime();
 
 		$this->log("Registering Jobs...");
@@ -273,10 +275,12 @@ final class StarPvE extends PluginBase {
 		$this->jobManager->register(new Engineer(null));
 		$this->jobManager->register(new Healer(null));
 		$this->jobManager->register(new Shaman(null));
+		$this->jobManager->register(new Hawk(null));
 		$this->jobManager->register(new Archer(null));
 		$this->jobManager->register(new Tank(null));
 		$this->jobManager->register(new Castle(null));
 		$this->jobManager->register(new Warrior(null));
+		$this->jobManager->register(new Priest(null));
 
 
 		$this->log("Starting Player Data Center...");

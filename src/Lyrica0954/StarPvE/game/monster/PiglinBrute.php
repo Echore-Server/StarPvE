@@ -55,7 +55,7 @@ class PiglinBrute extends FightingEntity implements Hostile, ProjectileSource {
 		return EntityIds::PIGLIN_BRUTE;
 	}
 
-	protected float $reach = 0.4;
+	protected float $reach = 0.8;
 
 	protected int $effectTick = 0;
 

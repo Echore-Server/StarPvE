@@ -62,7 +62,7 @@ class QuakeAbility extends Ability {
 			$this->player->attack($source);
 		}
 
-		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::SPEED(), (int) $this->duration->get(), 2));
+		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::SPEED(), (int) $this->duration->get(), 1));
 		$this->player->getEffects()->add(new EffectInstance(VanillaEffects::STRENGTH(), (int) $this->duration->get(), 1));
 
 		return ActionResult::SUCCEEDED();

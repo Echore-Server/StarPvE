@@ -11,6 +11,7 @@ use Lyrica0954\SmartEntity\entity\Hostile;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
 use Lyrica0954\SmartEntity\utils\VectorUtil;
+use Lyrica0954\StarPvE\entity\MotionResistance;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
@@ -27,17 +28,21 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
 use pocketmine\player\Player;
 
-class Piglin extends FightingEntity implements Hostile, ProjectileSource {
+class Piglin extends FightingEntity implements Hostile, ProjectileSource, MotionResistance {
 	use HealthBarEntity;
 
 	public static function getNetworkTypeId(): string {
 		return EntityIds::PIGLIN;
 	}
 
-	protected float $reach = 1.2;
+	protected float $reach = 2.4;
 
 	public function getFollowRange(): float {
 		return 50;
+	}
+
+	public function getMotionResistance(): float {
+		return 1.2;
 	}
 
 	public function getName(): string {

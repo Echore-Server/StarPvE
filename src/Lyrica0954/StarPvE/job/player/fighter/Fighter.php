@@ -90,12 +90,13 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					StatusTranslate::STATUS_COOLTIME,
-					1.25
+					1.3
 				))
 				->addIdentity(new AttackPercentageArgIdentity(
 					null,
 					0.16
-				))
+				)),
+			(new StompSpell($this))
 		];
 	}
 
@@ -117,10 +118,10 @@ class Fighter extends PlayerJob implements AlwaysAbility, Listener {
 	public function getAlAbilityDescription(): string {
 		return
 			"発動条件: 敵を殴った際に発動
-発動時: コンボが§c1§f増える。
+発動時: コンボが §c1§f 増える。
 コンボが一定数たまると、攻撃速度が最大6段階まであがる。
-最高レベルに達した状態で攻撃した場合、§c3§fコンボに一回小さな爆発を起こす。
-小さな爆発は半径§c1.5m§f以内の敵に剣での攻撃と同じダメージを与える。
+最高レベルに達した状態で攻撃した場合、§c3§f コンボに一回小さな爆発を起こす。
+小さな爆発は半径 §c1.5m§f 以内の敵に剣での攻撃と同じダメージを与える。
 コンボを§c4秒§f以内につなげないと、コンボがリセットされてしまうので注意。
 
 また、最大レベルの時は受けるダメージが §c20%%§f 減少する。

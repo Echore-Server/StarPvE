@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Lyrica0954\StarPvE\game\player;
 
+use Lyrica0954\MagicParticle\ParticleOption;
+use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\MagicParticle\utils\MolangUtil;
 use Lyrica0954\StarPvE\form\PerkIdentitiesForm;
 use Lyrica0954\StarPvE\form\SelectSpellForm;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\player\equipment\ArmorEquipment;
 use Lyrica0954\StarPvE\game\player\equipment\SwordEquipment;
+use Lyrica0954\StarPvE\game\shop\content\PerkContent;
+use Lyrica0954\StarPvE\game\shop\content\PrestageContent;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\job\IdentitySpell;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -17,11 +22,16 @@ use Lyrica0954\StarPvE\player\party\Party;
 use Lyrica0954\StarPvE\player\party\PartyManager;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\ArmorSet;
+use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
+use Lyrica0954\StarPvE\utils\TaskUtil;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
+use pocketmine\scheduler\TaskHandler;
+use pocketmine\world\particle\FloatingTextParticle;
+use pocketmine\world\Position;
 
 class GamePlayer {
 
@@ -47,6 +57,8 @@ class GamePlayer {
 	 */
 	protected array $masterySpells;
 
+	protected ?TaskHandler $task;
+
 	public function __construct(Player $player) {
 		$this->player = $player;
 		$this->game = null;
@@ -62,6 +74,68 @@ class GamePlayer {
 
 		$this->perkAvailable = 0;
 		$this->masteryAvailable = 0;
+
+		$memory = new \stdClass;
+		$memory->particle = new FloatingTextParticle("");
+		$memory->lastExclamation = false;
+
+		$this->task = TaskUtil::repeatingClosure(function () use ($memory) {
+			if ($this->game instanceof Game) {
+				$shop = $this->game->getShop();
+
+				$particle = $memory->particle;
+
+				/**
+				 * @var FloatingTextParticle $particle
+				 */
+
+				$exclamation = false;
+				$message = "";
+
+				foreach ($shop->getContents() as $content) {
+					if ($content instanceof PerkContent) {
+						if ($content->canBuy($this->player)) {
+							$exclamation = true;
+							$message = "§eパークが購入できます";
+							break;
+						}
+					}
+
+					if ($content instanceof PrestageContent) {
+						if ($content->canBuy($this->player)) {
+							$exclamation = true;
+							$message = "§eプレステージが購入できます";
+							break;
+						}
+					}
+				}
+				$pos = $this->game->getVillager()?->getEyePos()?->add(0, 1.25, 0);
+
+				if ($exclamation) {
+					$molang = [];
+					$molang[] = MolangUtil::variable("lifetime", 4);
+
+					if ($pos !== null) {
+						ParticleUtil::send(
+							new SingleParticle,
+							[$this->player],
+							Position::fromObject($pos->add(0, 1, 0), $this->game->getWorld()),
+							ParticleOption::spawnPacket("starpve:exclamation_mark", MolangUtil::encode($molang))
+						);
+					}
+					$particle->setTitle($message);
+					$particle->setInvisible(false);
+				} else {
+					$particle->setInvisible(true);
+				}
+
+				if ($memory->lastExclamation !== $exclamation) {
+					$this->game->getWorld()->addParticle($pos, $particle, [$this->player]);
+				}
+
+				$memory->lastExclamation = $exclamation;
+			}
+		}, 80);
 	}
 
 	public function getPerkAvailable(): int {
@@ -192,7 +266,7 @@ class GamePlayer {
 
 	public function leaveGameInternal() {
 		$this->setGame(null);
-		$this->resetAll();
+		$this->close();
 	}
 
 	public function leaveGame() {
@@ -202,7 +276,8 @@ class GamePlayer {
 		StarPvE::getInstance()->getJobManager()->setJob($this->player, null);
 
 		$this->player->setGamemode(GameMode::ADVENTURE());
-		$this->leaveGameInternal();
+		$this->setGame(null);
+		$this->resetAll();
 	}
 
 	public function setGameFromId(?string $id) {
@@ -236,5 +311,10 @@ class GamePlayer {
 		$this->masteryAvailable = $masteryAvailable;
 
 		return $this;
+	}
+
+	public function close(): void {
+		$this->resetAll();
+		$this->task?->cancel();
 	}
 }

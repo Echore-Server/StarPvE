@@ -14,12 +14,14 @@ use Lyrica0954\StarPvE\data\player\adapter\GenericConfigAdapter;
 use Lyrica0954\StarPvE\data\player\MetadataVariables;
 use Lyrica0954\StarPvE\entity\Ghost;
 use Lyrica0954\StarPvE\entity\JobShop;
+use Lyrica0954\StarPvE\entity\MotionResistance;
 use Lyrica0954\StarPvE\form\GameSelectForm;
 use Lyrica0954\StarPvE\player\rank\RankManager;
 use Lyrica0954\StarPvE\utils\Messanger;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
+use pocketmine\block\PressurePlate;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\entity\Location;
@@ -249,7 +251,7 @@ class EventListener implements Listener {
 
 		$pos = $player->getPosition()->floor();
 		$block = $player->getWorld()->getBlockAt($pos->x, $pos->y, $pos->z);
-		if ($block->getId() === 147) {
+		if ($block instanceof PressurePlate) {
 			$player->setMotion($player->getDirectionVector()->multiply(1.75));
 		}
 
@@ -262,7 +264,6 @@ class EventListener implements Listener {
 	public function onPlayerQuit(\pocketmine\event\player\PlayerQuitEvent $event) {
 		$player = $event->getPlayer();
 		$gamePlayerManager = $this->plugin->getGamePlayerManager();
-		$gamePlayerManager->getGamePlayer($player)?->leaveGameInternal();
 		$gamePlayerManager->removeGamePlayer($player);
 
 		$jobManager = $this->plugin->getJobManager();

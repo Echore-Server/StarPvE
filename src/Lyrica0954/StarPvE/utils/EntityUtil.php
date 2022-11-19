@@ -7,6 +7,7 @@ namespace Lyrica0954\StarPvE\utils;
 use Generator;
 use Lyrica0954\SmartEntity\entity\LivingBase;
 use Lyrica0954\SmartEntity\utils\VectorUtil;
+use Lyrica0954\StarPvE\entity\MotionResistance;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\Entity;
@@ -14,6 +15,7 @@ use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
+use pocketmine\math\Facing;
 use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
@@ -139,7 +141,7 @@ class EntityUtil implements Listener {
 
 		foreach ($pos->getWorld()->getEntities() as $entity) {
 			if ($entity->isAlive()) {
-				$dist = $entity->getPosition()->distance($pos);
+				$dist = $entity->getPosition()->distanceSquared($pos);
 				if ($dist < $ndist) {
 					$nent = $entity;
 					$ndist = $dist;
@@ -157,7 +159,7 @@ class EntityUtil implements Listener {
 
 		foreach ($pos->getWorld()->getEntities() as $entity) {
 			if (MonsterData::isMonster($entity) && $entity->isAlive()) {
-				$dist = $entity->getPosition()->distance($pos);
+				$dist = $entity->getPosition()->distanceSquared($pos);
 				if ($dist < $ndist) {
 					$nent = $entity;
 					$ndist = $dist;
@@ -313,6 +315,30 @@ class EntityUtil implements Listener {
 		}
 	}
 
+	public static function getEyePosition(Entity $entity): Position {
+		return Position::fromObject($entity->getEyePos(), $entity->getWorld());
+	}
+
+	public static function setMotion(Entity $entity, Vector3 $motion): bool {
+		return $entity->setMotion($motion->multiply($entity instanceof MotionResistance ? $entity->getMotionResistance() : 1.0));
+	}
+
+	public static function getEntitiesWithinFan(Vector2 $center, World $world, float $rangeDegree, float $length, Vector2 $direction) {
+		$cos = cos(deg2rad($rangeDegree / 2));
+
+		foreach (self::getWithinRangePlane($center, $world, $length) as $entity) {
+			$pos = new Vector2($entity->getPosition()->x, $entity->getPosition()->z);
+			$deltaNormal = $pos->subtractVector($center)->normalize();
+			$dot = $deltaNormal->dot($direction);
+
+			if ($cos > $dot) {
+				continue;
+			}
+
+			yield $entity;
+		}
+	}
+
 	/**
 	 * @param Entity $entity
 	 * @param float $reach
@@ -330,7 +356,16 @@ class EntityUtil implements Listener {
 			if ($entity !== $target) {
 				if ($target instanceof Living) {
 					if ($target->isAlive()) {
-						$result = $target->getBoundingBox()->expandedCopy($expand->x, $expand->y, $expand->z)->calculateIntercept($min, $max);
+
+						$bb = $target->getBoundingBox()->expandedCopy($expand->x, $expand->y, $expand->z);
+						$result = null;
+						if ($bb->isVectorInside($min)) {
+							$result = new RayTraceResult($bb, Facing::DOWN, $min);
+						} elseif ($bb->isVectorInside($max)) {
+							$result = new RayTraceResult($bb, Facing::DOWN, $max);
+						} else {
+							$result = $bb->calculateIntercept($min, $max);
+						}
 
 						if ($result instanceof RayTraceResult) {
 							$entities[] = new RayTraceEntityResult($target, $result->getHitFace(), $result->getHitVector());
@@ -384,6 +419,16 @@ class EntityUtil implements Listener {
 		$entity->setHealth($health);
 	}
 
+	public static function absorption(Living $entity, float $absorption, int $duration = -1): void {
+		$entity->setAbsorption($entity->getAbsorption() + $absorption);
+
+		if ($duration > 0) {
+			TaskUtil::delayed(new ClosureTask(function () use ($entity, $absorption) {
+				$entity->setAbsorption(max(0, $entity->getAbsorption() - $absorption));
+			}), $duration);
+		}
+	}
+
 	public static function addMaxHealthSynchronously(Entity $entity, int $add) {
 		self::setMaxHealthSynchronously($entity, ($entity->getMaxHealth() + $add));
 	}
@@ -406,7 +451,7 @@ class EntityUtil implements Listener {
 
 		$entity->attack($source);
 		if (!$source->isCancelled() || $forceMotion) {
-			$entity->setMotion($kb);
+			EntityUtil::setMotion($entity, $kb);
 			return $kb;
 		}
 		return new Vector3(0, 0, 0);

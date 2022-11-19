@@ -27,7 +27,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::ZOMBIE,
-				new MonsterAttribute(30, 4.5, 0.35),
+				new MonsterAttribute(30, 1.8, 0.35),
 				new ArmorSet(
 					VanillaItems::IRON_HELMET(),
 					VanillaItems::LEATHER_TUNIC(),
@@ -44,7 +44,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::ATTACKER,
-				new MonsterAttribute(120, 6.0, 0.06),
+				new MonsterAttribute(120, 2.5, 0.06),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(4)
@@ -68,7 +68,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::SPIDER,
-				new MonsterAttribute(50, 3.0, 0.37),
+				new MonsterAttribute(50, 2.0, 0.37),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(1)
@@ -80,7 +80,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::HUSK,
-				new MonsterAttribute(40, 8.0, 0.2),
+				new MonsterAttribute(40, 3.2, 0.2),
 				new ArmorSet(
 					VanillaItems::DIAMOND_HELMET(),
 					VanillaItems::CHAINMAIL_CHESTPLATE(),
@@ -98,7 +98,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::SKELETON,
-				new MonsterAttribute(58, 2.0, 0.21),
+				new MonsterAttribute(58, 1.0, 0.21),
 				new ArmorSet(
 					VanillaItems::LEATHER_CAP(),
 					VanillaItems::DIAMOND_CHESTPLATE(),
@@ -115,7 +115,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::DEFENDER,
-				new MonsterAttribute(126, 0.5, 0.3),
+				new MonsterAttribute(326, 0.4, 0.3),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(5)
@@ -127,7 +127,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::PIGLIN,
-				new MonsterAttribute(36, 4.5, 0.6),
+				new MonsterAttribute(36, 1.7, 0.6),
 				new ArmorSet(
 					VanillaItems::GOLDEN_HELMET(),
 					VanillaItems::GOLDEN_CHESTPLATE(),
@@ -145,7 +145,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::MAGE_PIGLIN,
-				new MonsterAttribute(25, 3.5, 0.42),
+				new MonsterAttribute(25, 1.1, 0.42),
 				new ArmorSet(
 					VanillaItems::GOLDEN_HELMET(),
 					VanillaItems::IRON_CHESTPLATE(),
@@ -162,7 +162,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::ENDERMAN,
-				new MonsterAttribute(28, 4, 0.4),
+				new MonsterAttribute(28, 2.4, 0.4),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(6)
@@ -174,7 +174,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::PIGLIN_BRUTE,
-				new MonsterAttribute(1500, 4, 0.24),
+				new MonsterAttribute(1500, 2.75, 0.24),
 				ArmorSet::none(),
 				[
 					VanillaItems::EMERALD()->setCount(20)
@@ -187,7 +187,7 @@ class MonsterFactory {
 		$this->register(
 			new MonsterOption(
 				DefaultMonsters::ZOMBIE_LORD,
-				new MonsterAttribute(640, 10.0, 0.22),
+				new MonsterAttribute(640, 2.0, 0.22),
 				ArmorSet::chainmail(),
 				[
 					VanillaItems::EMERALD()->setCount(10)

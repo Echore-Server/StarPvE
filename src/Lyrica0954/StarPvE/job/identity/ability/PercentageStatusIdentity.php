@@ -41,6 +41,9 @@ class PercentageStatusIdentity extends AttachStatusIdentityBase {
 	}
 
 	public function resetStatus(AbilityStatus $status): void {
+		if (abs($this->percentage) == 0.0) {
+			return;
+		}
 		$status->divide($this->percentage);
 	}
 }

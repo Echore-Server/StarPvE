@@ -27,9 +27,11 @@ class JobConfigAdapter extends PlayerConfigAdapter {
 	const PLAY_COUNT = "PlayCount";
 
 	public static function getExpToCompleteLevel(int $level) {
-		$jobExp = pow($level, 3) * 4 + ($level * 20);
+		$exp = ($level ** 3) + 10;
 
-		return $jobExp;
+		$diffusion = floor((1 + floor($level / 10)) * floor($level / 5)) ** 3;
+
+		return $exp + $diffusion;
 	}
 
 	public static function fetch(Player $player, string $name): ?JobConfigAdapter {

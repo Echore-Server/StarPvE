@@ -8,6 +8,7 @@ use Lyrica0954\MagicParticle\CircleParticle;
 use Lyrica0954\MagicParticle\LineParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\MagicParticle\utils\MolangUtil;
 use Lyrica0954\StarPvE\job\Ability;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
@@ -18,11 +19,14 @@ use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
+use pocketmine\color\Color;
 use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\event\entity\EntityRegainHealthEvent;
+use pocketmine\math\Vector3;
 use pocketmine\player\Player;
+use pocketmine\world\Position;
 
 class HarmonyAbility extends Ability {
 
@@ -46,10 +50,6 @@ class HarmonyAbility extends Ability {
 	}
 
 	protected function onActivate(): ActionResult {
-
-		$par = (new SingleParticle);
-		$circlePar = (new CircleParticle($this->area->get(), 12));
-		$players = $this->player->getWorld()->getPlayers();
 		foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
 			if ($entity instanceof Player) {
 				if ($entity !== $this->player) {
@@ -64,10 +64,36 @@ class HarmonyAbility extends Ability {
 		}
 
 		ParticleUtil::send(
-			$circlePar,
-			$players,
-			VectorUtil::keepAdd($this->player->getPosition(), 0, 0.25, 0),
-			ParticleOption::spawnPacket("minecraft:falling_dust_sand_particle", "")
+			new SingleParticle,
+			$this->player->getWorld()->getPlayers(),
+			Position::fromObject(
+				$this->player->getPosition()->add(0, 0.25 + 2, 0),
+				$this->player->getWorld()
+			),
+			ParticleOption::spawnPacket(
+				"starpve:inwards_circle",
+				MolangUtil::encode(ParticleUtil::motionCircleMolang(
+					ParticleUtil::circleMolang(
+						40 * 0.05,
+						120,
+						$this->area->get(),
+						new Color(
+							165,
+							0,
+							65,
+							150
+						),
+						new Vector3(
+							0,
+							1,
+							0
+						)
+					),
+					0,
+					0,
+					-2
+				)),
+			)
 		);
 
 		return ActionResult::SUCCEEDED();

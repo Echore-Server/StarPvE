@@ -8,6 +8,7 @@ use Lyrica0954\StarPvE\data\condition\Condition;
 use Lyrica0954\StarPvE\identity\IdentityGroup;
 use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
+use Lyrica0954\StarPvE\job\player\castle\entity\DamageSplashPotion;
 use Lyrica0954\StarPvE\job\player\castle\entity\TrapDevice;
 use Lyrica0954\StarPvE\job\player\castle\entity\VoidDevice;
 use Lyrica0954\StarPvE\job\player\PlayerJob;
@@ -28,6 +29,9 @@ class Castle extends PlayerJob {
 		parent::__construct($player);
 
 		$f = EntityFactory::getInstance();
+		/**
+		 * @var EntityFactory $f
+		 */
 		$f->register(TrapDevice::class, function (World $world, CompoundTag $nbt): TrapDevice {
 			$itemTag = $nbt->getCompoundTag("Item");
 			if ($itemTag === null) {
@@ -57,6 +61,10 @@ class Castle extends PlayerJob {
 			$entity->close();
 			return $entity;
 		}, ['starpve:void_device'], EntityLegacyIds::ITEM);
+
+		$f->register(DamageSplashPotion::class, function (World $world, CompoundTag $nbt): DamageSplashPotion {
+			return new DamageSplashPotion(EntityDataHelper::parseLocation($nbt, $world), null);
+		}, ["starpve:damage_splash_potion"]);
 	}
 
 	protected function getInitialAbility(): Ability {
@@ -74,6 +82,12 @@ class Castle extends PlayerJob {
 		];
 		$g->addAll($list);
 		return $g;
+	}
+
+	protected function init(): void {
+		$this->defaultSpells = [
+			new DamageSplashSpell($this)
+		];
 	}
 
 	public function getName(): string {

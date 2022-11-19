@@ -50,13 +50,14 @@ class LeapAbility extends Ability implements Listener {
 		return
 			sprintf('§b発動時:§f 視線の先に突進する。無敵(例外あり)になり、
 %1$s の敵に、%2$s ダメージとノックバック(%4$s) を与えて %3$s 秒動けなくさせる。
-一度ダメージを与えるとキャンセルされる。', $area, $damage, $duration, $percentage);
+一度ダメージを与えるとキャンセルされる。
+また、空中の敵に当てると、クールタイムが残り §c0.3秒 §fになる。', $area, $damage, $duration, $percentage);
 	}
 
 	protected function init(): void {
-		$this->damage = new AbilityStatus(3.5);
+		$this->damage = new AbilityStatus(2.8);
 		$this->area = new AbilityStatus(3.5);
-		$this->duration = new AbilityStatus(1.35 * 20);
+		$this->duration = new AbilityStatus(1.55 * 20);
 		$this->cooltime = new AbilityStatus(5 * 20 + 10);
 		$this->percentage = new AbilityStatus(1.0);
 		$this->speed = new AbilityStatus(1.35);
@@ -68,6 +69,7 @@ class LeapAbility extends Ability implements Listener {
 
 		$std = new \stdClass;
 		$std->tick = 0;
+		$std->start = $this->player->getPosition();
 		$std->last = $this->player->getPosition();
 
 		$this->active = true;
@@ -75,7 +77,8 @@ class LeapAbility extends Ability implements Listener {
 
 		TaskUtil::repeatingClosureFailure(function (Closure $fail) use ($motion, $std): void {
 			$std->tick++;
-			$this->player->setMotion($motion->multiply($this->speed->get() * (1.0 - $std->tick / 20)));
+			$currentMotion = $motion->multiply((1.0 - $std->tick / 20));
+			$this->player->setMotion($currentMotion);
 
 			if ($std->tick > 20) {
 				$this->active = false;
@@ -83,10 +86,16 @@ class LeapAbility extends Ability implements Listener {
 			}
 
 
-			$start = $std->last->add(0, 1.5, 0);
-			$end = $this->player->getPosition()->add(0, 1.5, 0);
+			$start = $this->player->getPosition()->add(0, 1.5, 0);
+			$end = $start->addVector($currentMotion);
+
+			$exp = $this->area->get() / 2;
 			foreach ($this->player->getWorld()->getEntities() as $entity) {
-				$result = $entity->getBoundingBox()->expandedCopy(0.25, 0.25, 0.25)->calculateIntercept($start, $end);
+				if (!MonsterData::isMonster($entity)) {
+					continue;
+				}
+
+				$result = $entity->getBoundingBox()->expandedCopy($exp, $exp, $exp)->calculateIntercept($start, $end);
 				if ($result instanceof RayTraceResult) {
 					$success = false;
 					foreach (EntityUtil::getWithinRange(Position::fromObject($result->getHitVector(), $entity->getWorld()), $this->area->get(), $this->player) as $target) {
@@ -94,10 +103,13 @@ class LeapAbility extends Ability implements Listener {
 							$source = new EntityDamageByEntityEvent($this->player, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->damage->get());
 							$source->setAttackCooldown(0);
 							$perc = $this->percentage->get();
-							EntityUtil::attackEntity($source, 1.0 * $perc, 1.5 * $perc);
+							$target->attack($source);
 							EntityUtil::immobile($target, (int) $this->duration->get());
 							if (!$source->isCancelled()) {
 								$success = true;
+								$velocity = EntityUtil::modifyKnockback($target, $std->start, 0.85 * $perc, 1.4 * $perc * ($target->isOnGround() ? 1.15 : 0.8));
+
+								EntityUtil::setMotion($target, $velocity);
 							}
 						}
 					}
@@ -108,6 +120,10 @@ class LeapAbility extends Ability implements Listener {
 							$this->player->setMotion(new Vector3(0, 0, 0));
 							$this->active = false;
 							$fail();
+
+							if (!$entity->isOnGround()) {
+								$this->cooltimeHandler->setRemain($this->cooltimeHandler->calculate(6));
+							}
 						}
 						break;
 					}

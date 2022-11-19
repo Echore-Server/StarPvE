@@ -27,7 +27,7 @@ use pocketmine\event\Listener;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
-class Healer extends PlayerJob implements AlwaysAbility, Listener {
+class Healer extends PlayerJob {
 
 	protected function getInitialIdentityGroup(): IdentityGroup {
 		$g = new IdentityGroup();
@@ -59,32 +59,7 @@ class Healer extends PlayerJob implements AlwaysAbility, Listener {
 味方を支援したり、回復させたりすることができる。";
 	}
 
-	public function getAlAbilityName(): string {
-		return "ハートウォーミング";
-	}
-
-	public function getAlAbilityDescription(): string {
-		return "§c7m§f 以内にいる味方の受けるダメージを §c10%%§f 軽減させる。";
-	}
-
 	public function getSelectableCondition(): ?Condition {
 		return null;
-	}
-
-	public function onEntityDamage(EntityDamageEvent $event) {
-		$entity = $event->getEntity();
-		if ($entity instanceof Player) {
-			if ($this->player instanceof Player) {
-				if ($entity !== $this->player) {
-					$gp = StarPvE::getInstance()->getGamePlayerManager();
-					if ($gp->areSameGame($entity, $this->player)) {
-						$dist = $entity->getPosition()->distance($this->player->getPosition());
-						if ($dist <= 7) {
-							EntityUtil::multiplyFinalDamage($event, 0.9);
-						}
-					}
-				}
-			}
-		}
 	}
 }

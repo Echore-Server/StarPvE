@@ -13,6 +13,7 @@ use Lyrica0954\SmartEntity\entity\Hostile;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
 use Lyrica0954\SmartEntity\utils\VectorUtil as UtilsVectorUtil;
+use Lyrica0954\StarPvE\entity\MotionResistance;
 use Lyrica0954\StarPvE\event\PlayerDeathOnGameEvent;
 use Lyrica0954\StarPvE\StarPvE;
 use Lyrica0954\StarPvE\utils\EntityUtil;
@@ -37,7 +38,7 @@ use pocketmine\Server;
 
 
 
-class Enderman extends FightingEntity implements Hostile, Listener {
+class Enderman extends FightingEntity implements Hostile, MotionResistance {
 	use HealthBarEntity;
 
 	protected ?Entity $holding = null;
@@ -49,6 +50,10 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 
 	public static function getNetworkTypeId(): string {
 		return EntityIds::ENDERMAN;
+	}
+
+	public function getMotionResistance(): float {
+		return 0.0;
 	}
 
 	protected float $reach = 1.5;
@@ -160,13 +165,6 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 		}
 	}
 
-	public function onMotion(EntityMotionEvent $event) {
-		$entity = $event->getEntity();
-		if ($entity === $this) {
-			$event->cancel();
-		}
-	}
-
 	public function release(): void {
 		if ($this->holding !== null) {
 			$this->holding->setImmobile(false);
@@ -194,8 +192,6 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 
 	protected function onDispose(): void {
 		parent::onDispose();
-
-		HandlerListManager::global()->unregisterAll($this);
 	}
 
 	protected function onDeath(): void {
@@ -211,7 +207,5 @@ class Enderman extends FightingEntity implements Hostile, Listener {
 		if ($game !== null) {
 			$this->teleport($game->getCenterPosition());
 		}
-
-		Server::getInstance()->getPluginManager()->registerEvents($this, StarPvE::getInstance());
 	}
 }

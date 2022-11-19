@@ -57,15 +57,19 @@ class TaskUtil {
 		return $running;
 	}
 
-	public static function repeatingClosureLimit(\Closure $closure, int $period, int $limit): TaskHandler {
-		$task = new class($closure, $limit) extends Task {
+	public static function repeatingClosureLimit(\Closure $closure, int $period, int $limit, ?Closure $onEnd = null): TaskHandler {
+		$emptyFunc = function () {
+		};
+		$task = new class($closure, ($onEnd ?? $emptyFunc), $limit) extends Task {
 
 			private \Closure $closure;
+			private \Closure $onEnd;
 			private int $limit;
 			private int $count;
 
-			public function __construct(\Closure $closure, int $limit) {
+			public function __construct(\Closure $closure, \Closure $onEnd, int $limit) {
 				$this->closure = $closure;
+				$this->onEnd = $onEnd;
 				$this->limit = $limit;
 				$this->count = 0;
 			}
@@ -75,6 +79,7 @@ class TaskUtil {
 				($this->closure)();
 
 				if ($this->count >= $this->limit) {
+					($this->onEnd)();
 					$this->getHandler()->cancel();
 				}
 			}

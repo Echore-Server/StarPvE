@@ -37,9 +37,6 @@ use pocketmine\item\ItemIds;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\world\Position;
 
-/**
- * todo: 無重力のやつを投擲して1秒後にこれが発動するようにする
- */
 class EMPAbility extends Ability {
 
 	public const SIGNAL_SHOCKWAVE = 0;

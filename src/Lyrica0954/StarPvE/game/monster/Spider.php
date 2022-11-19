@@ -24,7 +24,7 @@ use pocketmine\world\particle\ExplodeParticle;
 class Spider extends SmartSpider {
 	use HealthBarEntity;
 
-	protected float $reach = 1.2;
+	protected float $reach = 2.4;
 
 	protected function onTick(int $currentTick, int $tickDiff = 1): void {
 		if ($currentTick % 70 == 0) {

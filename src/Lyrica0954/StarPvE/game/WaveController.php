@@ -71,6 +71,7 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 use pocketmine\utils\EnumTraitTest;
+use pocketmine\utils\Utils;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\particle\FloatingTextParticle;
 use pocketmine\world\Position;
@@ -483,13 +484,13 @@ class WaveController implements CooltimeAttachable, Listener {
 
 	public function getHealthReinforceValue(int $wave): float {
 		$reinforcePeriod = $wave;
-		$reinforce = 1.0 + $reinforcePeriod * 0.24;
+		$reinforce = 1.0 + $reinforcePeriod * 0.25;
 		return $reinforce;
 	}
 
 	public function getDamageReinforceValue(int $wave): float {
 		$reinforcePeriod = $wave;
-		$reinforce = 1.0 + $reinforcePeriod * 0.15;
+		$reinforce = 1.0 + $reinforcePeriod * 0.1;
 		return $reinforce;
 	}
 
@@ -500,7 +501,20 @@ class WaveController implements CooltimeAttachable, Listener {
 	}
 
 
-	public function spawnMonster(WaveMonsters $monsters, Position $pos, \Closure $hook = null) {
+	/**
+	 * @param WaveMonsters $monsters
+	 * @param Position $pos
+	 * @param \Closure|null $hook
+	 * @param \Closure(MonsterOption$option):void|null $optionModifier
+	 * 
+	 * @return [type]
+	 */
+	public function spawnMonster(WaveMonsters $monsters, Position $pos, \Closure $hook = null, \Closure $optionModifier = null) {
+		if ($optionModifier !== null) {
+			Utils::validateCallableSignature(function (MonsterOption $option): void {
+			}, $optionModifier);
+		}
+
 		if (!$this->game->isClosed()) {
 			foreach ($monsters->getAll() as $monsterData) {
 				$this->monsterRemain += $monsterData->count;
@@ -510,6 +524,9 @@ class WaveController implements CooltimeAttachable, Listener {
 			foreach ($this->monsterOptions as $k => $option) {
 				$cop = clone $option;
 				$this->modifySpawnOption($cop);
+				if ($optionModifier !== null) {
+					$optionModifier($cop);
+				}
 				$opt[$k] = $cop;
 			}
 			$ev = new WaveMonsterSpawnEvent($this->getGame(), $this->wave, $monsters, $pos, $opt);

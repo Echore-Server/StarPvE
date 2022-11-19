@@ -158,7 +158,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 	}
 
 	public function getFile(string $xuid, string $entryName): string {
-		return $this->folder . "player_data/{$xuid}/{$entryName}.yml";
+		return $this->folder . "/{$xuid}/{$entryName}.yml";
 	}
 
 	public function createGenericConfig(Player $player): Config {
@@ -169,6 +169,7 @@ class PlayerDataCenter extends DataCenter implements Listener {
 		];
 		$default = array_merge($info, $this->genericDefault);
 		$file = $this->getFile($player->getXuid(), "generic");
+		print_r($file);
 		$generic = new Config($file, Config::YAML, $default);
 		return $generic;
 	}

@@ -1,7 +1,8 @@
 {
 	"intelephense.environment.includePaths": [
 		"../",
-		"../../../../../.vscode/pmmp_source"
+		"../../../../../.vscode/pmmp_source",
+		"../../virions"
 	],
 	"cSpell.words": [
 		"Cooldown"

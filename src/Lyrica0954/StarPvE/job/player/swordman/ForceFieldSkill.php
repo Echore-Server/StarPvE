@@ -57,10 +57,6 @@ class ForceFieldSkill extends Skill {
 			if (MonsterData::isMonster($entity)) {
 				$xz = 3.5;
 				$y = 1.5;
-				if (MonsterData::equal($entity, DefaultMonsters::ATTACKER)) {
-					$xz = 1.1;
-					$y = 0.9;
-				}
 
 				$xz *= $this->percentage->get();
 				$y *= $this->percentage->get();

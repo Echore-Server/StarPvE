@@ -14,4 +14,8 @@ class GiantAttacker extends Attacker {
 
 		$this->setScale(1.6);
 	}
+
+	public function getMotionResistance(): float {
+		return 0.25;
+	}
 }

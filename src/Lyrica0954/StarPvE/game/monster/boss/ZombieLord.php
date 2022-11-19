@@ -11,6 +11,7 @@ use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
 use Lyrica0954\SmartEntity\entity\walking\Zombie as SmartZombie;
+use Lyrica0954\StarPvE\entity\MotionResistance;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\game\wave\DefaultMonsters;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
@@ -36,7 +37,7 @@ use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\Server;
 use pocketmine\world\particle\Particle;
 
-class ZombieLord extends SmartZombie implements Listener {
+class ZombieLord extends SmartZombie implements Listener, MotionResistance {
 	use HealthBarEntity;
 
 	protected float $reach = 2.25;
@@ -51,6 +52,10 @@ class ZombieLord extends SmartZombie implements Listener {
 
 	public function getFollowRange(): float {
 		return 50;
+	}
+
+	public function getMotionResistance(): float {
+		return 0.5;
 	}
 
 	protected function initEntity(CompoundTag $nbt): void {
@@ -130,7 +135,7 @@ class ZombieLord extends SmartZombie implements Listener {
 				foreach (EntityUtil::getWithinRange($this->getPosition(), $this->defendArea) as $entity) {
 					if (MonsterData::isMonster($entity)) {
 						if ($entity !== $this) {
-							$ev = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_SUICIDE, $heal);
+							$ev = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_MAGIC, $heal);
 							$epos = $entity->getPosition();
 							$epos->y += 0.3;
 							$ev->setAttackCooldown(0);

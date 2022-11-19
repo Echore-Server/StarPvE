@@ -62,31 +62,31 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 			new PercentageStatusIdentity($this, new JobLevelCondition(8, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 1.05),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(8, $n), 1),
 			new AttackPercentageArgIdentity(new JobLevelCondition(8, $n), 0.05),
-			new PercentageStatusIdentity($this, new JobLevelCondition(10, $n), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 1.5),
-			new PercentageStatusIdentity($this, new JobLevelCondition(10, $n), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.5),
+			new PercentageStatusIdentity($this, new JobLevelCondition(10, $n), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 1.2),
+			new PercentageStatusIdentity($this, new JobLevelCondition(10, $n), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.2),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(10, $n), 1),
 			new PercentageStatusIdentity($this, new JobLevelCondition(12, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_PERCENTAGE, 1.05),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(12, $n), 1),
-			new PercentageStatusIdentity($this, new JobLevelCondition(12, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 1.1),
-			new PercentageStatusIdentity($this, new JobLevelCondition(14, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_AREA, 1.1),
+			new PercentageStatusIdentity($this, new JobLevelCondition(12, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 1.05),
+			new PercentageStatusIdentity($this, new JobLevelCondition(14, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_AREA, 1.05),
 			new ReducePercentageArgIdentity(new JobLevelCondition(16, $n), 0.04),
 			new PercentageStatusIdentity($this, new JobLevelCondition(16, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 1.05),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(18, $n), 1),
-			new PercentageStatusIdentity($this, new JobLevelCondition(18, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_DAMAGE, 1.5),
+			new PercentageStatusIdentity($this, new JobLevelCondition(18, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_DAMAGE, 1.2),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(20, $n), 1),
-			new PercentageStatusIdentity($this, new JobLevelCondition(20, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 1.5),
-			new PercentageStatusIdentity($this, new JobLevelCondition(20, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 1.5),
+			new PercentageStatusIdentity($this, new JobLevelCondition(20, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 1.2),
+			new PercentageStatusIdentity($this, new JobLevelCondition(20, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 1.2),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(22, $n), 1),
 			new PercentageStatusIdentity($this, new JobLevelCondition(22, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_PERCENTAGE, 1.05),
 			new PercentageStatusIdentity($this, new JobLevelCondition(24, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 1.05),
 			new PercentageStatusIdentity($this, new JobLevelCondition(24, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 1.1),
-			new PercentageStatusIdentity($this, new JobLevelCondition(26, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_DAMAGE, 1.5),
+			new PercentageStatusIdentity($this, new JobLevelCondition(26, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_DAMAGE, 1.2),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(26, $n), 1),
 			new AttackPercentageArgIdentity(new JobLevelCondition(28, $n), 0.05),
 			new PercentageStatusIdentity($this, new JobLevelCondition(28, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 1.05),
-			new PercentageStatusIdentity($this, new JobLevelCondition(30, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_DURATION, 1.25),
-			new PercentageStatusIdentity($this, new JobLevelCondition(30, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_PERCENTAGE, 1.15),
-			new PercentageStatusIdentity($this, new JobLevelCondition(30, $n), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 1.5),
+			new PercentageStatusIdentity($this, new JobLevelCondition(30, $n), AttachAbilityIdentityBase::ATTACH_SPELL, StatusTranslate::STATUS_DURATION, 1.15),
+			new PercentageStatusIdentity($this, new JobLevelCondition(30, $n), AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_PERCENTAGE, 1.05),
+			new PercentageStatusIdentity($this, new JobLevelCondition(30, $n), AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 1.3),
 			new AddMaxHealthArgIdentity(new JobLevelCondition(30, $n), 4),
 
 		];
@@ -99,10 +99,10 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 			new StrikeSpell($this),
 			(new IdentitySpell($this, "ライトニングフィールド"))
 				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_PERCENTAGE, 0.0))
-				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 2.25))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_DAMAGE, 2.75))
 				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_SKILL, StatusTranslate::STATUS_AREA, 0.5)),
 			(new IdentitySpell($this, "槍突進"))
-				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 4.0))
+				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_DAMAGE, 3.0))
 				->addIdentity(new PercentageStatusIdentity($this, null, AttachAbilityIdentityBase::ATTACH_ABILITY, StatusTranslate::STATUS_AREA, 1.2)),
 			(new IdentitySpell($this, "突進シールド"))
 				->addIdentity(
@@ -129,7 +129,7 @@ class Swordman extends PlayerJob implements AlwaysAbility, Listener {
 						null,
 						AttachAbilityIdentityBase::ATTACH_ABILITY,
 						StatusTranslate::STATUS_DAMAGE,
-						0.35
+						0.7
 					)
 				)
 		];

@@ -19,6 +19,8 @@ use pocketmine\item\ItemIds;
 
 class ThrowToxicBinSkill extends ThrowEntitySkillBase {
 
+	const SIGNAL_EXPAND = 0;
+
 	public function getName(): string {
 		return "ライトニングクラウド";
 	}
@@ -51,7 +53,10 @@ class ThrowToxicBinSkill extends ThrowEntitySkillBase {
 		$entity->duration = (int) $this->duration->get();
 		$entity->areaDamage = $this->damage->get();
 		$entity->radius = $this->area->get();
+		$entity->expandEnabled = $this->signal->has(self::SIGNAL_EXPAND);
 		$entity->spawnToAll();
+
+
 
 		return $entity;
 	}

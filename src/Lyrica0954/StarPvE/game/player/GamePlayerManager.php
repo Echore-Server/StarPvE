@@ -26,6 +26,7 @@ class GamePlayerManager {
 
 	public function removeGamePlayer(Player $player) {
 		if ($this->isManaged($player)) {
+			$this->players[spl_object_hash($player)]->leaveGameInternal();
 			unset($this->players[spl_object_hash($player)]);
 		}
 	}

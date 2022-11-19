@@ -13,6 +13,7 @@ use Lyrica0954\StarPvE\identity\IdentityUtil;
 use Lyrica0954\StarPvE\identity\player\AddMaxHealthArgIdentity;
 use Lyrica0954\StarPvE\identity\player\AddStateIdentity;
 use Lyrica0954\StarPvE\identity\player\AttackPercentageArgIdentity;
+use Lyrica0954\StarPvE\identity\player\InstantAddPerkArgIdentity;
 use Lyrica0954\StarPvE\identity\player\PlayerArgIdentity;
 use Lyrica0954\StarPvE\identity\player\SpeedPercentageArgIdentity;
 use Lyrica0954\StarPvE\job\Ability;
@@ -226,21 +227,27 @@ abstract class PlayerJob extends Job {
 						null,
 						AttachAbilityIdentityBase::ATTACH_ABILITY,
 						StatusTranslate::STATUS_AMOUNT,
-						2
+						4
 					))
 					->addIdentity(new IncreaseStatusIdentity(
 						$this,
 						null,
 						AttachAbilityIdentityBase::ATTACH_SKILL,
 						StatusTranslate::STATUS_AMOUNT,
-						3
+						6
 					)),
 				(new IdentitySpell($this, "血まみれの剣"))
 					->addIdentity(new AddStateIdentity(
 						null,
 						new ExecutionState($this->player, 0.18),
 						"攻撃後、体力が §c18%§f 以下の場合即死させる"
-					))
+					)),
+				(new IdentitySpell($this, "ネクロノミコン"))
+					->addIdentity(new AddMaxHealthArgIdentity(null, -12))
+					->addIdentity(new AttackPercentageArgIdentity(null, 0.4)),
+				(new IdentitySpell($this, "冒険の書"))
+					->addIdentity(new InstantAddPerkArgIdentity(null, 4))
+
 			];
 
 			$this->init();

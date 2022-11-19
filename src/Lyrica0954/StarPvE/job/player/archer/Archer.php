@@ -100,7 +100,7 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 	public function getAlAbilityDescription(): string {
 		return
 			"剣のクールダウン §c+0.15秒§f
-剣に持ち替えたとき、攻撃できるようになるまでに時間を要する。";
+剣に持ち替えたとき、攻撃できるようになるまでに時間を要する。item.trident.return";
 	}
 
 	public function __construct(?Player $player) {
@@ -131,6 +131,8 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 				$this->player->sendMessage("§cアビリティを発動するには矢を発射してください");
 				return;
 			}
+		} else {
+			parent::onItemUse($item);
 		}
 	}
 
@@ -157,14 +159,14 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 					null,
 					AttachAbilityIdentityBase::ATTACH_SKILL,
 					StatusTranslate::STATUS_AMOUNT,
-					2.5
+					1.75
 				))
 				->addIdentity(new AbilityValueSignalIdentity(
 					$this,
 					null,
 					AttachAbilityIdentityBase::ATTACH_SKILL,
 					ArrowPartySkill::SIGNAL_ARROW_ADDTIONAL_DURATION,
-					260,
+					150,
 					"召喚にかかる時間 (tick)"
 				)),
 			(new IdentitySpell($this, "エンハンスドアロー"))
@@ -181,8 +183,9 @@ class Archer extends PlayerJob implements Listener, AlwaysAbility {
 					null,
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					StatusTranslate::STATUS_AREA,
-					0.6
-				))
+					1.3
+				)),
+			(new ArmorGunSpell($this))
 		];
 	}
 

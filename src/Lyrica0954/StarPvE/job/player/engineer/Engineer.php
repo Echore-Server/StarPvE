@@ -65,6 +65,14 @@ class Engineer extends PlayerJob {
 					AttachAbilityIdentityBase::ATTACH_ABILITY,
 					EMPAbility::SIGNAL_SHOCKWAVE,
 					"EMPが敵をノックバック/移動速度低下させるようになる"
+				)),
+			(new IdentitySpell($this, "出力増加"))
+				->addIdentity(new AbilitySignalIdentity(
+					$this,
+					null,
+					AttachAbilityIdentityBase::ATTACH_SKILL,
+					ThrowToxicBinSkill::SIGNAL_EXPAND,
+					"ライトニングクラウドが §c0.5秒§f ごとに §c3%§f 広がるようになる"
 				))
 		];
 	}

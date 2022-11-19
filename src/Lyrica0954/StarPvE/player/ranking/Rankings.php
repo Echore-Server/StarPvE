@@ -51,9 +51,11 @@ class Rankings {
 				$generic = $config->$content();
 				$value = $valueCalculator($generic);
 				$name = $generic->getConfig()->get(GenericConfigAdapter::USERNAME);
-				$ranking = $list[$name] ?? (new Ranking($name));
-				$ranking->setValue($value);
-				$manager->register($ranking);
+				if (is_string($name)) {
+					$ranking = $list[$name] ?? (new Ranking($name));
+					$ranking->setValue($value);
+					$manager->register($ranking);
+				}
 			}
 		};
 	}

@@ -14,15 +14,18 @@ use Lyrica0954\StarPvE\event\global\GlobalAddExpEvent;
 use Lyrica0954\StarPvE\event\global\GlobalLevelupEvent;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\TaskUtil;
+use pocketmine\math\Math;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 
 class GenericConfigAdapter extends PlayerConfigAdapter {
 
 	public static function getExpToCompleteLevel(int $level) {
-		$exp = pow($level, 2) * 4 + 10;
+		$exp = ($level ** 2) + 10;
 
-		return $exp;
+		$diffusion = floor((1 + floor($level / 10)) * floor($level / 5)) ** 2;
+
+		return $exp + $diffusion;
 	}
 
 	public static function fetch(Player $player): ?GenericConfigAdapter {

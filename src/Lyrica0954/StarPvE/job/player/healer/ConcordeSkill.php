@@ -9,7 +9,9 @@ use Lyrica0954\MagicParticle\EmitterParticle;
 use Lyrica0954\MagicParticle\LineParticle;
 use Lyrica0954\MagicParticle\ParticleOption;
 use Lyrica0954\MagicParticle\SingleParticle;
+use Lyrica0954\MagicParticle\utils\MolangUtil;
 use Lyrica0954\StarPvE\entity\Villager;
+use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\job\AbilityStatus;
 use Lyrica0954\StarPvE\job\ActionResult;
 use Lyrica0954\StarPvE\job\Skill;
@@ -20,10 +22,14 @@ use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\ParticleUtil;
 use Lyrica0954\StarPvE\utils\PlayerUtil;
 use Lyrica0954\StarPvE\utils\VectorUtil;
+use pocketmine\color\Color;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
+use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityRegainHealthEvent;
+use pocketmine\math\Vector3;
 use pocketmine\player\Player;
+use pocketmine\world\Position;
 
 class ConcordeSkill extends Skill {
 
@@ -40,14 +46,14 @@ class ConcordeSkill extends Skill {
 		$area = DescriptionTranslator::number($this->area, "m");
 		$heal = DescriptionTranslator::health($this->heal);
 		return
-			sprintf('§b発動時(1):§f %1$s 以内の味方の中で一番体力が低いプレイヤーを全回復させる。 
+			sprintf('§b発動時:§f %1$s 以内の味方に衝撃吸収ハート %2$s を与える。
 ', $area, $heal);
 	}
 
 	protected function init(): void {
 		$this->area = new AbilityStatus(12.0);
-		$this->heal = new AbilityStatus(5 * 2);
-		$this->cooltime = new AbilityStatus(40 * 20);
+		$this->heal = new AbilityStatus(35 * 2);
+		$this->cooltime = new AbilityStatus(100 * 20);
 	}
 
 	public function getHeal(): AbilityStatus {
@@ -55,35 +61,46 @@ class ConcordeSkill extends Skill {
 	}
 
 	protected function onActivate(): ActionResult {
-
-		$circlePar = (new CircleParticle($this->area->get(), $this->area->get()));
-		$players = $this->player->getWorld()->getPlayers();
-		$target = null;
-		$targetHealth = PHP_INT_MAX;
+		$heal = $this->heal->get();
 		foreach (EntityUtil::getWithinRange($this->player->getPosition(), $this->area->get()) as $entity) {
-			if ($entity instanceof Player) {
-				if ($entity !== $this->player) {
-					if ($targetHealth > $entity->getHealth()) {
-						$target = $entity;
-						$targetHealth = $entity->getHealth();
-					}
-				}
+			if (MonsterData::isActiveAlly($entity) && $entity instanceof Living) {
+				EntityUtil::absorption($entity, $heal);
 			}
 		}
 
 
-		if ($target instanceof Player) {
-			$heal = new EntityRegainHealthEvent($target, $target->getMaxHealth(), EntityRegainHealthEvent::CAUSE_CUSTOM);
-			$target->heal($heal);
-		}
-
 		ParticleUtil::send(
-			$circlePar,
-			$players,
-			VectorUtil::keepAdd($this->player->getPosition(), 0, 0.25, 0),
-			ParticleOption::spawnPacket("minecraft:falling_dust_sand_particle", "")
+			new SingleParticle,
+			$this->player->getWorld()->getPlayers(),
+			Position::fromObject(
+				$this->player->getPosition()->add(0, 0.25 + 2, 0),
+				$this->player->getWorld()
+			),
+			ParticleOption::spawnPacket(
+				"starpve:inwards_circle",
+				MolangUtil::encode(ParticleUtil::motionCircleMolang(
+					ParticleUtil::circleMolang(
+						40 * 0.05,
+						120,
+						$this->area->get(),
+						new Color(
+							165,
+							65,
+							0,
+							150
+						),
+						new Vector3(
+							0,
+							1,
+							0
+						)
+					),
+					0,
+					0,
+					-2
+				)),
+			)
 		);
-
 		return ActionResult::SUCCEEDED();
 	}
 }

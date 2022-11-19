@@ -43,6 +43,8 @@ class ToxicBin extends Throwable {
 
 	public float $areaDamage = 0.0;
 
+	public bool $expandEnabled = false;
+
 	public static function getNetworkTypeId(): string {
 		return EntityIds::SPLASH_POTION;
 	}
@@ -78,6 +80,7 @@ class ToxicBin extends Throwable {
 		$data->duration = $this->duration;
 		$data->damageCount = [];
 		$data->hit = [];
+		$data->radiusPerc = 1.0;
 
 		$entity = new MemoryEntity(Location::fromObject($vec, $this->getWorld()), null, 0, 0);
 		$entity->addTickHook(function (MemoryEntity $e, int $tickDiff = 1) use ($data): void {
@@ -136,6 +139,11 @@ class ToxicBin extends Throwable {
 				}
 
 				PlayerUtil::broadcastSound($e, "random.fizz", 2.4, 0.7);
+
+				if ($this->expandEnabled) {
+					$data->radiusPerc += 0.03;
+					$data->radius = $this->radius * $data->radiusPerc;
+				}
 			}
 
 

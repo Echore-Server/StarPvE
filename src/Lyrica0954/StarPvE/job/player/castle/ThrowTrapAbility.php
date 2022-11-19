@@ -35,8 +35,7 @@ class ThrowTrapAbility extends ThrowEntityAbilityBase {
 §b効果範囲:§f %1$s
 
 §b効果: §f一定時間いる敵に %2$s のダメージを与えて、§c6秒§f スタンさせる。
-§b効果: §f敵の移動速度を低下させる。
-§b効果: §f敵を出れなくする。
+§b効果: §f敵の移動速度を装置からの距離に応じて低下させる。
 
 %4$s 経過するか、敵 %3$s 以上をトラップすることで消滅する。', $area, $damage, $amount, $duration);
 	}

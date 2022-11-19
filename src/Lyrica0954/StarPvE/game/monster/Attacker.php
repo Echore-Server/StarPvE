@@ -10,6 +10,7 @@ use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 use Lyrica0954\SmartEntity\entity\ManageableEntity;
 use Lyrica0954\SmartEntity\entity\Neutral;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
+use Lyrica0954\StarPvE\entity\MotionResistance;
 use Lyrica0954\StarPvE\entity\Villager;
 use Lyrica0954\StarPvE\game\Game;
 use Lyrica0954\StarPvE\StarPvE;
@@ -24,13 +25,17 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\player\Player;
 
-class Attacker extends FightingEntity implements Neutral {
+class Attacker extends FightingEntity implements Neutral, MotionResistance {
 	use HealthBarEntity;
 
-	protected float $reach = 1.5;
+	protected float $reach = 1.0;
 
 	public static function getNetworkTypeId(): string {
 		return EntityIds::WITCH;
+	}
+
+	public function getMotionResistance(): float {
+		return 0.4;
 	}
 
 	public function checkTarget(Entity $entity, float $range): bool {

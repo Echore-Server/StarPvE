@@ -10,7 +10,7 @@ use Lyrica0954\StarPvE\utils\HealthBarEntity;
 class Zombie extends SmartZombie {
 	use HealthBarEntity;
 
-	protected float $reach = 0.6;
+	protected float $reach = 1.6;
 
 	public function getFollowRange(): float {
 		return 50;

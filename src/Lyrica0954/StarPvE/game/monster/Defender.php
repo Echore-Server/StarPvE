@@ -13,6 +13,7 @@ use Lyrica0954\SmartEntity\entity\fightstyle\Style;
 use Lyrica0954\SmartEntity\entity\Hostile;
 use Lyrica0954\SmartEntity\entity\Neutral;
 use Lyrica0954\SmartEntity\entity\walking\FightingEntity;
+use Lyrica0954\StarPvE\entity\MotionResistance;
 use Lyrica0954\StarPvE\game\wave\MonsterData;
 use Lyrica0954\StarPvE\utils\EntityUtil;
 use Lyrica0954\StarPvE\utils\HealthBarEntity;
@@ -27,7 +28,7 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\player\Player;
 use pocketmine\world\particle\CriticalParticle;
 
-class Defender extends FightingEntity implements Neutral {
+class Defender extends FightingEntity implements Neutral, MotionResistance {
 	use HelpEntity, HealthBarEntity;
 
 	private float $n = 0;
@@ -39,6 +40,10 @@ class Defender extends FightingEntity implements Neutral {
 
 	public static function getNetworkTypeId(): string {
 		return EntityIds::DROWNED;
+	}
+
+	public function getMotionResistance(): float {
+		return 0.1;
 	}
 
 	public function getName(): string {

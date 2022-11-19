@@ -66,6 +66,10 @@ class CooltimeHandler {
 		$this->time = $cooltime;
 	}
 
+	public function setRemain(int $remain): void {
+		$this->remain = $remain;
+	}
+
 	public function reset(): void {
 		$this->remain = $this->time;
 	}
